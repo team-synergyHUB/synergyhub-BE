@@ -23,6 +23,7 @@ public class Team {
     @Column(nullable = false, length = 30)
     private String inviteSecret; // 초대 비밀번호
 
+
     @Column(nullable = false)
     private Boolean isDeleted = false; // 삭제 여부
 
