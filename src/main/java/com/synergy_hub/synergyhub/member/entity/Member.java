@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,6 +32,10 @@ public class Member {
 
     @Column(nullable = false)
     private String password;
+
+    //회원 탈퇴 여부 (2000-01-01인 경우 탈퇴 X)
+    @Column(nullable = false)
+    private LocalDate deleted_at = LocalDate.of(2000, 1, 1);
 
     @OneToMany(mappedBy = "member")
     private List<MemberTeam> memberTeams;
