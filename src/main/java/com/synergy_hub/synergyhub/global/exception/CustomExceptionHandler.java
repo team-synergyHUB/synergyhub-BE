@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.global.exception;
 
+import com.synergy_hub.synergyhub.member.exception.MemberNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,12 @@ public class CustomExceptionHandler {
                         .code("VALIDATION_ERROR") // 적절한 에러 코드 설정
                         .message("Validation failed: " + errorMessage)
                         .build());
+    }
+
+    @ExceptionHandler(MemberNotFoundException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleMemberNotFountException(MemberNotFoundException ex) {
+        logger.error("MemberNotFountException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
 }
