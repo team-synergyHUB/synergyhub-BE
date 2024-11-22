@@ -2,6 +2,7 @@ package com.synergy_hub.synergyhub.team.service;
 
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.team.entity.MemberTeam;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
@@ -23,19 +24,18 @@ public class MemberTeamService {
     }
 
     // 팀에 멤버 추가
-    public void addMemberToTeam(Long teamId, Long memberId) {
+    public void addMemberToTeam(Long teamId, Member member) {
         // 팀 존재 여부 확인
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-        // 2. 멤버 존재 여부 확인
-        // MemberRepository 생기면 주석 풀기
+        // 2. 멤버 존재 여부 확인 -> 필요 없을 듯
 //        boolean memberExists = memberRepository.existsById(memberId);
 //        if (!memberExists) {
 //            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
 //        }
 
-        MemberTeam memberTeam = new MemberTeam(memberId, team);
+        MemberTeam memberTeam = new MemberTeam(member, team);
         memberTeamRepository.save(memberTeam);
     }
 
@@ -55,13 +55,13 @@ public class MemberTeamService {
     }
 
     // 특정 팀의 멤버 목록 조회
-    public List<Long> getMembersOfTeam(Long teamId) {
+    public List<Member> getMembersOfTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         return memberTeamRepository.findAllByTeam(team)
                 .stream()
-                .map(MemberTeam::getMemberId) // MemberTeam 엔티티의 getMemberId() 메서드를 호출하여 멤버 ID만 추출
+                .map(MemberTeam::getMember) // MemberTeam 엔티티의 getMemberId() 메서드를 호출하여 멤버 ID만 추출
                 .toList();
     }
 }
