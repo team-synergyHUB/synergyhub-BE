@@ -37,21 +37,21 @@ public class Member {
     @Column(nullable = false)
     private LocalDate deleted_at = LocalDate.of(2000, 1, 1);
 
-    @OneToMany(mappedBy = "member")
-    private List<MemberTeam> memberTeams;
-
-    //특정 팀에 참여
-    public void joinTeam(Team team) {
-
-        MemberTeam memberTeam = new MemberTeam();
-//        memberTeam.setTeamAndMember(team, this);
-
-    }
-
-    //연관 관계 편의 메서드
-    public void addMemberTeams(MemberTeam memberTeam) {
-        this.memberTeams.add(memberTeam);
-    }
+//    @OneToMany(mappedBy = "member")
+//    private List<MemberTeam> memberTeams;
+//
+//    //특정 팀에 참여
+//    public void joinTeam(Team team) {
+//
+//        MemberTeam memberTeam = new MemberTeam();
+////        memberTeam.setTeamAndMember(team, this);
+//
+//    }
+//
+//    //연관 관계 편의 메서드
+//    public void addMemberTeams(MemberTeam memberTeam) {
+//        this.memberTeams.add(memberTeam);
+//    }
 
     private Member(String nickname, String email, String password) {
         this.nickname = nickname;
