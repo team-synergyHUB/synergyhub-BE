@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.team.entity;
 
+import com.synergy_hub.synergyhub.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,11 @@ public class MemberTeam {
     @ManyToOne
     @JoinColumn(name = "team_id", nullable = false)
     private Team team; // 연결된 팀
+
+    @ManyToOne
+//    @Column(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
+    private Member member; // 멤버 ID
 
     // 커스텀 생성자 추가
     public MemberTeam(Long memberId, Team team) {
