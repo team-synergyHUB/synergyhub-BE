@@ -12,4 +12,7 @@ public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
 
     // 특정 멤버가 속한 팀-멤버 관계 삭제
     void deleteByMemberId(Long memberId);
+
+    // 멤버 ID와 팀 정보를 기반으로 관계를 삭제
+    void deleteByMemberIdAndTeam(Long memberId, Team team);
 }
