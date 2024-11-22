@@ -29,16 +29,18 @@ public class Calendar {
     private Team team;
 
     // 캘린더와 이벤트 1 : N , 캘린더 삭제시 캘린더 이벤트 자동 삭제
-    @OneToMany(mappedBy = "caleandar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CalendarEvent> events = new ArrayList<>();
+
 
     public void addEvent(CalendarEvent event){
         this.events.add(event);
-        event.setCalendar(this);
+        event.assignCalendar(this);
     }
 
+    //하드딜리트때 사용 예정
     public void removeEvent(CalendarEvent event){
         this.events.remove(event);
-        event.setCalendar(null);
+        event.unassignCalendar();
     }
 }
