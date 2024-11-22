@@ -1,8 +1,8 @@
-package com.synergy_hub.synergyhub.chat.chatroom.model;
+package com.synergy_hub.synergyhub.chat.chatroom.Entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synergy_hub.synergyhub.chat.chatroom.nostomp.utils.MessageSendUtils;
+import com.synergy_hub.synergyhub.chat.chatroom.utils.MessageSendUtils;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.web.socket.TextMessage;
@@ -31,7 +31,7 @@ public class ChatRoom {
             join(session);
             chatMessage.setMessage(chatMessage.getWriter() + "님이 입장했습니다.");
         }
-        
+
         send(chatMessage, objectMapper);
     }
 

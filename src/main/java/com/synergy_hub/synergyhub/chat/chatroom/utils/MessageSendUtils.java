@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.chat.chatroom.nostomp.utils;
+package com.synergy_hub.synergyhub.chat.chatroom.utils;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;

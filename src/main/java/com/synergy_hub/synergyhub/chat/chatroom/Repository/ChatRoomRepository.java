@@ -1,6 +1,6 @@
-package com.synergy_hub.synergyhub.chat.chatroom.repository;
+package com.synergy_hub.synergyhub.chat.chatroom.Repository;
 
-import com.synergy_hub.synergyhub.chat.chatroom.model.ChatRoom;
+import com.synergy_hub.synergyhub.chat.chatroom.Entity.ChatRoom;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.socket.WebSocketSession;
@@ -21,7 +21,7 @@ public class ChatRoomRepository {
     public ChatRoomRepository() {
         chatRoomMap = Collections.unmodifiableMap(
                 Stream.of(ChatRoom.create("1번방"), ChatRoom.create("2번방"), ChatRoom.create("3번방"))
-                      .collect(Collectors.toMap(ChatRoom::getId, Function.identity())));
+                        .collect(Collectors.toMap(ChatRoom::getId, Function.identity())));
 
         chatRooms = Collections.unmodifiableCollection(chatRoomMap.values());
     }

@@ -1,6 +1,6 @@
 package com.synergy_hub.synergyhub.chat.config;
 
-import com.synergy_hub.synergyhub.chat.chatroom.nostomp.ChatHandler;
+import com.synergy_hub.synergyhub.chat.chatroom.Controller.ChatHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

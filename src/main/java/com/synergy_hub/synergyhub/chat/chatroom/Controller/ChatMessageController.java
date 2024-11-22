@@ -1,6 +1,6 @@
-package com.synergy_hub.synergyhub.chat.chatroom.stomp;
+package com.synergy_hub.synergyhub.chat.chatroom.Controller;
 
-import com.synergy_hub.synergyhub.chat.chatroom.model.ChatMessage;
+import com.synergy_hub.synergyhub.chat.chatroom.Entity.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.MessageMapping;

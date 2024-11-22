@@ -1,9 +1,10 @@
-package com.synergy_hub.synergyhub.chat.chatroom.nostomp;
+package com.synergy_hub.synergyhub.chat.chatroom.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synergy_hub.synergyhub.chat.chatroom.model.ChatMessage;
-import com.synergy_hub.synergyhub.chat.chatroom.model.ChatRoom;
-import com.synergy_hub.synergyhub.chat.chatroom.repository.ChatRoomRepository;
+
+import com.synergy_hub.synergyhub.chat.chatroom.Entity.ChatMessage;
+import com.synergy_hub.synergyhub.chat.chatroom.Entity.ChatRoom;
+import com.synergy_hub.synergyhub.chat.chatroom.Repository.ChatRoomRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

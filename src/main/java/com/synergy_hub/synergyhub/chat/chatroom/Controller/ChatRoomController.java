@@ -1,7 +1,7 @@
-package com.synergy_hub.synergyhub.chat.chatroom;
+package com.synergy_hub.synergyhub.chat.chatroom.Controller;
 
-import com.synergy_hub.synergyhub.chat.chatroom.model.ChatRoom;
-import com.synergy_hub.synergyhub.chat.chatroom.repository.ChatRoomRepository;
+import com.synergy_hub.synergyhub.chat.chatroom.Entity.ChatRoom;
+import com.synergy_hub.synergyhub.chat.chatroom.Repository.ChatRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;

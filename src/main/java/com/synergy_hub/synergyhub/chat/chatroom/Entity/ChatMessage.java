@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.chat.chatroom.model;
+package com.synergy_hub.synergyhub.chat.chatroom.Entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
