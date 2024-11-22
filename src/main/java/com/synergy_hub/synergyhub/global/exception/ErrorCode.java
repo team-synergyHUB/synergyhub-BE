@@ -43,8 +43,14 @@ public enum ErrorCode {
     /* 500 INTERNAL_SERVER_ERROR : 서버 내부 에러 */
     IO_EXCEPTION_ON_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드 중 입출력 오류가 발생했습니다."),
     PUT_OBJECT_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S3에 객체를 업로드하는 중 예외가 발생했습니다."),
-    IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제 중 입출력 오류가 발생했습니다.")
-    ;
+    IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제 중 입출력 오류가 발생했습니다."),
+
+    /* 팀 관련 에러*/
+    LABEL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 라벨입니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."),
+    MEMBER_NOT_IN_TEAM(HttpStatus.BAD_REQUEST, "팀에 해당 멤버가 존재하지 않습니다."),
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
+    LABEL_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 라벨 ID입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
