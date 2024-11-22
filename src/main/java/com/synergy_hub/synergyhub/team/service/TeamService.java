@@ -1,5 +1,7 @@
 package com.synergy_hub.synergyhub.team.service;
 
+import com.synergy_hub.synergyhub.global.exception.CustomException;
+import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.team.dto.TeamRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
 import com.synergy_hub.synergyhub.team.entity.Label;
@@ -28,7 +30,7 @@ public class TeamService {
 
         if (request.getLabelId() != null) {
             label = labelRepository.findById(request.getLabelId())
-                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 라벨 ID입니다."));
+                    .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
         }
 
         Team team = Team.builder()
@@ -45,12 +47,12 @@ public class TeamService {
     // 팀 수정
     public TeamResponseDTO updateTeam(Long teamId, TeamRequestDTO request) {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new IllegalArgumentException("팀을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         Label label = null;
         if (request.getLabelId() != null) {
             label = labelRepository.findById(request.getLabelId())
-                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 라벨 ID입니다."));
+                    .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
         }
 
         team.updateTeam(request.getName(), request.getInviteCode(), request.getInviteSecret(), label);
@@ -61,7 +63,7 @@ public class TeamService {
     // 팀 삭제
     public void deleteTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new IllegalArgumentException("팀을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         team.markAsDeleted();
         teamRepository.save(team);
