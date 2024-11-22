@@ -47,18 +47,18 @@ public class WebSecurityConfig {
             .build();
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder authenticationManagerBuilder)
-        throws Exception {
-        AuthenticationManagerBuilder managerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        managerBuilder
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoder);
-
-        return authenticationManagerBuilder.build();
-    }
+//    @Bean
+//    public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder passwordEncoder,
+//        AuthenticationManagerBuilder authenticationManagerBuilder)
+//        throws Exception {
+//        AuthenticationManagerBuilder managerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+//
+//        managerBuilder
+//            .userDetailsService(userDetailsService)
+//            .passwordEncoder(passwordEncoder);
+//
+//        return authenticationManagerBuilder.build();
+//    }
 
     @Bean  //Bcrypt 암호화 방식 사용 인코더
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
