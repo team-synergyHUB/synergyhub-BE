@@ -18,8 +18,8 @@ public class MemberTeam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId; // 멤버 ID
+//    @Column(name = "member_id", nullable = false)
+//    private Long memberId; // 멤버 ID
 
     @Column(nullable = false, length = 7)
     private String color; // 팀 색상
@@ -34,8 +34,8 @@ public class MemberTeam {
     private Member member; // 멤버 ID
 
     // 커스텀 생성자 추가
-    public MemberTeam(Long memberId, Team team) {
-        this.memberId = memberId;
+    public MemberTeam(Member member, Team team) {
+        this.member = member;
         this.team = team;
     }
 }
