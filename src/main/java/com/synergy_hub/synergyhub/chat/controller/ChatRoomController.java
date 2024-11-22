@@ -5,7 +5,9 @@ import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
 import com.synergy_hub.synergyhub.chat.service.ChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 
@@ -39,5 +41,17 @@ public class ChatRoomController {
     public ResponseEntity<String> deleteChatRoom(@PathVariable Long chatRoomId) {
         chatRoomService.deleteChatRoom(chatRoomId);
         return ResponseEntity.ok("Chatroom deleted successfully");
+    }
+
+    @PostMapping("/{chatRoomId}/join")
+    public ResponseEntity<String> joinChatRoom(@PathVariable Long chatRoomId, WebSocketSession session) {
+        chatRoomService.addSession(chatRoomId, session);
+        return ResponseEntity.ok("Joined chat room");
+    }
+
+    @PostMapping("/{chatRoomId}/leave")
+    public ResponseEntity<String> leaveChatRoom(@PathVariable Long chatRoomId, WebSocketSession session) {
+        chatRoomService.removeSession(chatRoomId, session);
+        return ResponseEntity.ok("Left chat room");
     }
 }
