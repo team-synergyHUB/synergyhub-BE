@@ -1,5 +1,7 @@
 package com.synergy_hub.synergyhub.team.service;
 
+import com.synergy_hub.synergyhub.global.exception.CustomException;
+import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.team.dto.LabelDTO;
 import com.synergy_hub.synergyhub.team.entity.Label;
 import com.synergy_hub.synergyhub.team.repository.LabelRepository;
@@ -27,7 +29,7 @@ public class LabelService {
     // 라벨 수정
     public LabelDTO updateLabel(Long labelId, LabelDTO request) {
         Label label = labelRepository.findById(labelId)
-                .orElseThrow(() -> new IllegalArgumentException("라벨을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
 
         label.update(request.getName(), request.getColor());
         return new LabelDTO(labelRepository.save(label));
@@ -36,7 +38,7 @@ public class LabelService {
     // 라벨 삭제
     public void deleteLabel(Long labelId) {
         Label label = labelRepository.findById(labelId)
-                .orElseThrow(() -> new IllegalArgumentException("라벨을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
 
         labelRepository.delete(label);
     }
