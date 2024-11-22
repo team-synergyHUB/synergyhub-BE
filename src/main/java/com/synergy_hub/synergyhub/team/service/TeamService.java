@@ -67,17 +67,17 @@ public class TeamService {
 
     // 팀 삭제 : 팀에서 모든 멤버가 나가면 팀 삭제
     public void leaveTeam(Long memberId, Long teamId) {
-        // 1. 해당 멤버와 팀의 연결 정보(MemberTeam) 찾기
+        // 해당 멤버와 팀의 연결 정보(MemberTeam) 찾기
         MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
 
-        // 2. 연결 정보 삭제 (팀에서 나가기)
-        memberTeamRepository.delete(memberTeam);
+        // 연결 정보 삭제 (팀에서 나가기)
+        //memberTeamRepository.delete(memberTeam);
 
-        // 3. 팀에 남아 있는 멤버가 있는지 확인
+        // 팀에 남아 있는 멤버가 있는지 확인
         boolean hasRemainingMembers = memberTeamRepository.existsByTeamId(teamId);
 
-        // 4. 팀원이 없으면 팀 삭제
+        // 팀원이 없으면 팀 삭제
         if (!hasRemainingMembers) {
             Team team = memberTeam.getTeam();
             team.markAsDeleted();
