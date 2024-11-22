@@ -15,6 +15,7 @@ import java.util.List;
 public class MemberTeamService {
     private final MemberTeamRepository memberTeamRepository;
     private final TeamRepository teamRepository;
+    //private final MemberRepository memberRepository;
 
     public MemberTeamService(MemberTeamRepository memberTeamRepository, TeamRepository teamRepository) {
         this.memberTeamRepository = memberTeamRepository;
@@ -23,8 +24,16 @@ public class MemberTeamService {
 
     // 팀에 멤버 추가
     public void addMemberToTeam(Long teamId, Long memberId) {
+        // 팀 존재 여부 확인
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+
+        // 2. 멤버 존재 여부 확인
+        // MemberRepository 생기면 주석 풀기
+//        boolean memberExists = memberRepository.existsById(memberId);
+//        if (!memberExists) {
+//            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+//        }
 
         MemberTeam memberTeam = new MemberTeam(memberId, team);
         memberTeamRepository.save(memberTeam);
@@ -35,10 +44,11 @@ public class MemberTeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-//        // 멤버 검증 및 삭제
-//        int deletedCount = memberTeamRepository.deleteByMemberIdAndTeam(memberId, team);
-//        if (deletedCount == 0) {
-//            throw new CustomException(ErrorCode.MEMBER_NOT_IN_TEAM);
+        // 2. 멤버 존재 여부 확인
+        // MemberRepository 생기면 주석 풀기
+//        boolean memberExists = memberRepository.existsById(memberId);
+//        if (!memberExists) {
+//            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
 //        }
 
         memberTeamRepository.deleteByMemberIdAndTeam(memberId, team);
@@ -51,7 +61,7 @@ public class MemberTeamService {
 
         return memberTeamRepository.findAllByTeam(team)
                 .stream()
-                .map(MemberTeam::getMemberId)
+                .map(MemberTeam::getMemberId) // MemberTeam 엔티티의 getMemberId() 메서드를 호출하여 멤버 ID만 추출
                 .toList();
     }
 }
