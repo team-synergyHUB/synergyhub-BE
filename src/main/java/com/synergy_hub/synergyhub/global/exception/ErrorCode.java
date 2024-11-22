@@ -50,7 +50,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."),
     MEMBER_NOT_IN_TEAM(HttpStatus.BAD_REQUEST, "팀에 해당 멤버가 존재하지 않습니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
-    LABEL_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 라벨 ID입니다.");
+    LABEL_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 라벨 ID입니다."),
+    MEMBER_TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 멤버가 이 팀에 속해 있지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
