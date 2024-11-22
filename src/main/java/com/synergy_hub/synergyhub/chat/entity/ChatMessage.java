@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.chat.chatroom.Entity;
+package com.synergy_hub.synergyhub.chat.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,3 +15,4 @@ public class ChatMessage {
     private String message;
     private MessageType type;
 }
+
