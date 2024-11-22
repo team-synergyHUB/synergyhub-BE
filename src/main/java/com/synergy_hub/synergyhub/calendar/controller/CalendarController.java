@@ -15,21 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class CalendarController {
 
     private CalendarService calendarService;
-
-    //일정생성
-    @PostMapping("")
-
-    //일정조회 ( 팀 캘린더 )
-    @GetMapping("")
-
-    //일정 조회 ( 개인 캘린더)
-    @GetMapping("")
-
-    //일정 수정
-    @PutMapping("")
-
-    //일정 삭제
-    @DeleteMapping("")
+//
+//    //일정생성
+//    @PostMapping("")
+//
+//    //일정조회 ( 팀 캘린더 )
+//    @GetMapping("")
+//
+//    //일정 조회 ( 개인 캘린더)
+//    @GetMapping("")
+//
+//    //일정 수정
+//    @PutMapping("")
+//
+//    //일정 삭제
+//    @DeleteMapping("")
 
 
 

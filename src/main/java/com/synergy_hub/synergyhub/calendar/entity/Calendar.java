@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.calendar.entity;
 
+import com.synergy_hub.synergyhub.team.entity.Team;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
