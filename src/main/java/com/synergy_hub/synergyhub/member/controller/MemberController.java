@@ -11,15 +11,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RestController("/members")
+@RestController
+@RequestMapping("/members")
 public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/signUp")
+    @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Map<String, Object>>> signUp(@RequestBody AddMemberRequest request) {
         Long savedMemberId = memberService.save(request);
 
