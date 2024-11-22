@@ -5,8 +5,10 @@ import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.team.dto.TeamRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
 import com.synergy_hub.synergyhub.team.entity.Label;
+import com.synergy_hub.synergyhub.team.entity.MemberTeam;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.LabelRepository;
+import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -18,16 +20,19 @@ import java.util.stream.Collectors;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final LabelRepository labelRepository;
+    private final MemberTeamRepository memberTeamRepository;
 
-    public TeamService(TeamRepository teamRepository, LabelRepository labelRepository) {
+    public TeamService(TeamRepository teamRepository, LabelRepository labelRepository, MemberTeamRepository memberTeamRepository) {
         this.teamRepository = teamRepository;
         this.labelRepository = labelRepository;
+        this.memberTeamRepository = memberTeamRepository;
     }
 
     // 팀 생성
     public TeamResponseDTO createTeam(TeamRequestDTO request) {
         Label label = null;
 
+        // 깃랩 label처럼 구현 계획
         if (request.getLabelId() != null) {
             label = labelRepository.findById(request.getLabelId())
                     .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
@@ -60,13 +65,24 @@ public class TeamService {
         return new TeamResponseDTO(team);
     }
 
-    // 팀 삭제
-    public void deleteTeam(Long teamId) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+    // 팀 삭제 : 팀에서 모든 멤버가 나가면 팀 삭제
+    public void leaveTeam(Long memberId, Long teamId) {
+        // 1. 해당 멤버와 팀의 연결 정보(MemberTeam) 찾기
+        MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
 
-        team.markAsDeleted();
-        teamRepository.save(team);
+        // 2. 연결 정보 삭제 (팀에서 나가기)
+        memberTeamRepository.delete(memberTeam);
+
+        // 3. 팀에 남아 있는 멤버가 있는지 확인
+        boolean hasRemainingMembers = memberTeamRepository.existsByTeamId(teamId);
+
+        // 4. 팀원이 없으면 팀 삭제
+        if (!hasRemainingMembers) {
+            Team team = memberTeam.getTeam();
+            team.markAsDeleted();
+            teamRepository.save(team);
+        }
     }
 
     // 팀 조회
