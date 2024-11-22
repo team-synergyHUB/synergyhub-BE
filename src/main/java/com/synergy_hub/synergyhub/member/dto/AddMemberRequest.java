@@ -1,8 +1,10 @@
 package com.synergy_hub.synergyhub.member.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class AddMemberRequest {
 
     private String nickname;
