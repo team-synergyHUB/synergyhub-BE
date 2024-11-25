@@ -42,7 +42,7 @@ public class ChatRoomService {
         );
         chatRoom = chatRoomRepository.save(chatRoom);
         return new ChatRoomResponseDto(
-                chatRoom.getChatRoomId(),
+                chatRoom.getRoomId(),
                 chatRoom.getRoomName(),
                 chatRoom.getRoomState(),
                 chatRoom.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
@@ -53,7 +53,7 @@ public class ChatRoomService {
         return chatRoomRepository.findByTeamIdAndIsDeletedFalse(teamId)
                 .stream()
                 .map(chatRoom -> new ChatRoomResponseDto(
-                        chatRoom.getChatRoomId(),
+                        chatRoom.getRoomId(),
                         chatRoom.getRoomName(),
                         chatRoom.getRoomState(),
                         chatRoom.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
