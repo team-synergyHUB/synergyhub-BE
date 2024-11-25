@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.chat.entity;
 
+import com.synergy_hub.synergyhub.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,10 +16,11 @@ public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatRoomId;
+    private Long roomId;
 
-    @Column(nullable = false)
-    private Long teamId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false, unique = true)
+    private Team team;
 
     @Column(nullable = false)
     private String roomName;
@@ -29,11 +31,21 @@ public class ChatRoom {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private boolean isDeleted = false;
+    @Column
+    private LocalDateTime deletedAt; // 삭제된 시간
 
-    public void setDeleted(boolean deleted) {
-        this.isDeleted = deleted;
+    /**
+     * 채팅방 삭제 메서드
+     */
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
+    /**
+     * 채팅방 삭제 여부 확인 메서드
+     * @return 삭제 여부
+     */
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }
