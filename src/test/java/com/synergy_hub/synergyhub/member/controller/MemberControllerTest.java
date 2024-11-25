@@ -1,12 +1,10 @@
 package com.synergy_hub.synergyhub.member.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synergy_hub.synergyhub.member.dto.AddMemberRequest;
-import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +45,7 @@ class MemberControllerTest {
         String email = "gildong@gmail.com";
         String password = "qwer1234";
 
-        AddMemberRequest addMemberRequest = new AddMemberRequest(nickname, email, password);
+        MemberAddRequest addMemberRequest = new MemberAddRequest(nickname, email, password);
 
         //when
         ResultActions result = mockMvc.perform(

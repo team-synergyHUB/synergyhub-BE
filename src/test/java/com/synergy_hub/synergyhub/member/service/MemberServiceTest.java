@@ -6,7 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.synergy_hub.synergyhub.member.dto.AddMemberRequest;
+import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
@@ -42,7 +42,7 @@ class MemberServiceTest {
     void signUpTest() throws IOException {
 
         //given
-        AddMemberRequest request = new AddMemberRequest("member1", "test1@gmail.com", "qwer123");
+        MemberAddRequest request = new MemberAddRequest("member1", "test1@gmail.com", "qwer123");
 
         String encodePassword = "qewkjlsdkf1wekljdsfio";
         when(passwordEncoder.encode(anyString())).thenReturn(encodePassword);
@@ -64,7 +64,7 @@ class MemberServiceTest {
     void EmailAlreadyExistExceptionTest() throws IOException {
 
         //given
-        AddMemberRequest request = new AddMemberRequest("member2", "test1@gmail.com", "qwer123");
+        MemberAddRequest request = new MemberAddRequest("member2", "test1@gmail.com", "qwer123");
 
         //when
         when(memberRepository.existsByEmail("test1@gmail.com")).thenReturn(true);
