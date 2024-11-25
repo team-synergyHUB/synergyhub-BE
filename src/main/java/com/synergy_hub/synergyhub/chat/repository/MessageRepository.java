@@ -1,7 +1,6 @@
 package com.synergy_hub.synergyhub.chat.repository;
 
 import com.synergy_hub.synergyhub.chat.entity.ChatMessage;
-import com.synergy_hub.synergyhub.chat.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
