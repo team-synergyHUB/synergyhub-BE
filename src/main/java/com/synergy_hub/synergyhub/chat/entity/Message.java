@@ -18,14 +18,15 @@ public class Message {
     private Long messageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatRoomId", nullable = false)
+    @JoinColumn(name = "room_id", nullable = false)
     private ChatRoom chatRoom;
 
     @Column(nullable = false)
     private Long memberId;
 
     @Column(nullable = false)
-    private String type; // ENUM TEXT or IMAGE
+    @Enumerated(EnumType.STRING)
+    private MessageType type; // ENUM: TEXT, IMAGE, FILE
 
     @Column(nullable = true)
     private String detailMessage;
