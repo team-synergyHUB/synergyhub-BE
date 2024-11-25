@@ -36,11 +36,11 @@ public class Team {
     private List<MemberTeam> memberTeams = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "label_id", nullable = true)
+    @JoinColumn(name = "label_id", nullable = false)
     private Label label; // 팀과 연결된 라벨
 
     public void markAsDeleted() {
-        this.isDeleted = true;
+        this.isDeleted = false;
     }
 
     public void updateTeam(String name, String inviteCode, String inviteSecret, Label label) {
@@ -48,5 +48,6 @@ public class Team {
         this.inviteCode = inviteCode;
         this.inviteSecret = inviteSecret;
         this.label = label;
+        this.isDeleted = false; // 명시적으로 기본값 설정
     }
 }
