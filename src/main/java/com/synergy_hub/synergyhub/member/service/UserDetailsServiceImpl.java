@@ -23,5 +23,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         return new MemberDetails(member);
+
     }
 }
