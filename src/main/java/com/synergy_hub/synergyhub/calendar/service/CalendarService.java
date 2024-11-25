@@ -45,7 +45,6 @@ public class CalendarService {
     }
 
     // 일정 조회 ( 팀 캘린더 )
-    @Transactional(readOnly = true)
     public List<CalendarEventResponseDto> getTeamEvents(Long teamId){
         return calendarEventRepository.findByTeamId(teamId).stream()
             // 색상 포함 예정
@@ -54,13 +53,14 @@ public class CalendarService {
     }
 
     // 일정조회 ( 개인 캘린더)
-    @Transactional(readOnly = true)
     public List<CalendarEventResponseDto> getUserEvents(Long memberId) {
         return calendarEventRepository.findAllEventsForUser(memberId).stream()
             //색상 포함 예정
             .map(event -> convertToResponseDto(event))
             .collect(Collectors.toList());
     }
+
+
 
     // 일정 수정
     @Transactional
