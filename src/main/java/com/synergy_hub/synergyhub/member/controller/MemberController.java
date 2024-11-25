@@ -2,7 +2,7 @@ package com.synergy_hub.synergyhub.member.controller;
 
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
-import com.synergy_hub.synergyhub.member.dto.AddMemberRequest;
+import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.service.MemberService;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> signUp(@RequestBody AddMemberRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> signUp(@RequestBody MemberAddRequest request) {
         Long savedMemberId = memberService.save(request);
 
         Map<String, Object> payLoad = new HashMap<>();
