@@ -43,6 +43,7 @@ public class TeamService {
                 .inviteCode(request.getInviteCode())
                 .inviteSecret(request.getInviteSecret())
                 .label(label)
+                .isDeleted(false) // 명시적으로 기본값 설정
                 .build();
 
         Team savedTeam = teamRepository.save(team);
