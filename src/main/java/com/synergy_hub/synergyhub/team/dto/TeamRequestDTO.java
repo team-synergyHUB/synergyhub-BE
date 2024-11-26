@@ -18,4 +18,6 @@ public class TeamRequestDTO {
     private String inviteSecret; // 초대 비밀번호
 
     private Long labelId; // 라벨 ID (선택 항목)
+
+    private Boolean isDeleted = false; // 기본값 설정
 }
