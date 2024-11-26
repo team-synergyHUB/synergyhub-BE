@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,9 +34,16 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private MemberRole role;
+
     //회원 탈퇴 여부 (2000-01-01인 경우 탈퇴 X)
-    @Column(nullable = false)
-    private LocalDate deleted_at = LocalDate.of(2000, 1, 1);
+
+    @Column
+    private Boolean is_deleted = false;
+
+    @Column
+    private LocalDateTime deleted_at;
 
 //    @OneToMany(mappedBy = "member")
 //    private List<MemberTeam> memberTeams;
@@ -61,6 +69,18 @@ public class Member {
 
     public static Member createMember(String nickname, String email, String password) {
         return new Member(nickname, email, password);
+    }
+
+    public void changeRole(MemberRole role) {
+        this.role = role;
+    }
+
+    public void deleteAccount() {
+        deleted_at = LocalDateTime.now(); // 탈퇴 시 현재 시간 저장
+    }
+
+    public boolean isDeleted() {
+        return deleted_at != null; // 탈퇴 여부 확인
     }
 
 }

@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.team.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA에서만 사용
 @AllArgsConstructor
 @Entity
 @Table(name = "label")
@@ -28,7 +29,7 @@ public class Label {
         this.color = color;
     }
 
-    // 엔티티 필드 값을 변경하는 메서드
+        // 엔티티 필드 값을 변경하는 메서드
     public void update(String name, String color) {
         this.name = name; // 라벨 이름 변경
         this.color = color; // 라벨 색상 변경
