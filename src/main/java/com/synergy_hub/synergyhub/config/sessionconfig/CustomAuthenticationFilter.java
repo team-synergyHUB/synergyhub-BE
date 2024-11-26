@@ -1,6 +1,7 @@
-package com.synergy_hub.synergyhub.config.securityconfig;
+package com.synergy_hub.synergyhub.config.sessionconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
@@ -49,6 +51,13 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
         return authenticate;
     }
 
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response, FilterChain chain, Authentication authResult)
+        throws IOException, ServletException {
+        SecurityContextHolder.getContext().setAuthentication(authResult);  // 세션에 인증 정보 저장
+        super.successfulAuthentication(request, response, chain, authResult);
+    }
 
     private boolean isPost(HttpServletRequest request) {
 
