@@ -38,21 +38,21 @@ public class MemberTeamService {
         MemberTeam memberTeam = new MemberTeam(member, team);
         memberTeamRepository.save(memberTeam);
     }
-
-    // 팀에서 멤버 제거
-    public void removeMemberFromTeam(Long teamId, Long memberId) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-
-        // 2. 멤버 존재 여부 확인
-        // MemberRepository 생기면 주석 풀기
-//        boolean memberExists = memberRepository.existsById(memberId);
-//        if (!memberExists) {
-//            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-//        }
-
-        memberTeamRepository.deleteByMemberIdAndTeam(memberId, team);
-    }
+//
+//    // 팀에서 멤버 제거
+//    public void removeMemberFromTeam(Long teamId, Long memberId) {
+//        Team team = teamRepository.findById(teamId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+//
+//        // 2. 멤버 존재 여부 확인
+//        // MemberRepository 생기면 주석 풀기
+////        boolean memberExists = memberRepository.existsById(memberId);
+////        if (!memberExists) {
+////            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+////        }
+//
+//        memberTeamRepository.deleteByMemberIdAndTeam(memberId, team);
+//    }
 
     // 특정 팀의 멤버 목록 조회
     public List<Member> getMembersOfTeam(Long teamId) {

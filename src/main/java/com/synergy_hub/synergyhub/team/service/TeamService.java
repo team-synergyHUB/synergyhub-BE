@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class TeamService {
     private final TeamRepository teamRepository;
     private final LabelRepository labelRepository;
     private final MemberTeamRepository memberTeamRepository;
 
-    public TeamService(TeamRepository teamRepository, LabelRepository labelRepository, MemberTeamRepository memberTeamRepository) {
+    public TeamService(TeamRepository teamRepository, LabelRepository labelRepository,
+                       MemberTeamRepository memberTeamRepository) {
         this.teamRepository = teamRepository;
         this.labelRepository = labelRepository;
         this.memberTeamRepository = memberTeamRepository;
@@ -71,9 +71,6 @@ public class TeamService {
         // 해당 멤버와 팀의 연결 정보(MemberTeam) 찾기
         MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
-
-        // 연결 정보 삭제 (팀에서 나가기)
-        //memberTeamRepository.delete(memberTeam);
 
         // 팀에 남아 있는 멤버가 있는지 확인
         boolean hasRemainingMembers = memberTeamRepository.existsByTeamId(teamId);
