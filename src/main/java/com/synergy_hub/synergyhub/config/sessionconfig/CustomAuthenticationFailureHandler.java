@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.config.securityconfig;
+package com.synergy_hub.synergyhub.config.sessionconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

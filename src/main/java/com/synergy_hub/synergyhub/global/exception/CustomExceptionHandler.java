@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.global.exception;
 
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
+import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotFoundException;
 import jakarta.persistence.ElementCollection;
 import org.slf4j.Logger;
@@ -54,6 +55,12 @@ public class CustomExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistException.class)
     protected ResponseEntity<ErrorResponseEntity> handleEmailAlreadyExistException(EmailAlreadyExistException ex) {
         logger.error("EmailAlreadyExistException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(MemberNotAuthenticatedException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleMemberNotAuthenticatedExceptionException(MemberNotAuthenticatedException ex) {
+        logger.error("MemberNotAuthenticatedException 발생: {}", ex.getErrorCode().getMessage());
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 

@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.config.securityconfig;
+package com.synergy_hub.synergyhub.config.sessionconfig;
 
 import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
