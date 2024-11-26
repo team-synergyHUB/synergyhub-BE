@@ -1,7 +1,12 @@
 package com.synergy_hub.synergyhub.team.service;
 
+import com.synergy_hub.synergyhub.calendar.entity.Calendar;
+import com.synergy_hub.synergyhub.calendar.repository.CalendarRepository;
+import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
+import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
 import com.synergy_hub.synergyhub.team.entity.Label;
@@ -12,6 +17,8 @@ import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,16 +27,21 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final LabelRepository labelRepository;
     private final MemberTeamRepository memberTeamRepository;
+    private final CalendarRepository calendarRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     public TeamService(TeamRepository teamRepository, LabelRepository labelRepository,
-                       MemberTeamRepository memberTeamRepository) {
+                       MemberTeamRepository memberTeamRepository, CalendarRepository calendarRepository,
+                       ChatRoomRepository chatRoomRepository) {
         this.teamRepository = teamRepository;
         this.labelRepository = labelRepository;
         this.memberTeamRepository = memberTeamRepository;
+        this.calendarRepository = calendarRepository;
+        this.chatRoomRepository = chatRoomRepository;
     }
 
     // 팀 생성
-    public TeamResponseDTO createTeam(TeamRequestDTO request) {
+    public TeamCreateResponseDTO createTeam(TeamRequestDTO request) {
         Label label = null;
 
         // 깃랩 label처럼 구현 계획
@@ -47,7 +59,24 @@ public class TeamService {
                 .build();
 
         Team savedTeam = teamRepository.save(team);
-        return new TeamResponseDTO(savedTeam);
+
+        // 캘린더 생성 및 저장
+        Calendar calendar = Calendar.builder()
+                .team(savedTeam) // 팀과 매핑
+                .build();
+        Calendar savedCalendar = calendarRepository.save(calendar);
+
+        // 채팅방 생성 및 저장
+        ChatRoom chatRoom = ChatRoom.builder()
+                .team(savedTeam) // 팀과 매핑
+                .roomName("Default Chat Room") // 필요 시 수정 가능
+                .roomState("ACTIVE")          // 필요 시 수정 가능
+                .createdAt(LocalDateTime.now()) // 명시적으로 값 설정
+                .build();
+        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+
+        // TeamResponseDTO 반환
+        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom);
     }
 
     // 팀 수정
