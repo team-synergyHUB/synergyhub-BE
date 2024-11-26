@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.config.securityconfig;
+package com.synergy_hub.synergyhub.config.sessionconfig;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
