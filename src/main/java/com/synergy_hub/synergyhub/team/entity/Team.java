@@ -35,9 +35,9 @@ public class Team {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberTeam> memberTeams = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "label_id", nullable = false)
-    private Label label; // 팀과 연결된 라벨
+    @ManyToOne(optional = true) // 연관 관계에서 null 허용
+    @JoinColumn(name = "label_id", nullable = true) // DB에서 nullable 허용
+    private Label label;
 
     public void markAsDeleted() {
         this.isDeleted = false;
