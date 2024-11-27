@@ -32,20 +32,20 @@ public class MemberTeamController {
 //        return ResponseEntity.status(HttpStatus.CREATED).build();
 //    }
 
-    // 팀에서 멤버 제거
-    @Operation(summary = "팀에서 멤버 제거", description = "특정 팀에서 멤버를 제거합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "멤버 제거 성공"),
-            @ApiResponse(responseCode = "404", description = "팀 또는 멤버를 찾을 수 없음"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    })
-    @DeleteMapping("/{teamId}/members/{memberId}")
-    public ResponseEntity<Void> removeMemberFromTeam(
-            @PathVariable Long teamId,
-            @PathVariable Long memberId) {
-        memberTeamService.removeMemberFromTeam(teamId, memberId);
-        return ResponseEntity.noContent().build();
-    }
+//    // 팀에서 멤버 제거
+//    @Operation(summary = "팀에서 멤버 제거", description = "특정 팀에서 멤버를 제거합니다.")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "204", description = "멤버 제거 성공"),
+//            @ApiResponse(responseCode = "404", description = "팀 또는 멤버를 찾을 수 없음"),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청")
+//    })
+//    @DeleteMapping("/{teamId}/members/{memberId}")
+//    public ResponseEntity<Void> removeMemberFromTeam(
+//            @PathVariable Long teamId,
+//            @PathVariable Long memberId) {
+//        memberTeamService.removeMemberFromTeam(teamId, memberId);
+//        return ResponseEntity.noContent().build();
+//    }
 
 //    // 특정 팀의 멤버 조회
 //    @Operation(summary = "팀 멤버 조회", description = "특정 팀에 속한 모든 멤버를 조회합니다.")
