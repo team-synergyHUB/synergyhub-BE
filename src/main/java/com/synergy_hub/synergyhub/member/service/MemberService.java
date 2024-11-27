@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.member.service;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
+import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
@@ -79,6 +80,24 @@ public class MemberService {
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         return new MemberResponseDto(member);
+    }
+
+    //회원 프로필 정보 수정
+    public Long updateMemberInfo(String email, MemberUpdateRequest request) {
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+            .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        member.updateMyInfo(request.getNickname());
+
+        return member.getId();
+    }
+
+    //회원 탈퇴(soft delete)
+    public void deleteMember(String email) {
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+            .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        member.deleteAccount();
     }
 
 }

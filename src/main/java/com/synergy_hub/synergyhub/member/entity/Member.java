@@ -78,8 +78,9 @@ public class Member {
         memberTeams.remove(memberTeam);
     }
 
-    public void changeRole(MemberRole role) {
-        this.role = role;
+    //프로필 업데이트
+    public void updateMyInfo(String nickname) {
+        this.nickname = nickname;
     }
 
     public void deleteAccount() {
@@ -88,6 +89,10 @@ public class Member {
 
     public boolean isDeleted() {
         return deletedAt != null; // 탈퇴 여부 확인
+    }
+
+    public void changeRole(MemberRole role) {
+        this.role = role;
     }
 
 }
