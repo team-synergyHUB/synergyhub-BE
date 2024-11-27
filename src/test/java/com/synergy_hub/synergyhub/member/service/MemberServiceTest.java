@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
+import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotFoundException;
@@ -162,8 +163,10 @@ class MemberServiceTest {
     void getMemberByEmailTest() {
 
         //given
-        Member member1 = Member.createMember("member1", "member1@gmail.com", "qwer123");
-        Member member2 = Member.createMember("member2", "member2@gmail.com", "qwer123");
+        Member member1 = Member.createMember("member1", "member1@gmail.com",
+            "qwer123");
+        Member member2 = Member.createMember("member2", "member2@gmail.com",
+            "qwer123");
 
         when(memberRepository.findByEmailAndDeletedAtIsNull("member2@gmail.com")).thenReturn(
             Optional.of(member2));
@@ -174,7 +177,8 @@ class MemberServiceTest {
         //then
         assertThat(member.getEmail()).isEqualTo("member2@gmail.com");
         assertThat(member.getNickname()).isEqualTo("member2");
-        verify(memberRepository, times(1)).findByEmailAndDeletedAtIsNull("member2@gmail.com");
+        verify(memberRepository, times(1)).findByEmailAndDeletedAtIsNull(
+            "member2@gmail.com");
 
     }
 
@@ -188,8 +192,72 @@ class MemberServiceTest {
 
         //when & then
         assertThrows(MemberNotFoundException.class, () -> memberService.findByEmail(email));
-        verify(memberRepository, times(1)).findByEmailAndDeletedAtIsNull(email);
+        verify(memberRepository, times(1)).findByEmailAndDeletedAtIsNull(
+            email);
 
     }
+
+    @Test
+    @DisplayName("회원 프로필 업데이트 테스트")
+    void updateMemberInfoTest() {
+
+        //given
+        Long memberId = 1L;
+        String memberEmail = "member1@gmail.com";
+        Member member1 = Member.createMember("member1", memberEmail,
+            "qwer123");
+
+        MemberUpdateRequest updateRequest = new MemberUpdateRequest();
+        updateRequest.setNickname("updateMember1");
+
+        when(memberRepository.findByEmailAndDeletedAtIsNull(memberEmail)).thenReturn(
+            Optional.of(member1));
+        when(memberRepository.findByIdAndDeletedAtIsNull(anyLong())).thenReturn(
+            Optional.of(member1));
+
+        //when
+        memberService.updateMemberInfo(memberEmail, updateRequest);
+
+        //then
+        Member updatedMember = memberRepository.findByIdAndDeletedAtIsNull(memberId).get();
+
+        assertThat(updatedMember.getNickname()).isEqualTo("updateMember1");
+    }
+
+    @Test
+    @DisplayName("회원 이메일이 유효하지 않을 경우 memberNotFoundException 발생")
+    void updateMemberInfoMemberNotFoundExceptionTest() {
+        // given
+        String memberEmail = "nonexistent@gmail.com";
+        MemberUpdateRequest updateRequest = new MemberUpdateRequest();
+        updateRequest.setNickname("updateMember1");
+
+        when(memberRepository.findByEmailAndDeletedAtIsNull(memberEmail)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(MemberNotFoundException.class, () -> {
+            memberService.updateMemberInfo(memberEmail, updateRequest);
+        });
+    }
+
+    @DisplayName("회원 탈퇴 테스트")
+    @Test
+    void memberDeleteTest() throws Exception {
+
+        //given
+        Member member = Member.createMember("member", "member@naver.com", "qwer123");
+
+        when(memberRepository.findByEmailAndDeletedAtIsNull(member.getEmail())).thenReturn(
+            Optional.of(member));
+
+        //when
+        memberService.deleteMember(member.getEmail());
+
+        //then
+        verify(memberRepository).findByEmailAndDeletedAtIsNull(member.getEmail());
+        assertThat(member.getDeletedAt()).isNotNull();
+    }
+
+
 
 }
