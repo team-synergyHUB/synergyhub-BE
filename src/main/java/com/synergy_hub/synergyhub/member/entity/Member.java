@@ -1,11 +1,12 @@
 package com.synergy_hub.synergyhub.member.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.synergy_hub.synergyhub.team.entity.MemberTeam;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,6 +38,7 @@ public class Member {
     private String password;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Column(name = "deleted_at")
@@ -57,8 +59,19 @@ public class Member {
         this.password = password;
     }
 
+    private Member(String email, String password, MemberRole role) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
     public static Member createMember(String nickname, String email, String password) {
         return new Member(nickname, email, password);
+    }
+
+    //jwt 검증시 임시 세션 사용자
+    public static Member createSessionMember(String email, String password, MemberRole role) {
+        return new Member(email, password, role);
     }
 
     //특정 팀에 참여

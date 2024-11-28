@@ -4,6 +4,7 @@ import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
+import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
@@ -75,7 +76,8 @@ public class MemberController {
     @GetMapping("/{teamId}")
     public ResponseEntity<ApiResponse<Page<TeamMemberResponseDto>>> getTeamMember(
         @PathVariable Long teamId, Pageable pageable) {
-        Page<TeamMemberResponseDto> teamMembers = memberService.findAllByTeamPaging(teamId, pageable);
+        Page<TeamMemberResponseDto> teamMembers = memberService.findAllByTeamPaging(teamId,
+            pageable);
 
         return ApiResponseBuilder.success("Get Team Members successfully", teamMembers,
             HttpStatus.OK);
@@ -115,4 +117,10 @@ public class MemberController {
         String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
         return email;
     }
+
+    @GetMapping("/admin")
+    public String adminTest() {
+        return "SUCCESS";
+    }
+
 }
