@@ -8,6 +8,8 @@ import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -64,4 +66,33 @@ public class MemberTeamService {
                 .map(MemberTeam::getMember) // MemberTeam 엔티티의 getMemberId() 메서드를 호출하여 멤버 ID만 추출
                 .toList();
     }
+
+    //색상 변경
+    public void updateColor(Long memberId, Long teamId, String newColor){
+        MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
+
+        memberTeam.updateColor(newColor);
+        memberTeamRepository.save(memberTeam);
+    }
+
+    // 팀 색상 조회
+    public String getTeamColor(Long memberId, Long teamId) {
+        return memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
+            .map(MemberTeam::getColor)
+            .orElse("#00000");
+    }
+
+    // 사용자가 소속된 모든 팀 색상조회
+    public Map<Long, String> getAllTeamColor(Long memberId){
+        return memberTeamRepository.findAllByMemberId(memberId).stream()
+            .collect(Collectors.toMap(
+                memberTeam -> memberTeam.getTeam().getId(),
+                MemberTeam::getColor
+                ));
+    }
+
+
+
+
 }
