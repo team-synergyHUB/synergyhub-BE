@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.config.securityconfig;
+package com.synergy_hub.synergyhub.config.sessionconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synergy_hub.synergyhub.member.entity.Member;
@@ -36,6 +36,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        objectMapper.writeValue(response.getWriter(), member);
+        objectMapper.writeValue(response.getWriter(), new AuthenticationSuccessDto(member));
     }
 }

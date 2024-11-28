@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.chat.entity;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatRoom {
 
     @Id
