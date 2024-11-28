@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.global.exception;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotFoundException;
+import com.synergy_hub.synergyhub.token.jwt.InvalidPasswordException;
 import jakarta.persistence.ElementCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,20 +48,30 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(MemberNotFoundException.class)
-    protected ResponseEntity<ErrorResponseEntity> handleMemberNotFountException(MemberNotFoundException ex) {
+    protected ResponseEntity<ErrorResponseEntity> handleMemberNotFountException(
+        MemberNotFoundException ex) {
         logger.error("MemberNotFountException 발생: {}", ex.getErrorCode().getMessage());
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
     @ExceptionHandler(EmailAlreadyExistException.class)
-    protected ResponseEntity<ErrorResponseEntity> handleEmailAlreadyExistException(EmailAlreadyExistException ex) {
+    protected ResponseEntity<ErrorResponseEntity> handleEmailAlreadyExistException(
+        EmailAlreadyExistException ex) {
         logger.error("EmailAlreadyExistException 발생: {}", ex.getErrorCode().getMessage());
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
     @ExceptionHandler(MemberNotAuthenticatedException.class)
-    protected ResponseEntity<ErrorResponseEntity> handleMemberNotAuthenticatedExceptionException(MemberNotAuthenticatedException ex) {
+    protected ResponseEntity<ErrorResponseEntity> handleMemberNotAuthenticatedExceptionException(
+        MemberNotAuthenticatedException ex) {
         logger.error("MemberNotAuthenticatedException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    protected ResponseEntity<ErrorResponseEntity> InvalidPasswordException(
+        InvalidPasswordException ex) {
+        logger.error("InvalidPasswordException 발생: {}", ex.getErrorCode().getMessage());
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
