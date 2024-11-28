@@ -175,9 +175,10 @@ class MemberControllerTest {
         // then
         result.andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("Get Team Members successfully"))
-            .andExpect(jsonPath("$.payload.[0].nickname").value("member1"))
-            .andExpect(jsonPath("$.payload.[1].nickname").value("member2"))
-            .andExpect(jsonPath("$.payload.[2].email").value("member3@gmail.com"));
+            .andExpect(jsonPath("$.payload.content.length()").value(3)) // 페이지 크기 확인
+            .andExpect(jsonPath("$.payload.content[0].nickname").value("member1"))
+            .andExpect(jsonPath("$.payload.content[1].nickname").value("member2"))
+            .andExpect(jsonPath("$.payload.content[2].email").value("member3@gmail.com"));
     }
 
     @DisplayName("특정 팀에 속한 회원이 없을 시 MemberNotFoundException 발생")

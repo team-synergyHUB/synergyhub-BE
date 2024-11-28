@@ -6,6 +6,7 @@ import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
+import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
 import com.synergy_hub.synergyhub.member.service.MemberService;
@@ -14,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -70,9 +73,9 @@ public class MemberController {
 
     //특정 팀에 속한 회원 목록 조회
     @GetMapping("/{teamId}")
-    public ResponseEntity<ApiResponse<List<MemberResponseDto>>> getTeamMember(
-        @PathVariable Long teamId) {
-        List<MemberResponseDto> teamMembers = memberService.findAllByTeam(teamId);
+    public ResponseEntity<ApiResponse<Page<TeamMemberResponseDto>>> getTeamMember(
+        @PathVariable Long teamId, Pageable pageable) {
+        Page<TeamMemberResponseDto> teamMembers = memberService.findAllByTeamPaging(teamId, pageable);
 
         return ApiResponseBuilder.success("Get Team Members successfully", teamMembers,
             HttpStatus.OK);
