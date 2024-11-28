@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.member.controller;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -7,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
+import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
@@ -163,9 +165,9 @@ class MemberControllerTest {
         MemberTeam memberTeam1 = member1.joinTeam(teamA);
         MemberTeam memberTeam2 = member2.joinTeam(teamA);
         MemberTeam memberTeam3 = member3.joinTeam(teamA);
-//        memberTeam1.changeColor("blue");
-//        memberTeam2.changeColor("red");
-//        memberTeam3.changeColor("yellow");
+//        memberTeam1.updateColor("blue");
+//        memberTeam2.updateColor("red");
+//        memberTeam3.updateColor("yellow");
 
         // when
         ResultActions result = mockMvc.perform(get(url + "/{teamId}", savedTeam.getId()));
@@ -173,9 +175,10 @@ class MemberControllerTest {
         // then
         result.andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("Get Team Members successfully"))
-            .andExpect(jsonPath("$.payload.[0].nickname").value("member1"))
-            .andExpect(jsonPath("$.payload.[1].nickname").value("member2"))
-            .andExpect(jsonPath("$.payload.[2].email").value("member3@gmail.com"));
+            .andExpect(jsonPath("$.payload.content.length()").value(3)) // 페이지 크기 확인
+            .andExpect(jsonPath("$.payload.content[0].nickname").value("member1"))
+            .andExpect(jsonPath("$.payload.content[1].nickname").value("member2"))
+            .andExpect(jsonPath("$.payload.content[2].email").value("member3@gmail.com"));
     }
 
     @DisplayName("특정 팀에 속한 회원이 없을 시 MemberNotFoundException 발생")
@@ -199,6 +202,83 @@ class MemberControllerTest {
             .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
             .andExpect(jsonPath("$.message").value("해당하는 정보의 사용자를 찾을 수 없습니다."));
     }
+
+    @DisplayName("회원 프로필 정보 수정 테스트")
+    @Test
+    void updateMemberInfoTest() throws Exception {
+
+        //given
+        Member member = Member.createMember("originMember", "member@gmail.com", "qwer123");
+        Member savedMember = memberRepository.save(member);
+
+        // 인증 객체 생성
+        MemberDetails memberDetails = new MemberDetails(member);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        MemberUpdateRequest request = new MemberUpdateRequest();
+        request.setNickname("updateMember");
+
+
+        //when
+        ResultActions result = mockMvc.perform(put(url + "/me")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+            .with(user(memberDetails)));
+
+        //then
+        result
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Update MyInfo successfully"));
+
+        Member updatedMember = memberRepository.findByEmail(member.getEmail()).orElseThrow();
+        assertThat(updatedMember.getNickname()).isEqualTo("updateMember");
+    }
+
+
+    @DisplayName("인증되지 않은 사용자가 내 정보를 수정할 시 MemberNotAuthenticatedException 발생")
+    @Test
+    public void updateMyInfoUnauthorizedTest() throws Exception {
+        //given
+        MemberUpdateRequest request = new MemberUpdateRequest();
+        request.setNickname("updateMember");
+
+        // when
+        ResultActions result = mockMvc.perform(put(url + "/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        // then
+        result.andExpect(status().isUnauthorized()) // 401 상태 코드 확인
+            .andExpect(jsonPath("$.message").value("인증되지 않은 사용자입니다")); // 예외 메시지 확인
+    }
+
+    @DisplayName("회원 탈퇴 테스트")
+    @Test
+    public void MemberDeleteTest() throws Exception {
+        //given
+        Member member = Member.createMember("member", "member@gmail.com", "qwer123");
+        Member savedMember = memberRepository.save(member);
+
+        MemberDetails memberDetails = new MemberDetails(member);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        //when
+        ResultActions result = mockMvc.perform(delete(url + "/me")
+            .with(user(memberDetails)));
+
+        //then
+        result
+            .andExpect(status().isNoContent())
+            .andExpect(jsonPath("$.message").value("Delete Account successfully"));
+
+        Member deletedMember = memberRepository.findByEmail(member.getEmail()).orElseThrow();
+        assertThat(deletedMember.getDeletedAt()).isNotNull();
+    }
+
+
+
 
 
 }

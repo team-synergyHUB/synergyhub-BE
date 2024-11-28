@@ -3,6 +3,8 @@ package com.synergy_hub.synergyhub.member.service;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
+import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
+import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +69,18 @@ public class MemberService {
             .collect(Collectors.toList());
     }
 
+    //특정 팀에 속한 회원 조회(페이징)
+    public Page<TeamMemberResponseDto> findAllByTeamPaging(Long teamId, Pageable pageable) {
+        Page<TeamMemberResponseDto> TeamMembers = memberRepository.findMembersByTeam(teamId,
+            pageable);
+
+        if(TeamMembers.isEmpty()) {
+            throw new MemberNotFoundException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return TeamMembers;
+    }
+
     //이메일로 회원 조회
     public MemberResponseDto findByEmail(String email) {
         Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
@@ -79,6 +95,24 @@ public class MemberService {
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         return new MemberResponseDto(member);
+    }
+
+    //회원 프로필 정보 수정
+    public Long updateMemberInfo(String email, MemberUpdateRequest request) {
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+            .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        member.updateMyInfo(request.getNickname());
+
+        return member.getId();
+    }
+
+    //회원 탈퇴(soft delete)
+    public void deleteMember(String email) {
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+            .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        member.deleteAccount();
     }
 
 }
