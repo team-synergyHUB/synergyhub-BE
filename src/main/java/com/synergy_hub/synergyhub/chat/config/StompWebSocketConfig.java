@@ -12,40 +12,15 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-//    @Override
-//    public void registerStompEndpoints(StompEndpointRegistry registry) {
-//        registry.addEndpoint("/stomp-chat").setAllowedOrigins("*").withSockJS();
-//    }
-//
-//    @Override
-//    public void configureMessageBroker(MessageBrokerRegistry registry) {
-//        registry.setApplicationDestinationPrefixes("/pub");
-//        registry.enableSimpleBroker("/subscribe");
-//    }
-
-//    @Override
-//    public void configureMessageBroker(MessageBrokerRegistry config) {
-//        config.enableSimpleBroker("/sub");  // 구독 url
-//        config.setApplicationDestinationPrefixes("/pub");  // prefix 정의
-//    }
-//
-//    @Override
-//    public void registerStompEndpoints(StompEndpointRegistry registry) {
-//        registry.addEndpoint("/ws-stomp")  // socket 연결 url
-//                .setAllowedOrigins("*")  // CORS 허용 범위
-//                .withSockJS();
-//    }
-
-
         @Override
         public void registerStompEndpoints(StompEndpointRegistry registry) {
             // WebSocket 엔드포인트 등록
-            registry.addEndpoint("/ws-stomp")
-//                    .setAllowedOrigins("*") // CORS 허용
-                    .withSockJS(); // SockJS 지원
-//            registry.addEndpoint("/")
-//                    .setAllowedOrigins("*") // CORS 허용
+            registry.addEndpoint("/ws")
+                    .setAllowedOrigins("*"); // CORS 허용
 //                    .withSockJS(); // SockJS 지원
+            registry.addEndpoint("/ws")
+                    .setAllowedOrigins("*") // CORS 허용
+                    .withSockJS(); // SockJS 지원
         }
 
         @Override
