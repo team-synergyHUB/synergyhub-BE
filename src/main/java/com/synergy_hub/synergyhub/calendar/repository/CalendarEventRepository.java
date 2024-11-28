@@ -18,9 +18,9 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, Lo
         "(SELECT tm.team FROM MemberTeam tm WHERE tm.member.id = :memberId) AND e.deleteAt IS NULL")
     List<CalendarEvent> findAllEventsForUser(@Param("memberId") Long memberId);
 
-    // 삭제되지 않은 날짜별 일정 조회
-    @Query("SELECT e FROM CalendarEvent e WHERE e.startDate <= :endDate AND e.endDate >= :startDate AND e.deleteAt IS NULL")
-    List<CalendarEvent> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-
+//    // 삭제되지 않은 날짜별 일정 조회, 부가기능으로 생각중
+//    @Query("SELECT e FROM CalendarEvent e WHERE e.startDate <= :endDate AND e.endDate >= :startDate AND e.deleteAt IS NULL")
+//    List<CalendarEvent> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+//
 
 }

@@ -1,10 +1,12 @@
 package com.synergy_hub.synergyhub.team.controller;
 
+import com.synergy_hub.synergyhub.team.dto.UpdateColorRequestDto;
 import com.synergy_hub.synergyhub.team.service.MemberTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -62,4 +64,26 @@ public class MemberTeamController {
 //                .toList();
 //        return ResponseEntity.ok(members);
 //    }
+
+    // 색상 변경
+    @PutMapping("/color")
+    public ResponseEntity<String> updateColor(@RequestBody UpdateColorRequestDto updateColorRequestDto){
+        memberTeamService.updateColor(updateColorRequestDto.getMemberId(), updateColorRequestDto.getTeamId(), updateColorRequestDto.getNewColor());
+        return ResponseEntity.ok("색상 변경 완료");
+    }
+
+    // 팀 색상 조회
+    @GetMapping("/color")
+    public ResponseEntity<String> getTeamColor(@RequestParam Long memberId, @RequestParam Long teamId) {
+        String color = memberTeamService.getTeamColor(memberId, teamId);
+        return ResponseEntity.ok(color);
+    }
+
+    @GetMapping("/all-color")
+    public ResponseEntity<Map<Long, String>> getAllColor(@RequestParam Long memberId){
+        Map<Long, String> color = memberTeamService.getAllTeamColor(memberId);
+        return ResponseEntity.ok(color);
+    }
+
+
 }

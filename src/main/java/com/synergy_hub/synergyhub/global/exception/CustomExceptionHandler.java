@@ -1,5 +1,7 @@
 package com.synergy_hub.synergyhub.global.exception;
 
+import com.synergy_hub.synergyhub.calendar.excepiton.CalendarEventNotFoundException;
+import com.synergy_hub.synergyhub.calendar.excepiton.CalendarNotFoundException;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotFoundException;
 import jakarta.persistence.ElementCollection;
@@ -54,6 +56,18 @@ public class CustomExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistException.class)
     protected ResponseEntity<ErrorResponseEntity> handleEmailAlreadyExistException(EmailAlreadyExistException ex) {
         logger.error("EmailAlreadyExistException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(CalendarNotFoundException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleCalendarNotFoundException(CalendarNotFoundException ex) {
+        logger.error("CalendarNotFoundException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(CalendarEventNotFoundException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleCalendarEventNotFoundException(CalendarEventNotFoundException ex) {
+        logger.error("CalendarEventNotFoundException 발생: {}", ex.getErrorCode().getMessage());
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
