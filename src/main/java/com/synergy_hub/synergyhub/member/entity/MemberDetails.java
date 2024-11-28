@@ -19,15 +19,18 @@ public class MemberDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
         Collection<GrantedAuthority> collections = new ArrayList<>();
         collections.add(() -> {
-            return member.getRole().name();
+            return member.getRole().getValue();
         });
 
         return collections;
-
     }
+
+//    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return List.of(new SimpleGrantedAuthority(member.getRole().getValue()));  // "ROLE_USER" 반환
+//    }
 
     @Override
     public String getUsername() {
