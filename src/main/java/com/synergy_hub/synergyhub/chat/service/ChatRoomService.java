@@ -24,32 +24,29 @@ public class ChatRoomService {
     private final ChatMapper chatRoomMapper;
 
     // 채팅방 생성
-    public SuccessResponse<ChatRoomResponseDto> createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
+    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
         ChatRoom chatRoom = ChatRoom.builder()
                 .roomName(chatRoomRequestDto.getRoomName())
                 .roomState(chatRoomRequestDto.getRoomState())
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-        ChatRoomResponseDto responseDto = chatRoomMapper.toChatRoomResponseDto(savedChatRoom);
-        return SuccessResponse.of("채팅방 생성 성공", responseDto);
+        return chatRoomMapper.toChatRoomResponseDto(savedChatRoom);
     }
 
     // 채팅방 목록 조회
-    public SuccessResponse<List<ChatRoomResponseDto>> getChatRooms() {
+    public List<ChatRoomResponseDto> getChatRooms() {
         List<ChatRoom> chatRooms = chatRoomRepository.findAll();
-        List<ChatRoomResponseDto> responseDtos = chatRooms.stream()
+        return chatRooms.stream()
                 .map(chatRoomMapper::toChatRoomResponseDto)
                 .toList();
-
-        return SuccessResponse.of("채팅방 목록 조회 성공", responseDtos);
     }
 
     // 채팅방 삭제
-    public SuccessResponse<Long> deleteChatRoom(Long chatRoomId) {
+    public Long deleteChatRoom(Long chatRoomId) {
         chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
         chatRoomRepository.deleteById(chatRoomId);
-        return SuccessResponse.of("채팅방 삭제 성공", chatRoomId);
+        return chatRoomId;
     }
 }
 

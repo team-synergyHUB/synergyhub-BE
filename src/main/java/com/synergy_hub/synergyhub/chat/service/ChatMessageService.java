@@ -44,17 +44,15 @@ public class ChatMessageService {
     }
 
     // 메시지 조회
-    public SuccessResponse<List<ChatMessageResponseDto>> getChatMessages(Long chatRoomId) {
+    public List<ChatMessageResponseDto> getChatMessages(Long chatRoomId) {
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoom_RoomId(chatRoomId);
-        List<ChatMessageResponseDto> responseDtos = chatMessages.stream()
+        return chatMessages.stream()
                 .map(chatMessageMapper::toChatMessageResponseDto)
                 .toList();
-
-        return SuccessResponse.of("메시지 조회 성공", responseDtos);
     }
 
     // 메시지 삭제
-    public SuccessResponse<Long> deleteMessage(Long messageId, Long memberId) {
+    public Long deleteMessage(Long messageId, Long memberId) {
         ChatMessage chatMessage = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
@@ -66,6 +64,6 @@ public class ChatMessageService {
 
         chatMessage.delete(); // deletedAt 설정
         chatMessageRepository.save(chatMessage);
-        return SuccessResponse.of("메시지 삭제 성공", messageId);
+        return messageId;
     }
 }

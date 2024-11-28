@@ -60,7 +60,7 @@ public class ChatService {
     private final ChatMapper chatMapper;
 
     // 채팅방 입장
-    public SuccessResponse<ChatResponseDto> enterChatRoom(Long chatRoomId, Long memberId) {
+    public ChatResponseDto enterChatRoom(Long chatRoomId, Long memberId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
@@ -72,24 +72,21 @@ public class ChatService {
                 .build();
 
         Chat savedChat = chatRepository.save(chat);
-        ChatResponseDto chatResponseDto = chatMapper.toChatResponseDto(savedChat);
-        return SuccessResponse.of("채팅방 입장 성공", chatResponseDto);
+        return chatMapper.toChatResponseDto(savedChat);
     }
 
     // 참여한 채팅 목록 조회
-    public SuccessResponse<List<ChatResponseDto>> getChats(Long memberId) {
+    public List<ChatResponseDto> getChats(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         List<Chat> chats = chatRepository.findByMember(member);
-        List<ChatResponseDto> chatResponseDtos = chats.stream()
+        return chats.stream()
                 .map(chatMapper::toChatResponseDto)
                 .toList();
-
-        return SuccessResponse.of("참여한 채팅 목록 조회 성공", chatResponseDtos);
     }
 
     // 채팅방 퇴장
-    public SuccessResponse<Long> exitChatRoom(Long chatRoomId, Long memberId) {
+    public Long exitChatRoom(Long chatRoomId, Long memberId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
@@ -99,6 +96,7 @@ public class ChatService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_NOT_FOUND));
 
         chatRepository.delete(chat);
-        return SuccessResponse.of("채팅방 퇴장 성공", chatRoomId);
+        return chatRoomId;
     }
 }
+
