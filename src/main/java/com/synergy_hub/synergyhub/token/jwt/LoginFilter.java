@@ -97,6 +97,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
         throws IOException {
         log.info("login Failed");
-        response.setStatus(401);
+
+        ErrorCode errorCode = ErrorCode.INVALID_PASSWORD;
+        ErrorResponseEntity errorResponse = ErrorResponseEntity.createErrorResponse(errorCode);
+
+        response.setStatus(errorCode.getHttpStatus().value());
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
+
+
     }
 }
