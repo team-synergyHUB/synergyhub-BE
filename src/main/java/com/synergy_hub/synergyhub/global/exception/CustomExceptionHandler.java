@@ -1,9 +1,10 @@
 package com.synergy_hub.synergyhub.global.exception;
 
+import com.synergy_hub.synergyhub.calendar.excepiton.CalendarEventNotFoundException;
+import com.synergy_hub.synergyhub.calendar.excepiton.CalendarNotFoundException;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
 import com.synergy_hub.synergyhub.member.exception.MemberNotFoundException;
-import com.synergy_hub.synergyhub.token.jwt.InvalidPasswordException;
 import jakarta.persistence.ElementCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,20 +32,21 @@ public class CustomExceptionHandler {
     // 유효성 검사 예외 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ResponseEntity<ErrorResponseEntity> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    protected ResponseEntity<ErrorResponseEntity> handleValidationExceptions(
+        MethodArgumentNotValidException ex) {
         // 유효성 검사 실패 시 로그 기록
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .collect(Collectors.joining(", "));
 
         logger.warn("Validation failed: {}", errorMessage);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponseEntity.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .code("VALIDATION_ERROR") // 적절한 에러 코드 설정
-                        .message("Validation failed: " + errorMessage)
-                        .build());
+            .body(ErrorResponseEntity.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("VALIDATION_ERROR") // 적절한 에러 코드 설정
+                .message("Validation failed: " + errorMessage)
+                .build());
     }
 
     @ExceptionHandler(MemberNotFoundException.class)
@@ -61,17 +63,26 @@ public class CustomExceptionHandler {
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
+
+    @ExceptionHandler(CalendarNotFoundException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleCalendarNotFoundException(
+        CalendarNotFoundException ex) {
+        logger.error("CalendarNotFoundException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(CalendarEventNotFoundException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleCalendarEventNotFoundException(
+        CalendarEventNotFoundException ex) {
+        logger.error("CalendarEventNotFoundException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
+    }
+
+
     @ExceptionHandler(MemberNotAuthenticatedException.class)
     protected ResponseEntity<ErrorResponseEntity> handleMemberNotAuthenticatedExceptionException(
         MemberNotAuthenticatedException ex) {
         logger.error("MemberNotAuthenticatedException 발생: {}", ex.getErrorCode().getMessage());
-        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
-    }
-
-    @ExceptionHandler(InvalidPasswordException.class)
-    protected ResponseEntity<ErrorResponseEntity> InvalidPasswordException(
-        InvalidPasswordException ex) {
-        logger.error("InvalidPasswordException 발생: {}", ex.getErrorCode().getMessage());
         return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
