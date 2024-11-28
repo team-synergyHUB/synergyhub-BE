@@ -2,6 +2,7 @@ package com.synergy_hub.synergyhub.member.service;
 
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
+import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
@@ -30,18 +31,20 @@ public class MemberService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final MemberTeamService memberTeamService;
 
-    @Transactional
+
     public Long save(MemberAddRequest request) {
 
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyExistException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        String password = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
-        Member member = Member.createMember(request.getNickname(), request.getEmail(), password);
+        Member member = Member.createMember(request.getNickname(), request.getEmail(),
+            passwordEncoder.encode(request.getPassword()));
         member.changeRole(MemberRole.USER);
+
         return memberRepository.save(member).getId();
     }
+
 
     //모든 회원 조회
     public List<MemberResponseDto> findAllMembers() {
