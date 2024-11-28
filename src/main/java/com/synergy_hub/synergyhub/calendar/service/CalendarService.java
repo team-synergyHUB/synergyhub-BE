@@ -54,7 +54,7 @@ public class CalendarService {
     // 일정 조회 ( 팀 캘린더 )
     public List<CalendarEventResponseDto> getTeamEvents(Long teamId, Long memberId){
 
-        List<CalendarEvent> calendarEvents = calendarEventRepository.findByTeamId(teamId);
+        List<CalendarEvent> calendarEvents = calendarEventRepository.findEventByTeam(teamId);
 
         String color = memberTeamService.getTeamColor(memberId, teamId);
 

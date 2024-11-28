@@ -47,7 +47,7 @@ public class CalendarController {
     }
 
     //일정 조회 ( 개인 캘린더)
-    @GetMapping("/user/events")
+    @GetMapping("/user/{memberId}/events")
     public ResponseEntity<List<CalendarEventResponseDto>> getUserEvents(@PathVariable Long memberId){
         List<CalendarEventResponseDto> userEvents = calendarService.getUserEvents(memberId);
         return ResponseEntity.ok(userEvents);

@@ -75,6 +75,7 @@ public class CustomExceptionHandler {
     protected ResponseEntity<ErrorResponseEntity> handleCalendarEventNotFoundException(
         CalendarEventNotFoundException ex) {
         logger.error("CalendarEventNotFoundException 발생: {}", ex.getErrorCode().getMessage());
+        return ErrorResponseEntity.toResponseEntity(ex.getErrorCode());
     }
 
 
