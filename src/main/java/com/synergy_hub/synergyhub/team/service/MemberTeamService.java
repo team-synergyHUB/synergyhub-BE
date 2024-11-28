@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Transactional
+//@Transactional
 public class MemberTeamService {
     private final MemberTeamRepository memberTeamRepository;
     private final TeamRepository teamRepository;

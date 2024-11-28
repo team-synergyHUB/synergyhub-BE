@@ -16,6 +16,10 @@ import com.synergy_hub.synergyhub.team.repository.LabelRepository;
 import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -40,7 +44,26 @@ public class TeamService {
         this.chatRoomRepository = chatRoomRepository;
     }
 
+//    public String generateUniqueInviteCode() {
+//        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//        String code;
+//        do {
+//            StringBuilder builder = new StringBuilder();
+//            for (int i = 0; i < 12; i++) {
+//                int index = (int) (Math.random() * characters.length());
+//                builder.append(characters.charAt(index));
+//            }
+//            code = builder.toString();
+//        } while (isInviteCodeDuplicate(code)); // 중복 확인 로직
+//        return code;
+//    }
+//
+//    private boolean isInviteCodeDuplicate(String code) {
+//        return teamRepository.existsByInviteCode(code);
+//    }
+
     // 팀 생성
+    @Transactional
     public TeamCreateResponseDTO createTeam(TeamRequestDTO request) {
         Label label = null;
 
@@ -50,10 +73,19 @@ public class TeamService {
                     .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
         }
 
+//        Team team = Team.builder()
+//                .name(request.getName())
+//                .inviteCode(request.getInviteCode())
+////                .inviteSecret(request.getInviteSecret())
+//                .label(label)
+//                .isDeleted(false) // 명시적으로 기본값 설정
+//                .build();
+//
+//        Team savedTeam = teamRepository.save(team);
+
+        // 팀 생성 및 저장 (초대 코드는 Team 엔티티에서 자동 생성됨)
         Team team = Team.builder()
                 .name(request.getName())
-                .inviteCode(request.getInviteCode())
-                .inviteSecret(request.getInviteSecret())
                 .label(label)
                 .isDeleted(false) // 명시적으로 기본값 설정
                 .build();
@@ -79,6 +111,7 @@ public class TeamService {
         return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom);
     }
 
+
     // 팀 수정
     public TeamResponseDTO updateTeam(Long teamId, TeamRequestDTO request) {
         Team team = teamRepository.findById(teamId)
@@ -90,7 +123,7 @@ public class TeamService {
                     .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
         }
 
-        team.updateTeam(request.getName(), request.getInviteCode(), request.getInviteSecret(), label);
+        team.updateTeam(request.getName(), label);
 
         return new TeamResponseDTO(team);
     }
@@ -113,10 +146,25 @@ public class TeamService {
     }
 
     // 팀 조회
-    public List<TeamResponseDTO> getAllTeams() {
-        return teamRepository.findAllByIsDeleted(false)
-                .stream()
-                .map(TeamResponseDTO::new)
-                .collect(Collectors.toList());
+//    public List<TeamResponseDTO> getAllTeams() {
+//        return teamRepository.findAllByIsDeleted(false)
+//                .stream()
+//                .map(TeamResponseDTO::new)
+//                .collect(Collectors.toList());
+//    }
+
+    // 팀 조회 with 페이지네이션
+//    public Page<TeamResponseDTO> getAllTeams(int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size); // 페이지네이션 정보 생성 (페이지 번호, 데이터 개수)
+//
+//        return teamRepository.findAllByIsDeleted(false, pageable)
+//                .map(TeamResponseDTO::new); // Page 객체에 map 메서드를 사용해 DTO 변환
+//    }
+
+    // 팀 조회 with 페이지네이션
+    public Page<TeamResponseDTO> getAllTeams(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending()); // 페이지 정보 생성
+        return teamRepository.findAllByIsDeleted(false, pageable)
+                .map(TeamResponseDTO::new); // Page 객체를 DTO로 변환
     }
 }
