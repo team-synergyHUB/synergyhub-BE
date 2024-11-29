@@ -1,6 +1,12 @@
 package com.synergy_hub.synergyhub.team.entity;
 
+import com.synergy_hub.synergyhub.calendar.repository.CalendarRepository;
+import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
+import com.synergy_hub.synergyhub.team.repository.LabelRepository;
+import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
+import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +22,7 @@ import java.util.List;
 @Entity
 @Table(name = "team")
 public class Team {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,11 +30,8 @@ public class Team {
     @Column(nullable = false, length = 255)
     private String name; // 팀 이름
 
-    @Column(nullable = false, length = 8)
+    @Column(nullable = false, unique = true, length = 12) // 초대 코드는 유니크 설정
     private String inviteCode; // 초대 코드
-
-    @Column(nullable = false, length = 30)
-    private String inviteSecret; // 초대 비밀번호
 
     @Column(nullable = false)
     private Boolean isDeleted = false; // 삭제 여부
@@ -35,19 +39,56 @@ public class Team {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberTeam> memberTeams = new ArrayList<>();
 
-    @ManyToOne(optional = true) // 연관 관계에서 null 허용
-    @JoinColumn(name = "label_id", nullable = true) // DB에서 nullable 허용
-    private Label label;
+    // 다대다 관계 설정
+    @ManyToMany
+    @JoinTable(
+            name = "team_label", // 중간 테이블 이름
+            joinColumns = @JoinColumn(name = "team_id"),
+            inverseJoinColumns = @JoinColumn(name = "label_id")
+    )
+    private List<Label> labels = new ArrayList<>(); // 라벨 목록
 
+    @PrePersist // 엔티티가 처음으로 데이터베이스에 저장되기 전에 호출
+    private void generateInviteCode() {
+        if (this.inviteCode == null || this.inviteCode.isEmpty()) {
+            this.inviteCode = generateUniqueInviteCode();
+        }
+    }
+
+    private String generateUniqueInviteCode() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        String code;
+        do {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < 12; i++) {
+                int index = (int) (Math.random() * characters.length());
+                builder.append(characters.charAt(index));
+            }
+            code = builder.toString();
+        } while (false); // 중복 확인 로직 임시 비활성화
+        return code;
+    }
+//    private boolean isInviteCodeDuplicate(String code) {
+//        return teamRepository.existsByInviteCode(code);
+//    }
+
+    // 팀 삭제 상태 설정
     public void markAsDeleted() {
-        this.isDeleted = false;
+        this.isDeleted = true;
     }
 
-    public void updateTeam(String name, String inviteCode, String inviteSecret, Label label) {
-        this.name = name;
-        this.inviteCode = inviteCode;
-        this.inviteSecret = inviteSecret;
-        this.label = label;
-        this.isDeleted = false; // 명시적으로 기본값 설정
+    // 팀 이름 및 라벨 목록 업데이트
+    public void updateTeam(String name, List<Label> newLabels) {
+        this.name = name; // 팀 이름 업데이트
+        this.labels.clear(); // 기존 라벨 삭제
+        this.labels.addAll(newLabels); // 새 라벨 추가
     }
+
+    public void setName(@NotBlank(message = "팀 이름은 필수 입력 항목입니다.") String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("팀 이름은 비어 있을 수 없습니다.");
+        }
+        this.name = name;
+    }
+
 }
