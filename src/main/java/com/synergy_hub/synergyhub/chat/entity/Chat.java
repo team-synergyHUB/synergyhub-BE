@@ -31,6 +31,13 @@ public class Chat {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now(); // 참여 시간
 
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
+
     /**
      * 탈퇴 메서드 (Soft Delete)
      */

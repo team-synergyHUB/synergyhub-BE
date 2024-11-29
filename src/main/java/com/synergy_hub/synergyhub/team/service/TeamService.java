@@ -86,8 +86,8 @@ public class TeamService {
         // 채팅방 생성 및 저장
         ChatRoom chatRoom = ChatRoom.builder()
                 .team(savedTeam) // 팀과 매핑
-                .roomName("Default Chat Room") // 필요 시 수정 가능
-                .roomState("ACTIVE")          // 필요 시 수정 가능
+//                .roomName("Default Chat Room") // 필요 시 수정 가능
+//                .roomState("ACTIVE")          // 필요 시 수정 가능
                 .createdAt(LocalDateTime.now()) // 명시적으로 값 설정
                 .build();
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
