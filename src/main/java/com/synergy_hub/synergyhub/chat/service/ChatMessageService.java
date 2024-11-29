@@ -43,13 +43,22 @@ public class ChatMessageService {
         return chatMessageMapper.toChatMessageResponseDto(savedMessage);
     }
 
-    // TODO : 메시지 조회 - 채팅방 별, 메시지 별
-    // 메시지 조회
+    // 채팅방 별 메시지 조회
     public List<ChatMessageResponseDto> getChatMessages(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoom_RoomId(chatRoomId);
         return chatMessages.stream()
                 .map(chatMessageMapper::toChatMessageResponseDto)
                 .toList();
+    }
+
+    // 메시지 ID로 메시지 조회
+    public ChatMessageResponseDto getMessageById(Long messageId) {
+        ChatMessage chatMessage = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+        return chatMessageMapper.toChatMessageResponseDto(chatMessage);
     }
 
     // 메시지 삭제
