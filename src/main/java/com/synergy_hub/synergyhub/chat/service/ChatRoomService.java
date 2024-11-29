@@ -1,6 +1,11 @@
 package com.synergy_hub.synergyhub.chat.service;
 
+import com.synergy_hub.synergyhub.chat.dto.ChatRoomRequestDto;
+import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
+import com.synergy_hub.synergyhub.chat.dto.SuccessResponse;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
+import com.synergy_hub.synergyhub.chat.mapper.ChatMapper;
+import com.synergy_hub.synergyhub.chat.repository.ChatMessageRepository;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
@@ -11,57 +16,37 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class ChatRoomService {
-
     private final ChatRoomRepository chatRoomRepository;
-    private final TeamRepository teamRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMapper chatRoomMapper;
 
-    /**
-     * 채팅방 생성
-     */
-    @Transactional
-    public ChatRoom createChatRoom(Long teamId, String roomName, String roomState) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+    // 채팅방 생성
+    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomName(chatRoomRequestDto.getRoomName())
+                .roomState(chatRoomRequestDto.getRoomState())
+                .build();
 
-        ChatRoom chatRoom = new ChatRoom(
-                null,
-                team,
-                roomName,
-                roomState,
-                LocalDateTime.now(),
-                null
-        );
-
-        return chatRoomRepository.save(chatRoom);
+        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+        return chatRoomMapper.toChatRoomResponseDto(savedChatRoom);
     }
 
-    /**
-     * 모든 채팅방 조회 (삭제되지 않은 것만)
-     */
-    @Transactional(readOnly = true)
-    public List<ChatRoom> findAllChatRooms() {
-        return chatRoomRepository.findAllByDeletedAtIsNull();
+    // 채팅방 목록 조회
+    public List<ChatRoomResponseDto> getChatRooms() {
+        List<ChatRoom> chatRooms = chatRoomRepository.findAll();
+        return chatRooms.stream()
+                .map(chatRoomMapper::toChatRoomResponseDto)
+                .toList();
     }
 
-    /**
-     * 특정 채팅방 조회
-     */
-    @Transactional(readOnly = true)
-    public ChatRoom findChatRoomById(Long roomId) {
-        return chatRoomRepository.findByRoomId(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채팅방입니다."));
-    }
-
-    /**
-     * 채팅방 삭제
-     */
-    @Transactional
-    public void deleteChatRoom(Long roomId) {
-        ChatRoom chatRoom = findChatRoomById(roomId);
-        chatRoom.delete();
-        chatRoomRepository.save(chatRoom);
+    // 채팅방 삭제
+    public Long deleteChatRoom(Long chatRoomId) {
+        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
+        chatRoomRepository.deleteById(chatRoomId);
+        return chatRoomId;
     }
 }
+

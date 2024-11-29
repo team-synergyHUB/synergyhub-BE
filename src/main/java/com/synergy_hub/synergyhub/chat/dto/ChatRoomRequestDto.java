@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRoomRequestDto {
-    private Long teamId;
-    private String roomName;
-    private String roomState;
+    private String roomName;   // 채팅방 이름
+    private String roomState; // 채팅방 상태 (예: 공개, 비공개 등)
 }
+
 

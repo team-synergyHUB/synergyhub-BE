@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.chat.controller;
 
-import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
+import com.synergy_hub.synergyhub.chat.dto.ChatRoomRequestDto;
+import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
 import com.synergy_hub.synergyhub.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,48 +9,31 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/chatrooms")
+@RequestMapping("/api/chat/rooms")
+@RequiredArgsConstructor
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
-    /**
-     * 모든 채팅방 조회
-     */
-    @GetMapping
-    public ResponseEntity<List<ChatRoom>> getAllChatRooms() {
-        List<ChatRoom> chatRooms = chatRoomService.findAllChatRooms();
-        return ResponseEntity.ok(chatRooms);
-    }
-
-    /**
-     * 특정 채팅방 조회
-     */
-    @GetMapping("/{roomId}")
-    public ResponseEntity<ChatRoom> getChatRoomById(@PathVariable Long roomId) {
-        ChatRoom chatRoom = chatRoomService.findChatRoomById(roomId);
-        return ResponseEntity.ok(chatRoom);
-    }
-
-    /**
-     * 채팅방 생성
-     */
+    // 채팅방 생성
     @PostMapping
-    public ResponseEntity<ChatRoom> createChatRoom(@RequestParam Long teamId,
-                                                   @RequestParam String roomName,
-                                                   @RequestParam String roomState) {
-        ChatRoom chatRoom = chatRoomService.createChatRoom(teamId, roomName, roomState);
-        return ResponseEntity.ok(chatRoom);
+    public ResponseEntity<ChatRoomResponseDto> createChatRoom(@RequestBody ChatRoomRequestDto chatRoomRequestDto) {
+        ChatRoomResponseDto response = chatRoomService.createChatRoom(chatRoomRequestDto);
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * 채팅방 삭제
-     */
-    @DeleteMapping("/{roomId}")
-    public ResponseEntity<String> deleteChatRoom(@PathVariable Long roomId) {
-        chatRoomService.deleteChatRoom(roomId);
+    // 채팅방 목록 조회
+    @GetMapping
+    public ResponseEntity<List<ChatRoomResponseDto>> getChatRooms() {
+        List<ChatRoomResponseDto> response = chatRoomService.getChatRooms();
+        return ResponseEntity.ok(response);
+    }
+
+    // 채팅방 삭제
+    @DeleteMapping("/{chatRoomId}")
+    public ResponseEntity<String> deleteChatRoom(@PathVariable Long chatRoomId) {
+        chatRoomService.deleteChatRoom(chatRoomId);
         return ResponseEntity.ok("채팅방이 삭제되었습니다.");
     }
 }

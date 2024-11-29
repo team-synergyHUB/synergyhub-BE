@@ -1,31 +1,8 @@
 package com.synergy_hub.synergyhub.chat.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-
-//@Getter
-//@Setter
-//public class ChatMessage {
-//    // 메시지 타입 : 입장, 채팅
-//    public enum MessageType {
-//        ENTER, JOIN, QUIT, TALK
-//    }
-//    private MessageType type; // 메시지 타입
-//    private String roomId; // 방번호
-//    private String sender; // 메시지 보낸사람
-//    private String message; // 메시지
-//}
-
-
 import com.synergy_hub.synergyhub.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -34,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatMessage {
 
     @Id
@@ -58,11 +36,23 @@ public class ChatMessage {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now(); // 생성 시간
 
-    @Column(nullable = false)
-    private boolean isDeleted = false; // 삭제 여부
+    @Column
+    private LocalDateTime deletedAt; // 삭제된 시간
 
+    /**
+     * 메시지 삭제 메서드
+     */
     public void delete() {
-        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now(); // 삭제된 시간 설정
+    }
+
+    /**
+     * 메시지 삭제 여부 확인 메서드
+     *
+     * @return 삭제 여부
+     */
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 
     public enum MessageType {
@@ -72,5 +62,4 @@ public class ChatMessage {
     public Long getRoomId() {
         return this.chatRoom.getRoomId();
     }
-
 }
