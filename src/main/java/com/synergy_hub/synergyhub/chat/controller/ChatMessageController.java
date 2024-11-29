@@ -23,7 +23,7 @@ public class ChatMessageController {
 
 
     // 메시지 전송
-    @MessageMapping("/chat/sendMessage/{chatRoomId}")
+    @MessageMapping("/chat/message/sendMessage/{chatRoomId}")
     public void sendMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
             @Payload ChatMessageRequestDto requestDto,
@@ -36,7 +36,7 @@ public class ChatMessageController {
     }
 
     // 채팅방 별 메시지 조회
-    @MessageMapping("/chat/getMessagesByRoom/{chatRoomId}")
+    @MessageMapping("/chat/message/getMessagesByRoom/{chatRoomId}")
     public void getMessagesByRoom(
             @DestinationVariable("chatRoomId") Long chatRoomId,
             @Header("user") Principal principal) {
@@ -48,7 +48,7 @@ public class ChatMessageController {
     }
 
     // 메시지 ID로 메시지 조회
-    @MessageMapping("/chat/getMessageById/{messageId}")
+    @MessageMapping("/chat/message/getMessageById/{messageId}")
     public void getMessageById(
             @DestinationVariable("messageId") Long messageId,
             @Header("user") Principal principal) {
@@ -60,7 +60,7 @@ public class ChatMessageController {
     }
 
     // 메시지 삭제
-    @MessageMapping("/chat/deleteMessage/{chatRoomId}")
+    @MessageMapping("/chat/message/deleteMessage/{chatRoomId}")
     public void deleteMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
             @Payload ChatMessageRequestDto requestDto,
