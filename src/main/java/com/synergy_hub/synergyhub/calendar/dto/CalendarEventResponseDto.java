@@ -13,6 +13,6 @@ public class CalendarEventResponseDto {
     private LocalDateTime endDate;
     private boolean allDay;
     private LocalDateTime deletedAt;
-//    private String color;
+    private String color;
 
 }

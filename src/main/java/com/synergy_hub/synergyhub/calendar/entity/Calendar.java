@@ -12,6 +12,7 @@ import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Calendar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +31,8 @@ public class Calendar {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-    // 캘린더와 이벤트 1 : N , 캘린더 삭제시 캘린더 이벤트 자동 삭제
-    @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
+    // 캘린더와 이벤트 1 : N
+    @OneToMany(mappedBy = "calendar")
     private List<CalendarEvent> events = new ArrayList<>();
 
 
@@ -39,9 +41,8 @@ public class Calendar {
         event.assignCalendar(this);
     }
 
-    //하드딜리트때 사용 예정
+    //캘린더에서 이벤트 제거 softdelete
     public void removeEvent(CalendarEvent event){
-        this.events.remove(event);
-        event.unassignCalendar();
+        event.markAsDeleted();
     }
 }

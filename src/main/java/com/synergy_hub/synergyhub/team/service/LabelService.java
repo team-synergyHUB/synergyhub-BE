@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class LabelService {
     private final LabelRepository labelRepository;
 
@@ -41,6 +40,13 @@ public class LabelService {
                 .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
 
         labelRepository.delete(label);
+    }
+
+    public List<LabelDTO> getLabelsByTeamId(Long teamId) {
+        List<Label> labels = labelRepository.findLabelsByTeamId(teamId);
+        return labels.stream()
+                .map(LabelDTO::new)
+                .collect(Collectors.toList());
     }
 
     // 라벨 조회

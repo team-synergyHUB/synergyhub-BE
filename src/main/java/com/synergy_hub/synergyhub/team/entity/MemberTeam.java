@@ -37,5 +37,11 @@ public class MemberTeam {
     public MemberTeam(Member member, Team team) {
         this.member = member;
         this.team = team;
+        this.color = "#00000"; // 새로 생성될때 기본 색상 검정
+    }
+
+    // 색상 변경 메서드
+    public void updateColor(String newColor) {
+        this.color = newColor;
     }
 }

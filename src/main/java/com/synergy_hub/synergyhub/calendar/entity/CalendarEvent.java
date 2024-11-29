@@ -58,10 +58,6 @@ public class CalendarEvent {
     public void assignCalendar(Calendar calendar) {
         this.calendar = calendar;
     }
-    //하드딜리트때 사용예정 (Calendar 객체 해제)
-    public void unassignCalendar() {
-        this.calendar = null;
-    }
 
 
 
