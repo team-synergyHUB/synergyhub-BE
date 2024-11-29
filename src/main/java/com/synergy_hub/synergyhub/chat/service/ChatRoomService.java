@@ -56,6 +56,7 @@ public class ChatRoomService {
     }
 
     // 채팅방 삭제
+    @Transactional
     public Long deleteChatRoom(Long chatRoomId) {
         chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
         chatRoomRepository.deleteById(chatRoomId);
