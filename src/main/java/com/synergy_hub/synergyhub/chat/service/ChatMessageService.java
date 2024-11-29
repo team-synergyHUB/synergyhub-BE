@@ -43,6 +43,7 @@ public class ChatMessageService {
         return chatMessageMapper.toChatMessageResponseDto(savedMessage);
     }
 
+    // TODO : 메시지 조회 - 채팅방 별, 메시지 별
     // 메시지 조회
     public List<ChatMessageResponseDto> getChatMessages(Long chatRoomId) {
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoom_RoomId(chatRoomId);
