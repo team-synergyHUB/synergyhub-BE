@@ -29,12 +29,12 @@ public class Label {
         this.color = color;
     }
 
-        // 엔티티 필드 값을 변경하는 메서드
+    // 엔티티 필드 값을 변경하는 메서드
     public void update(String name, String color) {
         this.name = name; // 라벨 이름 변경
         this.color = color; // 라벨 색상 변경
     }
 
-    @OneToMany(mappedBy = "label")
-    private List<Team> teams = new ArrayList<>(); // 라벨과 연결된 팀 목록
+    @ManyToMany(mappedBy = "labels") // Team 엔티티와 매핑
+    private List<Team> teams = new ArrayList<>();
 }

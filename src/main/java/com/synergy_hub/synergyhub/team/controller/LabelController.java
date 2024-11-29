@@ -65,6 +65,12 @@ public class LabelController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/team/{teamId}")
+    public ResponseEntity<List<LabelDTO>> getLabelsByTeamId(@PathVariable Long teamId) {
+        List<LabelDTO> labels = labelService.getLabelsByTeamId(teamId);
+        return ResponseEntity.ok(labels);
+    }
+
     // 모든 라벨 조회
     @Operation(summary = "라벨 조회", description = "모든 라벨을 조회합니다.")
     @ApiResponses({

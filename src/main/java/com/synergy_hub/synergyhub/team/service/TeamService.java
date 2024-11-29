@@ -16,9 +16,14 @@ import com.synergy_hub.synergyhub.team.repository.LabelRepository;
 import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,24 +46,36 @@ public class TeamService {
     }
 
     // 팀 생성
+    @Transactional
     public TeamCreateResponseDTO createTeam(TeamRequestDTO request) {
         Label label = null;
 
-        // 깃랩 label처럼 구현 계획
-        if (request.getLabelId() != null) {
-            label = labelRepository.findById(request.getLabelId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
+        // 라벨 리스트 생성
+        List<Label> labels = new ArrayList<>();
+        if (request.getLabelIds() != null && !request.getLabelIds().isEmpty()) {
+            labels = labelRepository.findAllById(request.getLabelIds());
+            if (labels.isEmpty()) {
+                throw new CustomException(ErrorCode.LABEL_NOT_FOUND); // 라벨이 없을 경우 예외
+            }
         }
 
+        // 팀 생성 및 저장
         Team team = Team.builder()
                 .name(request.getName())
-                .inviteCode(request.getInviteCode())
-                .inviteSecret(request.getInviteSecret())
-                .label(label)
+                .labels(labels) // 라벨 리스트 추가
                 .isDeleted(false) // 명시적으로 기본값 설정
                 .build();
 
         Team savedTeam = teamRepository.save(team);
+
+//        // 팀 생성 및 저장 (초대 코드는 Team 엔티티에서 자동 생성됨)
+//        Team team = Team.builder()
+//                .name(request.getName())
+//                .label(label)
+//                .isDeleted(false) // 명시적으로 기본값 설정
+//                .build();
+//
+//        Team savedTeam = teamRepository.save(team);
 
         // 캘린더 생성 및 저장
         Calendar calendar = Calendar.builder()
@@ -79,20 +96,30 @@ public class TeamService {
         return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom);
     }
 
-    // 팀 수정
+    @Transactional
     public TeamResponseDTO updateTeam(Long teamId, TeamRequestDTO request) {
+        // 팀 조회
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-        Label label = null;
-        if (request.getLabelId() != null) {
-            label = labelRepository.findById(request.getLabelId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.LABEL_NOT_FOUND));
+        // 라벨 리스트 조회
+        List<Label> labels = new ArrayList<>();
+        if (request.getLabelIds() != null && !request.getLabelIds().isEmpty()) {
+            labels = labelRepository.findAllById(request.getLabelIds());
+            if (labels.isEmpty()) {
+                throw new CustomException(ErrorCode.LABEL_NOT_FOUND);
+            }
         }
 
-        team.updateTeam(request.getName(), request.getInviteCode(), request.getInviteSecret(), label);
+        // 팀 정보 업데이트
+        team.setName(request.getName()); // 팀 이름 업데이트
+        team.getLabels().clear(); // 기존 라벨 제거
+        team.getLabels().addAll(labels); // 새 라벨 추가
 
-        return new TeamResponseDTO(team);
+        // 업데이트된 팀 저장
+        Team updatedTeam = teamRepository.save(team);
+
+        return new TeamResponseDTO(updatedTeam);
     }
 
     // 팀 삭제 : 팀에서 모든 멤버가 나가면 팀 삭제
@@ -113,10 +140,25 @@ public class TeamService {
     }
 
     // 팀 조회
-    public List<TeamResponseDTO> getAllTeams() {
-        return teamRepository.findAllByIsDeleted(false)
-                .stream()
-                .map(TeamResponseDTO::new)
-                .collect(Collectors.toList());
+//    public List<TeamResponseDTO> getAllTeams() {
+//        return teamRepository.findAllByIsDeleted(false)
+//                .stream()
+//                .map(TeamResponseDTO::new)
+//                .collect(Collectors.toList());
+//    }
+
+    // 팀 조회 with 페이지네이션
+//    public Page<TeamResponseDTO> getAllTeams(int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size); // 페이지네이션 정보 생성 (페이지 번호, 데이터 개수)
+//
+//        return teamRepository.findAllByIsDeleted(false, pageable)
+//                .map(TeamResponseDTO::new); // Page 객체에 map 메서드를 사용해 DTO 변환
+//    }
+
+    // 팀 조회 with 페이지네이션
+    public Page<TeamResponseDTO> getAllTeams(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending()); // 페이지 정보 생성
+        return teamRepository.findAllByIsDeleted(false, pageable)
+                .map(TeamResponseDTO::new); // Page 객체를 DTO로 변환
     }
 }
