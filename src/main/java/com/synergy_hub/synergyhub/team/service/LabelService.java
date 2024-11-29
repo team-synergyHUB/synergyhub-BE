@@ -42,6 +42,13 @@ public class LabelService {
         labelRepository.delete(label);
     }
 
+    public List<LabelDTO> getLabelsByTeamId(Long teamId) {
+        List<Label> labels = labelRepository.findLabelsByTeamId(teamId);
+        return labels.stream()
+                .map(LabelDTO::new)
+                .collect(Collectors.toList());
+    }
+
     // 라벨 조회
     public List<LabelDTO> getAllLabels() {
         return labelRepository.findAll()
