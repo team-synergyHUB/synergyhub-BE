@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageRequestDto {
+    private Long id;                      // 메시지 ID 추가
     private String message;               // 메시지 내용
     private ChatMessage.MessageType type; // 메시지 타입 (ENTER, TALK, QUIT 등)
 }
