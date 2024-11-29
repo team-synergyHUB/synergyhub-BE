@@ -65,8 +65,11 @@ public class ChatService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-//        System.out.println("ChatRoom ID: " + chatRoom.getRoomId());
-//        System.out.println("Member ID: " + member.getId());
+        // 중복 여부 확인
+        chatRepository.findByChatRoomAndMember(chatRoom, member)
+                .ifPresent(chat -> {
+                    throw new CustomException(ErrorCode.DUPLICATE_CHAT_MEMBER);
+                });
 
         Chat chat = Chat.builder()
                 .chatRoom(chatRoom)
@@ -74,7 +77,6 @@ public class ChatService {
                 .build();
 
         Chat savedChat = chatRepository.save(chat);
-//        System.out.println("Chat ID: " + savedChat.getId());
         return chatMapper.toChatResponseDto(savedChat);
     }
 
