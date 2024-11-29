@@ -1,108 +1,66 @@
 package com.synergy_hub.synergyhub.chat.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synergy_hub.synergyhub.chat.dto.ChatRoomRequestDto;
 import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
+import com.synergy_hub.synergyhub.chat.mapper.ChatMapper;
+import com.synergy_hub.synergyhub.chat.repository.ChatMessageRepository;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.synergy_hub.synergyhub.team.entity.Team;
+import com.synergy_hub.synergyhub.team.repository.TeamRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ChatRoomService {
-
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatRoomSessionManager sessionManager;
-    private final ObjectMapper objectMapper;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMapper chatRoomMapper;
+    private final TeamRepository teamRepository;
 
-    @Autowired
-    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatRoomSessionManager sessionManager, ObjectMapper objectMapper) {
-        this.chatRoomRepository = chatRoomRepository;
-        this.sessionManager = sessionManager;
-        this.objectMapper = objectMapper;
-    }
+    // 채팅방 생성
+    @Transactional
+    public ChatRoomResponseDto createChatRoom(Long teamId) {
+        // Team 엔티티 조회
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new IllegalArgumentException("팀이 존재하지 않습니다."));
 
-    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto dto) {
-        ChatRoom chatRoom = new ChatRoom(
-                null,
-                dto.getTeamId(),
-                dto.getRoomName(),
-                dto.getRoomState(),
-                null,
-                false
-        );
-        chatRoom = chatRoomRepository.save(chatRoom);
-        return new ChatRoomResponseDto(
-                chatRoom.getChatRoomId(),
-                chatRoom.getRoomName(),
-                chatRoom.getRoomState(),
-                chatRoom.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
-        );
-    }
-
-    public List<ChatRoomResponseDto> getChatRoomsByTeamId(Long teamId, int page, int size) {
-        return chatRoomRepository.findByTeamIdAndIsDeletedFalse(teamId)
-                .stream()
-                .map(chatRoom -> new ChatRoomResponseDto(
-                        chatRoom.getChatRoomId(),
-                        chatRoom.getRoomName(),
-                        chatRoom.getRoomState(),
-                        chatRoom.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
-                ))
-                .collect(Collectors.toList());
-    }
-
-    public void deleteChatRoom(Long chatRoomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("ChatRoom not found with id: " + chatRoomId));
-        chatRoom.setDeleted(true);
-        chatRoomRepository.save(chatRoom);
-    }
-
-    public void addSession(Long chatRoomId, WebSocketSession session) {
-        sessionManager.addSession(chatRoomId, session);
-    }
-
-    public void removeSession(Long chatRoomId, WebSocketSession session) {
-        sessionManager.removeSession(chatRoomId, session);
-    }
-
-    public void sendMessage(Long chatRoomId, Object message) {
-        Set<WebSocketSession> sessions = sessionManager.getSessions(chatRoomId);
-
-        if (sessions.isEmpty()) {
-            throw new IllegalStateException("No active sessions found for chatRoomId: " + chatRoomId);
+        // 이미 채팅방이 생성된 경우 예외 처리
+        if (team.getChatRoom() != null) {
+            throw new IllegalStateException("이미 채팅방이 생성된 팀입니다.");
         }
 
-        try {
-            String payload = objectMapper.writeValueAsString(message);
-            TextMessage textMessage = new TextMessage(payload);
+        // ChatRoom 빌드 및 저장
+        ChatRoom chatRoom = ChatRoom.builder()
+                .team(team) // 팀 설정
+                .build();
 
-            for (WebSocketSession session : sessions) {
-                if (session.isOpen()) { // 세션이 열려 있는 경우에만 전송
-                    try {
-                        session.sendMessage(textMessage);
-                    } catch (IOException e) {
-                        // 특정 세션에서 메시지 전송 실패 처리
-                        System.err.println("Failed to send message to session: " + session.getId());
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.err.println("Session is closed: " + session.getId());
-                }
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize message", e);
-        }
+        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+
+        // 생성된 ChatRoom DTO로 반환
+        return chatRoomMapper.toChatRoomResponseDto(savedChatRoom);
     }
 
+
+    // 채팅방 목록 조회
+    public List<ChatRoomResponseDto> getChatRooms() {
+        List<ChatRoom> chatRooms = chatRoomRepository.findAll();
+        return chatRooms.stream()
+                .map(chatRoomMapper::toChatRoomResponseDto)
+                .toList();
+    }
+
+    // 채팅방 삭제
+    @Transactional
+    public Long deleteChatRoom(Long chatRoomId) {
+        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
+        chatRoomRepository.deleteById(chatRoomId);
+        return chatRoomId;
+    }
 }
+

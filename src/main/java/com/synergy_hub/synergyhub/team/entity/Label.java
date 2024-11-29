@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.team.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA에서만 사용
 @AllArgsConstructor
 @Entity
 @Table(name = "label")
@@ -34,6 +35,6 @@ public class Label {
         this.color = color; // 라벨 색상 변경
     }
 
-    @OneToMany(mappedBy = "label")
-    private List<Team> teams = new ArrayList<>(); // 라벨과 연결된 팀 목록
+    @ManyToMany(mappedBy = "labels") // Team 엔티티와 매핑
+    private List<Team> teams = new ArrayList<>();
 }

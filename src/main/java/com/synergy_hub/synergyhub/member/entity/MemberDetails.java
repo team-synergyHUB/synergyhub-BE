@@ -1,11 +1,14 @@
 package com.synergy_hub.synergyhub.member.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Getter
 public class MemberDetails implements UserDetails {
 
     private final Member member;
@@ -16,8 +19,18 @@ public class MemberDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        Collection<GrantedAuthority> collections = new ArrayList<>();
+        collections.add(() -> {
+            return member.getRole().getValue();
+        });
+
+        return collections;
     }
+
+//    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return List.of(new SimpleGrantedAuthority(member.getRole().getValue()));  // "ROLE_USER" 반환
+//    }
 
     @Override
     public String getUsername() {
@@ -31,5 +44,29 @@ public class MemberDetails implements UserDetails {
 
     public String getNickname() {
         return member.getNickname();
+    }
+
+    public Member getMember() {
+        return this.member;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }
