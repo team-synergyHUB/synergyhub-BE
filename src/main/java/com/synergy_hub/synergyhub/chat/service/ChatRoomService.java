@@ -25,10 +25,15 @@ public class ChatRoomService {
 
     // 채팅방 생성
     @Transactional
-    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto chatRoomRequestDto, Long teamId) {
+    public ChatRoomResponseDto createChatRoom(Long teamId) {
         // Team 엔티티 조회
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("팀이 존재하지 않습니다."));
+
+        // 이미 채팅방이 생성된 경우 예외 처리
+        if (team.getChatRoom() != null) {
+            throw new IllegalStateException("이미 채팅방이 생성된 팀입니다.");
+        }
 
         // ChatRoom 빌드 및 저장
         ChatRoom chatRoom = ChatRoom.builder()
@@ -36,8 +41,11 @@ public class ChatRoomService {
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+
+        // 생성된 ChatRoom DTO로 반환
         return chatRoomMapper.toChatRoomResponseDto(savedChatRoom);
     }
+
 
     // 채팅방 목록 조회
     public List<ChatRoomResponseDto> getChatRooms() {

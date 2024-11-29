@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.team.entity;
 
 import com.synergy_hub.synergyhub.calendar.repository.CalendarRepository;
+import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
 import com.synergy_hub.synergyhub.team.repository.LabelRepository;
 import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
@@ -48,6 +49,9 @@ public class Team {
     )
     private List<Label> labels = new ArrayList<>(); // 라벨 목록
 
+    @OneToOne(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private ChatRoom chatRoom; // 채팅방 관계 설정
+
     @PrePersist // 엔티티가 처음으로 데이터베이스에 저장되기 전에 호출
     private void generateInviteCode() {
         if (this.inviteCode == null || this.inviteCode.isEmpty()) {
@@ -68,9 +72,6 @@ public class Team {
         } while (false); // 중복 확인 로직 임시 비활성화
         return code;
     }
-//    private boolean isInviteCodeDuplicate(String code) {
-//        return teamRepository.existsByInviteCode(code);
-//    }
 
     // 팀 삭제 상태 설정
     public void markAsDeleted() {
@@ -91,4 +92,13 @@ public class Team {
         this.name = name;
     }
 
+    // ChatRoom 반환 메서드
+    public ChatRoom getChatRoom() {
+        return this.chatRoom;
+    }
+
+    // ChatRoom 설정 메서드 (Optional)
+    public void setChatRoom(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
+    }
 }
