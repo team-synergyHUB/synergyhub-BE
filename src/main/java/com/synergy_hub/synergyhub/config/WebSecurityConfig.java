@@ -49,10 +49,11 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
+//                    .requestMatchers("/ws/**").permitAll() // WebSocket 경로 허용
                     .requestMatchers("members/login", "/","members/signup").permitAll()
                     .requestMatchers("members/admin").hasRole("ADMIN")
-//                .anyRequest().permitAll()  //모든 경로 허용
-                    .anyRequest().authenticated()
+                    .anyRequest().permitAll()  //모든 경로 허용
+//                    .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), LoginFilter.class)
             .addFilterAt(new LoginFilter(
