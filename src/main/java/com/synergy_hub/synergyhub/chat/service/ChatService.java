@@ -65,12 +65,16 @@ public class ChatService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
+//        System.out.println("ChatRoom ID: " + chatRoom.getRoomId());
+//        System.out.println("Member ID: " + member.getId());
+
         Chat chat = Chat.builder()
                 .chatRoom(chatRoom)
                 .member(member)
                 .build();
 
         Chat savedChat = chatRepository.save(chat);
+//        System.out.println("Chat ID: " + savedChat.getId());
         return chatMapper.toChatResponseDto(savedChat);
     }
 
