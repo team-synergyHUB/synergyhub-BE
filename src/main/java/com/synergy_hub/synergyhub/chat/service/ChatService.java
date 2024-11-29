@@ -1,7 +1,6 @@
 package com.synergy_hub.synergyhub.chat.service;
 
 import com.synergy_hub.synergyhub.chat.dto.ChatResponseDto;
-import com.synergy_hub.synergyhub.chat.dto.SuccessResponse;
 import com.synergy_hub.synergyhub.chat.entity.Chat;
 import com.synergy_hub.synergyhub.chat.entity.ChatMessage;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;

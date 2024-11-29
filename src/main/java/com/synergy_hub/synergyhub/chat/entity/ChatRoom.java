@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Builder
 public class ChatRoom {
@@ -24,11 +24,11 @@ public class ChatRoom {
     @JoinColumn(name = "team_id", nullable = false, unique = true)
     private Team team;
 
-    @Column(nullable = false)
-    private String roomName;
+//    @Column(nullable = false)
+//    private String roomName;
 
-    @Column(nullable = false)
-    private String roomState;
+//    @Column(nullable = false)
+//    private String roomState;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
