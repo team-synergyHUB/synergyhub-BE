@@ -1,7 +1,6 @@
 package com.synergy_hub.synergyhub.chat.service;
 
 import com.synergy_hub.synergyhub.chat.dto.ChatResponseDto;
-import com.synergy_hub.synergyhub.chat.dto.SuccessResponse;
 import com.synergy_hub.synergyhub.chat.entity.Chat;
 import com.synergy_hub.synergyhub.chat.entity.ChatMessage;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
@@ -65,6 +64,12 @@ public class ChatService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 중복 여부 확인
+        chatRepository.findByChatRoomAndMember(chatRoom, member)
+                .ifPresent(chat -> {
+                    throw new CustomException(ErrorCode.DUPLICATE_CHAT_MEMBER);
+                });
 
         Chat chat = Chat.builder()
                 .chatRoom(chatRoom)
