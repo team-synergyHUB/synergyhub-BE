@@ -5,13 +5,15 @@ import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import lombok.Data;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Data
 public class TeamCreateResponseDTO {
     private Long id; // 팀 ID
     private String name; // 팀 이름
     private String inviteCode; // 초대 코드
-//    private String inviteSecret; // 초대 비밀번호
-    private String labelName; // 라벨 이름
+    private List<LabelDTO> labels; // 라벨 리스트
 
     private Long calendarId; // 캘린더 ID
     private Long roomId; // 채팅 ID
@@ -21,8 +23,11 @@ public class TeamCreateResponseDTO {
         this.id = team.getId();
         this.name = team.getName();
         this.inviteCode = team.getInviteCode();
-//        this.inviteSecret = team.getInviteSecret();
-        this.labelName = team.getLabel() != null ? team.getLabel().getName() : null;
+
+        // 라벨 리스트를 DTO로 변환
+        this.labels = team.getLabels().stream()
+                .map(LabelDTO::new)
+                .collect(Collectors.toList());
 
         this.calendarId = calendar.getId();
         this.roomId = chatRoom.getRoomId();

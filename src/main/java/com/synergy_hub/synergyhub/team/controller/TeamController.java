@@ -44,6 +44,7 @@ public class TeamController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Validation error: " + ex.getMessage());
@@ -68,6 +69,8 @@ public class TeamController {
         teamService.leaveTeam(memberId, id);
         return ResponseEntity.noContent().build();
     }
+
+
 //
 //    @Operation(summary = "팀 목록 조회", description = "모든 팀 목록을 조회합니다.")
 //    @SwaggerDocumentation.CommonResponses // 공통 응답 사용
@@ -76,8 +79,6 @@ public class TeamController {
 //        List<TeamResponseDTO> teams = teamService.getAllTeams();
 //        return ResponseEntity.ok(teams);
 //    }
-
-
 
     // 팀 조회 API with 페이지네이션
     @GetMapping
