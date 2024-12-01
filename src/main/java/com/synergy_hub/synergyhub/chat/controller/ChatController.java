@@ -30,8 +30,8 @@ public class ChatController {
 
     // 채팅방 퇴장
     @DeleteMapping("chat/room/exit/{chatRoomId}")
-    public ResponseEntity<String> exitChatRoom(@PathVariable Long chatRoomId, @RequestParam Long memberId) {
-        chatService.exitChatRoom(chatRoomId, memberId);
-        return ResponseEntity.ok("채팅방에서 퇴장하였습니다.");
+    public ResponseEntity<Long> exitChatRoom(@PathVariable Long chatRoomId, @RequestParam Long memberId) {
+        Long exitRoomId = chatService.exitChatRoom(chatRoomId, memberId);
+        return ResponseEntity.ok(exitRoomId);
     }
 }
