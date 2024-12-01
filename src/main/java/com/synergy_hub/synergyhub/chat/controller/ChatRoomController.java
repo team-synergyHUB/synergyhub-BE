@@ -2,12 +2,14 @@ package com.synergy_hub.synergyhub.chat.controller;
 
 import com.synergy_hub.synergyhub.chat.dto.ChatRoomRequestDto;
 import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
+import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class ChatRoomController {
     // 채팅방 삭제
     @DeleteMapping("/chat/room/delete/{chatRoomId}")
     public ResponseEntity<Long> deleteChatRoom(@PathVariable Long chatRoomId) {
-        Long deletedRoomId =  chatRoomService.deleteChatRoom(chatRoomId);
-        return ResponseEntity.ok(deletedRoomId);
+        ChatRoom deletedRoomId =  chatRoomService.deleteChatRoom(chatRoomId);
+        return ResponseEntity.ok(deletedRoomId.getRoomId());
     }
 }
