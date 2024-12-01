@@ -6,7 +6,11 @@ import com.synergy_hub.synergyhub.calendar.entity.Calendar;
 import com.synergy_hub.synergyhub.calendar.entity.CalendarEvent;
 import com.synergy_hub.synergyhub.calendar.repository.CalendarEventRepository;
 import com.synergy_hub.synergyhub.calendar.repository.CalendarRepository;
+import com.synergy_hub.synergyhub.global.exception.CustomException;
+import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.team.service.MemberTeamService;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,13 +22,16 @@ public class CalendarService {
 
     private final CalendarRepository calendarRepository;
     private final CalendarEventRepository calendarEventRepository;
+    private final MemberTeamService memberTeamService;
 
     //일정 생성
     @Transactional
-    public CalendarEventResponseDto createCalendarEvent(Long calendarId, CalendarEventRequestDTO requestDTO){
-        //예외처리 예정
+    public CalendarEventResponseDto createCalendarEvent(
+        Long calendarId, CalendarEventRequestDTO requestDTO, Long memberId){
         Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow();
+            .orElseThrow(() -> new CustomException(ErrorCode.CALENDAR_NOT_FOUND));
+
+        String color = memberTeamService.getTeamColor(memberId, calendar.getTeam().getId());
 
         CalendarEvent event = CalendarEvent.builder()
             .calendar(calendar)
@@ -41,38 +48,52 @@ public class CalendarService {
         calendarEventRepository.save(event);
 
         //응답 dto로 변환 (색상 후에 추가 예정)
-        return convertToResponseDto(event);
+        return convertToResponseDto(event,color);
     }
 
     // 일정 조회 ( 팀 캘린더 )
-    @Transactional(readOnly = true)
-    public List<CalendarEventResponseDto> getTeamEvents(Long teamId){
-        return calendarEventRepository.findByTeamId(teamId).stream()
-            // 색상 포함 예정
-            .map(event-> convertToResponseDto(event))
+    public List<CalendarEventResponseDto> getTeamEvents(Long teamId, Long memberId){
+
+        List<CalendarEvent> calendarEvents = calendarEventRepository.findEventByTeam(teamId);
+
+        String color = memberTeamService.getTeamColor(memberId, teamId);
+
+        return calendarEvents.stream()
+            .map(event-> convertToResponseDto(event,color))
             .collect(Collectors.toList());
     }
 
     // 일정조회 ( 개인 캘린더)
-    @Transactional(readOnly = true)
     public List<CalendarEventResponseDto> getUserEvents(Long memberId) {
+
+        Map<Long, String> allColors = memberTeamService.getAllTeamColor(memberId);
+
         return calendarEventRepository.findAllEventsForUser(memberId).stream()
             //색상 포함 예정
-            .map(event -> convertToResponseDto(event))
+            .map(event -> {
+                Long teamId = event.getCalendar().getTeam().getId();
+                String color = allColors.getOrDefault(teamId, "#000000");
+                return convertToResponseDto(event, color);
+            })
             .collect(Collectors.toList());
     }
 
     // 일정 수정
     @Transactional
-    public CalendarEventResponseDto updateEvent(Long calendarEventId, CalendarEventRequestDTO requestDTO){
+    public CalendarEventResponseDto updateEvent(
+        Long calendarEventId, CalendarEventRequestDTO requestDTO,Long memberId){
         //예외처리 예정
         CalendarEvent event = calendarEventRepository.findById(calendarEventId)
-            .orElseThrow();
+            .orElseThrow(() -> new CustomException(ErrorCode.CALENDAR_EVENT_NOT_FOUND));
 
-        event.updateEventDetails(requestDTO.getTitle(), requestDTO.getStartDate(), requestDTO.getEndDate(), requestDTO.isAllDay());
+        event.updateEventDetails(requestDTO.getTitle(), requestDTO.getStartDate(),
+            requestDTO.getEndDate(), requestDTO.isAllDay());
+
+        Long teamId = event.getCalendar().getTeam().getId();
+        String color = memberTeamService.getTeamColor(memberId, teamId);
 
         //색상 추가예정
-        return convertToResponseDto(event);
+        return convertToResponseDto(event, color);
     }
 
     // 일정 삭제
@@ -80,7 +101,7 @@ public class CalendarService {
     public void deleteEvent(Long calendarEventId) {
         //예외처리 예정
         CalendarEvent event = calendarEventRepository.findById(calendarEventId)
-            .orElseThrow();
+            .orElseThrow(() -> new CustomException(ErrorCode.CALENDAR_EVENT_NOT_FOUND));
 
         event.markAsDeleted();
 
@@ -88,7 +109,7 @@ public class CalendarService {
     }
 
     //응답 dto 변환 메서드(색상 추가 예정)
-    private CalendarEventResponseDto convertToResponseDto(CalendarEvent event/*, String color*/){
+    private CalendarEventResponseDto convertToResponseDto(CalendarEvent event, String color){
 
         return CalendarEventResponseDto.builder()
             .id(event.getId())
@@ -96,14 +117,7 @@ public class CalendarService {
             .startDate(event.getStartDate())
             .endDate(event.getEndDate())
             .allDay(event.isAllDay())
-//            .color(color)
+            .color(color)
             .build();
     }
-
-
-
-
-
-
-
 }

@@ -1,11 +1,13 @@
 package com.synergy_hub.synergyhub.global.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class ErrorResponseEntity {
     private int status;
     private String code;
@@ -20,5 +22,9 @@ public class ErrorResponseEntity {
                         .message(e.getMessage())
                         .build()
                 );
+    }
+
+    public static ErrorResponseEntity createErrorResponse(ErrorCode e) {
+        return new ErrorResponseEntity(e.getHttpStatus().value(), e.name(), e.getMessage());
     }
 }

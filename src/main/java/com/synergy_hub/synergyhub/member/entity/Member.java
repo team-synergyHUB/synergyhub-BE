@@ -2,13 +2,17 @@ package com.synergy_hub.synergyhub.member.entity;
 
 import com.synergy_hub.synergyhub.team.entity.MemberTeam;
 import com.synergy_hub.synergyhub.team.entity.Team;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,25 +37,21 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    //회원 탈퇴 여부 (2000-01-01인 경우 탈퇴 X)
-    @Column(nullable = false)
-    private LocalDate deleted_at = LocalDate.of(2000, 1, 1);
+    @Column
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
 
-//    @OneToMany(mappedBy = "member")
-//    private List<MemberTeam> memberTeams;
-//
-//    //특정 팀에 참여
-//    public void joinTeam(Team team) {
-//
-//        MemberTeam memberTeam = new MemberTeam();
-////        memberTeam.setTeamAndMember(team, this);
-//
-//    }
-//
-//    //연관 관계 편의 메서드
-//    public void addMemberTeams(MemberTeam memberTeam) {
-//        this.memberTeams.add(memberTeam);
-//    }
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+//    @JsonIgnore
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberTeam> memberTeams = new ArrayList<>();
+
+    //연관 관계 편의 메서드
+    public void addMemberTeams(MemberTeam memberTeam) {
+        this.memberTeams.add(memberTeam);
+    }
 
     private Member(String nickname, String email, String password) {
         this.nickname = nickname;
@@ -59,8 +59,53 @@ public class Member {
         this.password = password;
     }
 
+    private Member(String email, String password, MemberRole role) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
     public static Member createMember(String nickname, String email, String password) {
         return new Member(nickname, email, password);
+    }
+
+    //jwt 검증시 임시 세션 사용자
+    public static Member createSessionMember(String email, String password, MemberRole role) {
+        return new Member(email, password, role);
+    }
+
+    //특정 팀에 참여
+    public MemberTeam joinTeam(Team team) {
+        MemberTeam memberTeam = new MemberTeam(this, team);
+        addMemberTeams(memberTeam);
+        return memberTeam;
+    }
+
+    //특정 팀에서 나가기
+    public void leaveTeam(Long teamId) {
+        MemberTeam memberTeam = memberTeams.stream()
+            .filter(mt -> mt.getTeam().getId().equals(teamId))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("team not found"));
+
+        memberTeams.remove(memberTeam);
+    }
+
+    //프로필 업데이트
+    public void updateMyInfo(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void deleteAccount() {
+        deletedAt = LocalDateTime.now(); // 탈퇴 시 현재 시간 저장
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null; // 탈퇴 여부 확인
+    }
+
+    public void changeRole(MemberRole role) {
+        this.role = role;
     }
 
 }
