@@ -13,5 +13,15 @@ public class ApiResponseBuilder {
                 .build());
     }
 
+    public static ResponseEntity<ApiResponse<Void>> fail(String message, HttpStatus status) {
+        return ResponseEntity
+            .status(status)
+            .body(ApiResponse.<Void>builder()
+                .message(message)
+                .payload(null)
+                .build());
+    }
+
+
 
 }
