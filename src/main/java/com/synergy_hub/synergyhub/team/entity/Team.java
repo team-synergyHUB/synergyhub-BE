@@ -85,6 +85,13 @@ public class Team {
         this.labels.addAll(newLabels); // 새 라벨 추가
     }
 
+    // 라벨 추가 메서드
+    public void addLabel(Label label) {
+        if (!this.labels.contains(label)) {
+            this.labels.add(label);
+        }
+    }
+
     public void setName(@NotBlank(message = "팀 이름은 필수 입력 항목입니다.") String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("팀 이름은 비어 있을 수 없습니다.");
