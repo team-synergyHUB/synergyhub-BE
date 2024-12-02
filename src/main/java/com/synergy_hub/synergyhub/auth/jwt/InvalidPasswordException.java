@@ -1,4 +1,4 @@
-package com.synergy_hub.synergyhub.token.jwt;
+package com.synergy_hub.synergyhub.auth.jwt;
 
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
