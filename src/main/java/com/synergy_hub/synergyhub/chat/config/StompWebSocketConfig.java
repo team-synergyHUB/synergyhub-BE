@@ -25,9 +25,9 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         @Override
         public void configureMessageBroker(MessageBrokerRegistry config) {
-            config.enableSimpleBroker("/topic", "/queue");
-            config.setApplicationDestinationPrefixes("/app");
-            config.setUserDestinationPrefix("/user");
+            config.enableSimpleBroker("/topic", "/queue"); // 서버 -> 클라이언트 (topic : 브로드캐스트, queue : 일대일)
+            config.setApplicationDestinationPrefixes("/app"); // 클라이언트 -> 서버
+            config.setUserDestinationPrefix("/user"); // 특정사용자에게
         }
     }
 
