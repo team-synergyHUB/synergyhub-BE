@@ -6,8 +6,11 @@ import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.mapper.ChatMapper;
 import com.synergy_hub.synergyhub.chat.repository.ChatMessageRepository;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
+import com.synergy_hub.synergyhub.global.exception.CustomException;
+import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ public class ChatRoomService {
         // ChatRoom 빌드 및 저장
         ChatRoom chatRoom = ChatRoom.builder()
                 .team(team) // 팀 설정
+                .createdAt(LocalDateTime.now())
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
@@ -57,10 +61,14 @@ public class ChatRoomService {
 
     // 채팅방 삭제
     @Transactional
-    public Long deleteChatRoom(Long chatRoomId) {
-        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
-        chatRoomRepository.deleteById(chatRoomId);
-        return chatRoomId;
+    public ChatRoom deleteChatRoom(Long chatRoomId) {
+        //        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CHAT_ROOM_STATE));
+        chatRoomRepository.delete(chatRoom);
+        return chatRoom; // 삭제된 엔티티 반환
     }
+
 }
 

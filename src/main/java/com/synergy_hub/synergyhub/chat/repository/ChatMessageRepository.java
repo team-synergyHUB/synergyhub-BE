@@ -22,6 +22,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     // 특정 채팅방의 모든 메시지 삭제
     @Modifying
-    @Query("DELETE FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId")
+    @Query("DELETE FROM ChatMessage cm WHERE cm.chatRoom.roomId = :chatRoomId")
     void deleteAllByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }
