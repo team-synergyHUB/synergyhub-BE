@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.team.controller;
 
 import com.synergy_hub.synergyhub.config.global.SwaggerDocumentation;
+import com.synergy_hub.synergyhub.team.dto.LabelMappingRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
@@ -27,23 +28,25 @@ import java.util.List;
 @RequestMapping("/teams")
 @RequiredArgsConstructor
 @Tag(name = "Team API", description = "팀 관련 API") // Swagger 태그
+@CrossOrigin(origins = "http://localhost:3000") // 프론트엔드 도메인
 public class TeamController {
 
     private final TeamService teamService;
 
-//    @Operation(summary = "팀 생성", description = "새로운 팀을 생성합니다.")
-//    @SwaggerDocumentation.CreateTeamResponses // 공통 응답 사용
-//    @PostMapping
-//    public ResponseEntity<TeamCreateResponseDTO> createTeam(@Valid @RequestBody TeamRequestDTO request) {
-//        TeamCreateResponseDTO response = teamService.createTeam(request);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-//    }
+    @PostMapping("/{teamId}/labels")
+    public ResponseEntity<String> mapLabelsToTeam(
+            @PathVariable Long teamId, // URL 경로에서 팀 ID 추출
+            @RequestBody LabelMappingRequestDTO request // 요청 본문에서 라벨 ID 리스트 추출
+    ) {
+        teamService.mapLabelsToTeam(teamId, request.getLabelIds());
+        return ResponseEntity.ok("Labels successfully mapped to team.");
+    }
+
     @PostMapping
     public ResponseEntity<TeamCreateResponseDTO> createTeam(@Valid @RequestBody TeamRequestDTO request) {
         TeamCreateResponseDTO response = teamService.createTeam(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
