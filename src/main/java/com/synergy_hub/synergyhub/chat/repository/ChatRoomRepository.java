@@ -23,6 +23,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     // 특정 채팅방 Soft Delete
     @Modifying
-    @Query("UPDATE ChatRoom cr SET cr.deletedAt = CURRENT_TIMESTAMP WHERE cr.id = :chatRoomId")
+    @Query("UPDATE ChatRoom cr SET cr.deletedAt = CURRENT_TIMESTAMP WHERE cr.roomId = :chatRoomId")
     void softDeleteById(@Param("chatRoomId") Long chatRoomId);
 }

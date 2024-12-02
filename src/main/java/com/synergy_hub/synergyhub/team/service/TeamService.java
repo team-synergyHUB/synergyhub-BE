@@ -45,54 +45,63 @@ public class TeamService {
         this.chatRoomRepository = chatRoomRepository;
     }
 
+    @Transactional
+    public void mapLabelsToTeam(Long teamId, List<Long> labelIds) {
+        // 1. 팀 조회
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+
+        // 2. 라벨 조회
+        List<Label> labels = labelRepository.findAllById(labelIds);
+        if (labels.isEmpty()) {
+            throw new CustomException(ErrorCode.LABEL_NOT_FOUND);
+        }
+
+        // 3. 팀과 라벨 매핑 (양방향 관계 설정)
+        for (Label label : labels) {
+            team.addLabel(label);
+            label.addTeam(team); // 필요시 양방향 관계
+        }
+
+        // 4. 매핑 데이터 저장
+        teamRepository.save(team);
+    }
+
+
     // 팀 생성
     @Transactional
     public TeamCreateResponseDTO createTeam(TeamRequestDTO request) {
-        Label label = null;
-
-        // 라벨 리스트 생성
+        // 1. 라벨 리스트 생성
         List<Label> labels = new ArrayList<>();
         if (request.getLabelIds() != null && !request.getLabelIds().isEmpty()) {
             labels = labelRepository.findAllById(request.getLabelIds());
             if (labels.isEmpty()) {
-                throw new CustomException(ErrorCode.LABEL_NOT_FOUND); // 라벨이 없을 경우 예외
+                throw new CustomException(ErrorCode.LABEL_NOT_FOUND); // 라벨이 없을 경우 예외 처리
             }
         }
 
-        // 팀 생성 및 저장
+        // 2. 팀 생성 및 저장
         Team team = Team.builder()
                 .name(request.getName())
                 .labels(labels) // 라벨 리스트 추가
                 .isDeleted(false) // 명시적으로 기본값 설정
                 .build();
-
         Team savedTeam = teamRepository.save(team);
 
-//        // 팀 생성 및 저장 (초대 코드는 Team 엔티티에서 자동 생성됨)
-//        Team team = Team.builder()
-//                .name(request.getName())
-//                .label(label)
-//                .isDeleted(false) // 명시적으로 기본값 설정
-//                .build();
-//
-//        Team savedTeam = teamRepository.save(team);
-
-        // 캘린더 생성 및 저장
+        // 3. 캘린더 생성 및 저장
         Calendar calendar = Calendar.builder()
                 .team(savedTeam) // 팀과 매핑
                 .build();
         Calendar savedCalendar = calendarRepository.save(calendar);
 
-        // 채팅방 생성 및 저장
+        // 4. 채팅방 생성 및 저장
         ChatRoom chatRoom = ChatRoom.builder()
                 .team(savedTeam) // 팀과 매핑
-//                .roomName("Default Chat Room") // 필요 시 수정 가능
-//                .roomState("ACTIVE")          // 필요 시 수정 가능
                 .createdAt(LocalDateTime.now()) // 명시적으로 값 설정
                 .build();
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
-        // TeamResponseDTO 반환
+        // 5. TeamCreateResponseDTO 반환
         return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom);
     }
 

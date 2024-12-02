@@ -35,6 +35,13 @@ public class Label {
         this.color = color; // 라벨 색상 변경
     }
 
+    // 팀 추가 메서드
+    public void addTeam(Team team) {
+        if (!this.teams.contains(team)) {
+            this.teams.add(team);
+        }
+    }
+
     @ManyToMany(mappedBy = "labels") // Team 엔티티와 매핑
     private List<Team> teams = new ArrayList<>();
 }

@@ -30,8 +30,8 @@ public class ChatRoom {
 //    @Column(nullable = false)
 //    private String roomState;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @Column
     private LocalDateTime deletedAt; // 삭제된 시간
