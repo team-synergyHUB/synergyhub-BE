@@ -67,6 +67,11 @@ public class MemberTeamService {
                 .toList();
     }
 
+    // 사용자가 속한 MemberTeam 조회
+    public List<MemberTeam> getMemberTeamsByMember(Long memberId) {
+        return memberTeamRepository.findAllByMemberId(memberId);
+    }
+
     //색상 변경
     public void updateColor(Long memberId, Long teamId, String newColor){
         MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)

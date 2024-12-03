@@ -150,4 +150,11 @@ public class TeamController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(teamService.getAllTeams(page, size));
     }
+
+    // 로그인한 사용자가 속한 팀 목록 조회
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<TeamResponseDTO>> getTeamsByMember(@PathVariable Long memberId) {
+        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
+        return ResponseEntity.ok(teams);
+    }
 }

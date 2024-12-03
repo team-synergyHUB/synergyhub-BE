@@ -170,4 +170,19 @@ public class TeamService {
         return teamRepository.findAllByIsDeleted(false, pageable)
                 .map(TeamResponseDTO::new); // Page 객체를 DTO로 변환
     }
+
+    /**
+     * 특정 멤버가 속한 팀 목록 조회
+     * @param memberId 멤버 ID
+     * @return 멤버가 속한 팀 목록 (DTO 형태로 반환)
+     */
+    public List<TeamResponseDTO> getTeamsByMember(Long memberId) {
+        // 1. 해당 멤버가 속한 MemberTeam 목록 조회
+        List<MemberTeam> memberTeams = memberTeamRepository.findAllByMemberId(memberId);
+
+        // 2. MemberTeam에서 팀 엔티티 추출 후 DTO로 변환
+        return memberTeams.stream()
+                .map(memberTeam -> new TeamResponseDTO(memberTeam.getTeam()))
+                .collect(Collectors.toList());
+    }
 }
