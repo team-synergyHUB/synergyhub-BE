@@ -42,6 +42,22 @@ public class ChatMessageService {
         return chatMessageMapper.toChatMessageResponseDto(savedMessage);
     }
 
+    // 메시지 삭제
+    public Long deleteMessage(Long messageId, Long memberId) {
+        ChatMessage chatMessage = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!chatMessage.getMember().getId().equals(member.getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
+        chatMessage.delete(); // deletedAt 설정
+        chatMessageRepository.save(chatMessage);
+        return messageId;
+    }
+
     // 채팅방 별 메시지 조회
     public List<ChatMessageResponseDto> getChatMessages(Long chatRoomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
@@ -60,19 +76,4 @@ public class ChatMessageService {
         return chatMessageMapper.toChatMessageResponseDto(chatMessage);
     }
 
-    // 메시지 삭제
-    public Long deleteMessage(Long messageId, Long memberId) {
-        ChatMessage chatMessage = chatMessageRepository.findById(messageId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        if (!chatMessage.getMember().getId().equals(member.getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACTION);
-        }
-
-        chatMessage.delete(); // deletedAt 설정
-        chatMessageRepository.save(chatMessage);
-        return messageId;
-    }
 }
