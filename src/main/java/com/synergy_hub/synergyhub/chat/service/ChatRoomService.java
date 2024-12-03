@@ -41,7 +41,7 @@ public class ChatRoomService {
         // ChatRoom 빌드 및 저장
         ChatRoom chatRoom = ChatRoom.builder()
                 .team(team) // 팀 설정
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now()) // TODO : CREATEDDATE
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
@@ -62,8 +62,7 @@ public class ChatRoomService {
     // 채팅방 삭제
     @Transactional
     public ChatRoom deleteChatRoom(Long chatRoomId) {
-        //        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
-
+        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CHAT_ROOM_STATE));
         chatRoomRepository.delete(chatRoom);
