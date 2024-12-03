@@ -1,7 +1,9 @@
 package com.synergy_hub.synergyhub.team.controller;
 
+import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.config.global.SwaggerDocumentation;
 import com.synergy_hub.synergyhub.global.CommonApiDocs;
+import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.team.dto.LabelMappingRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamRequestDTO;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Parameter;
@@ -105,6 +108,7 @@ import java.util.List;
 public class TeamController {
 
     private final TeamService teamService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 팀에 라벨 매핑
     @CommonApiDocs(summary = "팀에 라벨 매핑", description = "팀에 라벨을 연결합니다.")
@@ -116,7 +120,7 @@ public class TeamController {
         return ResponseEntity.ok("Labels successfully mapped to team.");
     }
 
-    // 팀 생성
+      //팀 생성
 //    @CommonApiDocs(summary = "팀 생성", description = "새로운 팀을 생성합니다.")
 //    @PostMapping
 //    public ResponseEntity<TeamCreateResponseDTO> createTeam(@Valid @RequestBody TeamRequestDTO request) {
@@ -137,7 +141,6 @@ public class TeamController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
-
 
     // 팀 수정
     @CommonApiDocs(summary = "팀 수정", description = "기존 팀의 정보를 수정합니다.")
