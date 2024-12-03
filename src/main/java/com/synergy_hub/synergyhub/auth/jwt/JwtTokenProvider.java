@@ -1,17 +1,12 @@
-package com.synergy_hub.synergyhub.token.jwt;
+package com.synergy_hub.synergyhub.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,6 +26,10 @@ public class JwtTokenProvider {
 
     public String getRole(String token) {
         return getPayLoad(token, "role");
+    }
+
+    public String getLoginType(String token) {
+        return getPayLoad(token, "loginType");
     }
 
     //토큰 소멸 확인
@@ -63,11 +62,12 @@ public class JwtTokenProvider {
     }
 
     //토큰 생성
-    public String createJwtToken(String username, String role, Long expiredMs) {
+    public String createJwtToken(String username, String role, Long expiredMs, String loginType) {
 
         return Jwts.builder()
             .claim("username", username)
             .claim("role", role)
+            .claim("loginType", loginType)
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + expiredMs))
             .signWith(secretKey)

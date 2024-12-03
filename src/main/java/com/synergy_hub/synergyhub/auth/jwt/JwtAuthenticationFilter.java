@@ -1,12 +1,13 @@
-package com.synergy_hub.synergyhub.token.jwt;
+package com.synergy_hub.synergyhub.auth.jwt;
 
+import com.synergy_hub.synergyhub.auth.oauth.dto.CustomOauth2User;
+import com.synergy_hub.synergyhub.auth.oauth.dto.UserDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -62,19 +63,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtTokenProvider.getUsername(token);
             String role = jwtTokenProvider.getRole(token);
             MemberRole memberRole = MemberRole.fromString(role);
-
-            // 세션 정보 설정
-            Member member = Member.createSessionMember(username, null, memberRole);
+            String loginType = jwtTokenProvider.getLoginType(token);
 
 
-            MemberDetails memberDetails = new MemberDetails(member);
-            Authentication authToken = new UsernamePasswordAuthenticationToken(
-                memberDetails, "", memberDetails.getAuthorities());
+            // 세션 정보 설정 - JWT 일반 로그인
+            if("common".equals(loginType)) {
+                Member member = Member.createSessionMember(username, null, memberRole);
+                MemberDetails memberDetails = new MemberDetails(member);
+                Authentication authToken = new UsernamePasswordAuthenticationToken(
+                    memberDetails, "", memberDetails.getAuthorities());
 
-            //세션에 사용자 등록
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                //세션에 사용자 등록
+                SecurityContextHolder.getContext().setAuthentication(authToken);
 
-            filterChain.doFilter(request, response);
+                filterChain.doFilter(request, response);
+            }
+            else { //Oauth2 로그인 - loginType=social
+                UserDto userDto = new UserDto();
+                userDto.setEmail(username);
+                userDto.setRole(memberRole);
+                CustomOauth2User customUserDetails = new CustomOauth2User(userDto);
+
+                Authentication authToken = new UsernamePasswordAuthenticationToken(
+                    customUserDetails, "", customUserDetails.getAuthorities());
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                filterChain.doFilter(request, response);
+            }
+
 
         } catch (Exception e) {
             log.error("Error processing JWT token", e);

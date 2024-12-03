@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.synergy_hub.synergyhub.member.dto.QTeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.member.entity.QMember;
 import com.synergy_hub.synergyhub.team.entity.QMemberTeam;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -86,5 +87,17 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
 
     }
 
+    @Override
+    public Optional<Member> findByNicknameAndEmailDeletedAtIsNull(String nickname, String email) {
 
+        Member member = queryFactory
+            .selectFrom(QMember.member)
+            .where(
+                QMember.member.nickname.eq(nickname),
+                QMember.member.email.eq(email),
+                QMember.member.deletedAt.isNull())
+            .fetchOne();
+
+        return Optional.ofNullable(member);
+    }
 }

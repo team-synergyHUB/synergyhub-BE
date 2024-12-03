@@ -1,14 +1,10 @@
-package com.synergy_hub.synergyhub.token.jwt;
+package com.synergy_hub.synergyhub.auth.jwt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.exception.ErrorResponseEntity;
-import com.synergy_hub.synergyhub.global.exception.ErrorResponseEntity.ErrorResponseEntityBuilder;
 import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,8 +14,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -85,7 +79,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //토큰 생성
         String jwtToken = jwtTokenProvider.createJwtToken(
-            username, role, 60 * 60 * 1000L);
+            username, role, 60 * 10 * 1000L, "common");
 
         //응답 헤더에 추가
         response.addHeader("Authorization", "Bearer " + jwtToken);
