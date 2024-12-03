@@ -117,11 +117,27 @@ public class TeamController {
     }
 
     // 팀 생성
-    @CommonApiDocs(summary = "팀 생성", description = "새로운 팀을 생성합니다.")
+//    @CommonApiDocs(summary = "팀 생성", description = "새로운 팀을 생성합니다.")
+//    @PostMapping
+//    public ResponseEntity<TeamCreateResponseDTO> createTeam(@Valid @RequestBody TeamRequestDTO request) {
+//        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(request));
+//    }
+
     @PostMapping
-    public ResponseEntity<TeamCreateResponseDTO> createTeam(@Valid @RequestBody TeamRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(request));
+    public ResponseEntity<TeamCreateResponseDTO> createTeam(
+            @Valid @RequestBody TeamRequestDTO request,
+            @RequestHeader("Authorization") String authorizationHeader // 토큰에서 회원 정보 추출
+    ) {
+        // 1. 토큰에서 사용자 ID 추출 (예: JWT 사용)
+        String token = authorizationHeader.replace("Bearer ", "");
+        Long memberId = jwtTokenProvider.getUserIdFromToken(token); // 사용자 ID 가져오기
+
+        // 2. 팀 생성 서비스 호출
+        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
+
 
     // 팀 수정
     @CommonApiDocs(summary = "팀 수정", description = "기존 팀의 정보를 수정합니다.")
