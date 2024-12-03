@@ -1,10 +1,10 @@
 package com.synergy_hub.synergyhub.member.controller;
 
+import com.synergy_hub.synergyhub.auth.oauth.dto.CustomOauth2User;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
-import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
@@ -16,11 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/members")
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
@@ -64,9 +65,12 @@ public class MemberController {
     //내 정보 조회
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo() {
-        String email = getAuthenticationEmail();
+//        String email = getAuthenticationEmail();
+//        MemberResponseDto memberResponseDto = memberService.findByEmail(email);
 
-        MemberResponseDto memberResponseDto = memberService.findByEmail(email);
+        Long memberId = getAuthenticationMemberId();
+        log.info("memberId={}", memberId);
+        MemberResponseDto memberResponseDto = memberService.findById(memberId);
 
         return ApiResponseBuilder.success("Get My Info successfully", memberResponseDto,
             HttpStatus.OK);
@@ -106,21 +110,66 @@ public class MemberController {
 
     }
 
-    private static String getAuthenticationEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//    private static String getAuthenticationEmail() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication == null || !authentication.isAuthenticated() ||
+//            authentication instanceof AnonymousAuthenticationToken) {
+//            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+//        }
+//
+//        String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
+//        return email;
+//    }
+//
+//    private static String getAuthenticationMemberId() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication == null || !authentication.isAuthenticated() ||
+//            authentication instanceof AnonymousAuthenticationToken) {
+//            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+//        }
+//
+//        String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
+//        return email;
+//    }
 
-        if (authentication == null || !authentication.isAuthenticated() ||
-            authentication instanceof AnonymousAuthenticationToken) {
-            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+    private String getAuthenticationEmail() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        // OAuth2 로그인
+        if (principal instanceof CustomOauth2User) {
+            return ((CustomOauth2User) principal).getEmail();
         }
 
-        String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
-        return email;
+        // JWT 일반 로그인
+        if (principal instanceof MemberDetails) {
+            return ((MemberDetails) principal).getUsername();
+        }
+
+        throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
     }
 
-    @GetMapping("/admin")
-    public String adminTest() {
-        return "SUCCESS";
+    private Long getAuthenticationMemberId() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        // OAuth2 로그인
+        if (principal instanceof CustomOauth2User) {
+            return ((CustomOauth2User) principal).getUserId();
+        }
+
+        // JWT 일반 로그인
+        if (principal instanceof MemberDetails) {
+            return ((MemberDetails) principal).getUserId();
+        }
+
+        throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
     }
+
+
 
 }

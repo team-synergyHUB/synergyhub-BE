@@ -31,7 +31,8 @@ public class CustomOauthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         CustomOauth2User customUserDetails = (CustomOauth2User) authentication.getPrincipal();
 
-        String username = customUserDetails.getEmail();  //이메일을 username으로 통일
+        String email = customUserDetails.getEmail();  //이메일을 username으로 통일
+        Long userId = customUserDetails.getUserId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -39,7 +40,7 @@ public class CustomOauthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String role = auth.getAuthority();
 
         String jwtToken = jwtTokenProvider.createJwtToken(
-            username, role, 60 * 10 * 1000L, "social");
+            email, userId, role, 60 * 10 * 1000L, "social");
 
         //쿠키에 JWT 담아서 응답
         response.addCookie(CookieService.createCookie(

@@ -61,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 토큰 payload에서 유저 정보 추출
             String username = jwtTokenProvider.getUsername(token);
+            Long userId = jwtTokenProvider.getUserId(token);
             String role = jwtTokenProvider.getRole(token);
             MemberRole memberRole = MemberRole.fromString(role);
             String loginType = jwtTokenProvider.getLoginType(token);
@@ -68,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 세션 정보 설정 - JWT 일반 로그인
             if("common".equals(loginType)) {
-                Member member = Member.createSessionMember(username, null, memberRole);
+                Member member = Member.createSessionMember(userId, username, null, memberRole);
                 MemberDetails memberDetails = new MemberDetails(member);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(
                     memberDetails, "", memberDetails.getAuthorities());
@@ -81,6 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             else { //Oauth2 로그인 - loginType=social
                 UserDto userDto = new UserDto();
                 userDto.setEmail(username);
+                userDto.setUserId(userId);
                 userDto.setRole(memberRole);
                 CustomOauth2User customUserDetails = new CustomOauth2User(userDto);
 

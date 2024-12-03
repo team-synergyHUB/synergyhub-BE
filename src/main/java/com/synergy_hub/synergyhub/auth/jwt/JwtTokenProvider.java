@@ -24,6 +24,10 @@ public class JwtTokenProvider {
         return getPayLoad(token, "username");
     }
 
+    public Long getUserId(String token) {
+        return getPayLoadAsLong(token, "userId");
+    }
+
     public String getRole(String token) {
         return getPayLoad(token, "role");
     }
@@ -52,20 +56,30 @@ public class JwtTokenProvider {
 
     }
 
-    private String getPayLoad(String token, String key) {
+
+    private <T> T getPayLoad(String token, String key, Class<T> type) {
         return Jwts.parser()
             .verifyWith(secretKey)
             .build()
             .parseSignedClaims(token)
             .getPayload()
-            .get(key, String.class);
+            .get(key, type);
+    }
+
+    private String getPayLoad(String token, String key) {
+        return getPayLoad(token, key, String.class);
+    }
+
+    private Long getPayLoadAsLong(String token, String key) {
+        return getPayLoad(token, key, Long.class);
     }
 
     //토큰 생성
-    public String createJwtToken(String username, String role, Long expiredMs, String loginType) {
+    public String createJwtToken(String username, Long userId, String role, Long expiredMs, String loginType) {
 
         return Jwts.builder()
             .claim("username", username)
+            .claim("userId", userId)
             .claim("role", role)
             .claim("loginType", loginType)
             .issuedAt(new Date(System.currentTimeMillis()))
