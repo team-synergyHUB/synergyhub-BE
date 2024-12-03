@@ -1,6 +1,5 @@
 package com.synergy_hub.synergyhub.chat.service;
 
-import com.synergy_hub.synergyhub.chat.dto.ChatRoomRequestDto;
 import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.mapper.ChatMapper;
@@ -10,7 +9,6 @@ import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +29,11 @@ public class ChatRoomService {
     public ChatRoomResponseDto createChatRoom(Long teamId) {
         // Team 엔티티 조회
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new IllegalArgumentException("팀이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         // 이미 채팅방이 생성된 경우 예외 처리
         if (team.getChatRoom() != null) {
-            throw new IllegalStateException("이미 채팅방이 생성된 팀입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_CHAT_ROOM);
         }
 
         // ChatRoom 빌드 및 저장
@@ -50,7 +48,6 @@ public class ChatRoomService {
         return chatRoomMapper.toChatRoomResponseDto(savedChatRoom);
     }
 
-
     // 채팅방 목록 조회
     public List<ChatRoomResponseDto> getChatRooms() {
         List<ChatRoom> chatRooms = chatRoomRepository.findAll();
@@ -62,12 +59,15 @@ public class ChatRoomService {
     // 채팅방 삭제
     @Transactional
     public ChatRoom deleteChatRoom(Long chatRoomId) {
+        // 채팅 메시지 삭제
         chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
+
+        // 채팅방 조회
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CHAT_ROOM_STATE));
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        // 채팅방 삭제
         chatRoomRepository.delete(chatRoom);
         return chatRoom; // 삭제된 엔티티 반환
     }
-
 }
-
