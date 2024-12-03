@@ -18,7 +18,7 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     // 채팅방 생성
-    @PostMapping("/chat/room/create")
+    @PostMapping("/chat/room/create") //todo : path create 제거
     public ResponseEntity<ChatRoomResponseDto> createChatRoom(@RequestParam Long teamId) {
         ChatRoomResponseDto response = chatRoomService.createChatRoom(teamId);
         return ResponseEntity.ok(response);
