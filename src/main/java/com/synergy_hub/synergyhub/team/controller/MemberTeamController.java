@@ -1,38 +1,68 @@
 package com.synergy_hub.synergyhub.team.controller;
 
+import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
 import com.synergy_hub.synergyhub.team.dto.UpdateColorRequestDto;
 import com.synergy_hub.synergyhub.team.service.MemberTeamService;
+import com.synergy_hub.synergyhub.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/member-teams")
-@RequiredArgsConstructor
+@RequestMapping("/member-teams")
+//@RequiredArgsConstructor
 @Tag(name = "MemberTeam API", description = "팀과 멤버 관계를 관리하는 API") // Swagger 태그
 public class MemberTeamController {
 
     private final MemberTeamService memberTeamService;
+    private final TeamService teamService;
 
-//    // 팀에 멤버 추가
-//    @Operation(summary = "팀에 멤버 추가", description = "특정 팀에 멤버를 추가합니다.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "201", description = "멤버 추가 성공"),
-//            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음"),
-//            @ApiResponse(responseCode = "400", description = "잘못된 요청")
-//    })
-//    @PostMapping("/{teamId}/members")
-//    public ResponseEntity<Void> addMemberToTeam(
-//            @PathVariable Long teamId,
-//            @RequestBody MemberRequestDTO memberRequestDTO) {
-//        memberTeamService.addMemberToTeam(teamId, memberRequestDTO.toEntity());
-//        return ResponseEntity.status(HttpStatus.CREATED).build();
-//    }
+    public MemberTeamController(MemberTeamService memberTeamService, TeamService teamService) {
+        this.memberTeamService = memberTeamService;
+        this.teamService = teamService; // 주입
+    }
+
+    /**
+     * 로그인한 사용자가 속한 팀 목록 조회
+     * @param memberId 로그인한 사용자의 ID
+     * @return 사용자가 속한 팀 목록
+     */
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<TeamResponseDTO>> getTeamsByMember(@PathVariable Long memberId) {
+        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
+        return ResponseEntity.ok(teams);
+    }
+
+    /**
+     * 팀에 멤버 추가
+     * @param teamId 팀 ID
+     * @param member 멤버 정보 (RequestBody를 통해 전달)
+     */
+    @PostMapping("/{teamId}/add")
+    public ResponseEntity<Void> addMemberToTeam(@PathVariable Long teamId, @RequestBody Member member) {
+        memberTeamService.addMemberToTeam(teamId, member);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 특정 팀의 멤버 목록 조회
+     * @param teamId 팀 ID
+     * @return 팀에 속한 멤버 목록
+     */
+    @GetMapping("/{teamId}/members")
+    public ResponseEntity<List<Member>> getMembersOfTeam(@PathVariable Long teamId) {
+        List<Member> members = memberTeamService.getMembersOfTeam(teamId);
+        return ResponseEntity.ok(members);
+    }
+
 
 //    // 팀에서 멤버 제거
 //    @Operation(summary = "팀에서 멤버 제거", description = "특정 팀에서 멤버를 제거합니다.")
@@ -47,22 +77,6 @@ public class MemberTeamController {
 //            @PathVariable Long memberId) {
 //        memberTeamService.removeMemberFromTeam(teamId, memberId);
 //        return ResponseEntity.noContent().build();
-//    }
-
-//    // 특정 팀의 멤버 조회
-//    @Operation(summary = "팀 멤버 조회", description = "특정 팀에 속한 모든 멤버를 조회합니다.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "멤버 조회 성공"),
-//            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음")
-//    })
-//    @GetMapping("/{teamId}/members")
-//    public ResponseEntity<List<MemberResponseDTO>> getMembersOfTeam(
-//            @PathVariable Long teamId) {
-//        List<MemberResponseDTO> members = memberTeamService.getMembersOfTeam(teamId)
-//                .stream()
-//                .map(MemberResponseDTO::new)
-//                .toList();
-//        return ResponseEntity.ok(members);
 //    }
 
     // 색상 변경
