@@ -35,7 +35,7 @@ public class ChatMessageService {
                 .chatRoom(chatRoom)
                 .member(member)
                 .type(requestDto.getType())
-                .message(requestDto.getMessage())
+                .message(requestDto.getMessage().getText()) // ChatMessageContent에서 텍스트 추출
                 .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);

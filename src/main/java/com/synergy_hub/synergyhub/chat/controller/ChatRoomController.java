@@ -5,8 +5,10 @@ import com.synergy_hub.synergyhub.chat.dto.ChatRoomResponseDto;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +38,9 @@ public class ChatRoomController {
     @GetMapping("/get/{teamId}")
     public ResponseEntity<ChatRoomResponseDto> getChatRoomByTeamId(@PathVariable Long teamId) {
         ChatRoomResponseDto response = chatRoomService.getChatRoomByTeamId(teamId);
+//        if (response == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Chat room not found for teamId: " + teamId);
+//        }
         return ResponseEntity.ok(response);
     }
 
