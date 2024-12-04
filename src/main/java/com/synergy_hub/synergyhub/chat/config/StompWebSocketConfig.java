@@ -16,10 +16,10 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
         public void registerStompEndpoints(StompEndpointRegistry registry) {
             // WebSocket 엔드포인트 등록
             registry.addEndpoint("/ws")
-                    .setAllowedOrigins("*"); // CORS 허용
+                    .setAllowedOrigins("http://localhost:3000"); // CORS 허용
 //                    .withSockJS(); // SockJS 지원
             registry.addEndpoint("/ws")
-                    .setAllowedOrigins("*") // CORS 허용
+                    .setAllowedOrigins("http://localhost:3000") // CORS 허용
                     .withSockJS(); // SockJS 지원
         }
 
