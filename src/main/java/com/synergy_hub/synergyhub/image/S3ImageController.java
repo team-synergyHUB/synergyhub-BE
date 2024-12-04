@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
-@RequestMapping("/api/images")
+@RequestMapping("/images")
 @Tag(name = "Image API", description = "이미지 관련 API")
 public class S3ImageController {
 
