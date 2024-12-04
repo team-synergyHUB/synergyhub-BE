@@ -8,6 +8,7 @@ import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
@@ -40,24 +41,30 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
 
         //google (providerId) - 고유 아이디
-        String uid = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
         String nickname = oAuth2Response.getName();
         String email = oAuth2Response.getEmail();
+        String profileImage = oAuth2Response.getPicture();
 
-        UserDto userDto = new UserDto(uid, email, nickname, MemberRole.USER);
+        // 사용자 조회
+        Optional<Member> memberOpt = memberRepository.
+            findByNicknameAndEmailDeletedAtIsNull(nickname, email);
 
-        memberRepository.findByNicknameAndEmailDeletedAtIsNull(nickname, email)
-            .ifPresentOrElse(
-                m -> m.updateMyInfo(nickname),
+        UserDto userDto;
 
-                () -> {
-                    Member member = Member.createMember(nickname, email, "null");
-                    member.changeRole(MemberRole.USER);
-                    memberRepository.save(member);
-                });
+        if (memberOpt.isPresent()) {
+            Member member = memberOpt.get();
+            member.updateMyInfo(nickname);
+            userDto = new UserDto(member.getId(), email, nickname, MemberRole.USER);
+        } else {
+            // 새 사용자 생성
+            Member member = Member.createMember(nickname, email, "null");
+            member.changeRole(MemberRole.USER);
+            member.updateProfileImage(profileImage);
+            memberRepository.save(member);
+            userDto = new UserDto( member.getId(), email, nickname, MemberRole.USER);
+        }
 
         return new CustomOauth2User(userDto);
-
     }
 
 

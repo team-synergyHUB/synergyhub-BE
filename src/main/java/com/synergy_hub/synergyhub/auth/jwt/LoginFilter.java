@@ -11,7 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -71,6 +73,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
 
         String username = memberDetails.getUsername();//이메일 추출
+        String nickname = memberDetails.getNickname();
+        String profileImageUrl = memberDetails.getProfileImageUrl();
+        Long userId = memberDetails.getUserId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -79,10 +84,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //토큰 생성
         String jwtToken = jwtTokenProvider.createJwtToken(
-            username, role, 60 * 10 * 1000L, "common");
+            username, userId, role, 60 * 10 * 1000L, "common");
 
         //응답 헤더에 추가
         response.addHeader("Authorization", "Bearer " + jwtToken);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        //회원 정보 json으로 응답
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("username", username);
+        responseData.put("nickname", nickname);
+        responseData.put("profileImageUrl", profileImageUrl);
+
+        new ObjectMapper().writeValue(response.getWriter(), responseData);
+
     }
 
 
