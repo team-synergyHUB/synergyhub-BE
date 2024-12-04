@@ -56,6 +56,21 @@ public class ChatRoomService {
                 .toList();
     }
 
+    // 팀 ID로 채팅방 정보 가져오기
+    @Transactional(readOnly = true)
+    public ChatRoomResponseDto getChatRoomByTeamId(Long teamId) {
+        // Team 엔티티 조회
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+
+        // Team에 연결된 ChatRoom 조회
+        ChatRoom chatRoom = chatRoomRepository.findByTeam(team)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        // ChatRoom -> ChatRoomResponseDto 매핑
+        return chatRoomMapper.toChatRoomResponseDto(chatRoom);
+    }
+
     // 채팅방 삭제
     @Transactional
     public ChatRoom deleteChatRoom(Long chatRoomId) {
