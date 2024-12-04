@@ -2,6 +2,7 @@ package com.synergy_hub.synergyhub.auth.oauth.controller;
 
 import com.synergy_hub.synergyhub.auth.oauth.service.Oauth2JwtHeaderService;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
+import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class Oauth2Controller {
     private final Oauth2JwtHeaderService oauth2JwtHeaderService;
 
     @PostMapping("/oauth2/jwt-header")
-    public ResponseEntity<ApiResponse<Void>> oauth2jwtHeader(
+    public ResponseEntity<ApiResponse<MemberResponseDto>> oauth2jwtHeader(
         HttpServletRequest request, HttpServletResponse response) {
 
         log.info("====jwtHeaderService 호출====");
