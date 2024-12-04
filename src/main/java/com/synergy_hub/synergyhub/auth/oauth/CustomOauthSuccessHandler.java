@@ -45,6 +45,6 @@ public class CustomOauthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         //쿠키에 JWT 담아서 응답
         response.addCookie(CookieService.createCookie(
             "Authorization", jwtToken, 60*60*60));
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:3000/oauth2-jwt-header");
     }
 }
