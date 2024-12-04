@@ -12,14 +12,23 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-        @Override
+
+    private final CustomHandshakeInterceptor customHandshakeInterceptor;
+
+    public StompWebSocketConfig(CustomHandshakeInterceptor customHandshakeInterceptor) {
+        this.customHandshakeInterceptor = customHandshakeInterceptor;
+    }
+
+    @Override
         public void registerStompEndpoints(StompEndpointRegistry registry) {
             // WebSocket 엔드포인트 등록
             registry.addEndpoint("/ws")
-                    .setAllowedOrigins("http://localhost:3000"); // CORS 허용
+                    .setAllowedOrigins("http://localhost:3000") // CORS 허용
+                    .addInterceptors(customHandshakeInterceptor);
 //                    .withSockJS(); // SockJS 지원
             registry.addEndpoint("/ws")
                     .setAllowedOrigins("http://localhost:3000") // CORS 허용
+                    .addInterceptors(customHandshakeInterceptor)
                     .withSockJS(); // SockJS 지원
         }
 
