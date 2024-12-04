@@ -31,7 +31,7 @@ public class Team {
     @Column(nullable = false, length = 255)
     private String name; // 팀 이름
 
-    @Column(nullable = false, unique = true, length = 12) // 초대 코드는 유니크 설정
+    @Column(nullable = false, unique = true, length = 100) // 초대 코드는 유니크 설정
     private String inviteCode; // 초대 코드
 
     @Column(nullable = false)
