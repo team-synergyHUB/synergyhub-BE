@@ -96,6 +96,12 @@ public class Member {
         memberTeams.remove(memberTeam);
     }
 
+    public String getProfileImageUrl() {
+        return this.profileImageUrl == null ?
+            "https://i.namu.wiki/i/Bge3xnYd4kRe_IKbm2uqxlhQJij2SngwNssjpjaOyOqoRhQlNwLrR2ZiK-JWJ2b99RGcSxDaZ2UCI7fiv4IDDQ.webp"
+            : this.profileImageUrl;
+    }
+
     //프로필 업데이트
     public void updateMyInfo(String nickname) {
         this.nickname = nickname;
