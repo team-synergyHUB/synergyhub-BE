@@ -33,9 +33,16 @@ public class ChatMessageController {
             @DestinationVariable("chatRoomId") Long chatRoomId,
             @Payload ChatMessageRequestDto requestDto
     ) {
+        // 요청 데이터 로깅
+        System.out.println("Received ChatMessageRequestDto: " + requestDto);
+
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = principal.getName(); // Principal에서 memberId를 가져온다고 가정
         ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(chatRoomId, requestDto, email);
+
+
+        // 응답 데이터 로깅
+        System.out.println("Created ChatMessageResponseDto: " + createdMessage);
 
         System.out.println("CM = " + createdMessage);
         System.out.println("rqDTO = " + requestDto);
@@ -87,7 +94,7 @@ public class ChatMessageController {
     /**
      * 특정 채팅방의 모든 메시지 조회 (REST API 방식)
      */
-    @GetMapping("/chat-message-history/{chatRoomId}")
+    @GetMapping("/chat/message/history/{chatRoomId}")
     public ResponseEntity<List<ChatMessageResponseDto>> getChatMessages(
             @PathVariable("chatRoomId") Long chatRoomId) {
         List<ChatMessageResponseDto> chatMessages = chatMessageService.getChatMessages(chatRoomId);
