@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -110,34 +111,16 @@ public class MemberController {
 
     }
 
-//    private static String getAuthenticationEmail() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated() ||
-//            authentication instanceof AnonymousAuthenticationToken) {
-//            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
-//        }
-//
-//        String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
-//        return email;
-//    }
-//
-//    private static String getAuthenticationMemberId() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated() ||
-//            authentication instanceof AnonymousAuthenticationToken) {
-//            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
-//        }
-//
-//        String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
-//        return email;
-//    }
 
     private String getAuthenticationEmail() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+            authentication instanceof AnonymousAuthenticationToken) {
+            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
 
         // OAuth2 로그인
         if (principal instanceof CustomOauth2User) {
@@ -156,6 +139,11 @@ public class MemberController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+            authentication instanceof AnonymousAuthenticationToken) {
+            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
 
         // OAuth2 로그인
         if (principal instanceof CustomOauth2User) {
