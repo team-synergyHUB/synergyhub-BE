@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class Team {
     @Column(nullable = false, length = 255)
     private String name; // 팀 이름
 
-    @Column(nullable = false, unique = true, length = 100) // 초대 코드는 유니크 설정
+    @Column(nullable = false, unique = true, length = 36) // 초대 코드는 유니크 설정
     private String inviteCode; // 초대 코드
 
     @Column(nullable = false)
@@ -64,12 +65,35 @@ public class Team {
         String code;
         do {
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < 8; i++) {
                 int index = (int) (Math.random() * characters.length());
                 builder.append(characters.charAt(index));
             }
             code = builder.toString();
         } while (false); // 중복 확인 로직 임시 비활성화
+        return code;
+    }
+
+//    private String generateUniqueInviteCode() {
+//        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//        StringBuilder builder = new StringBuilder();
+//
+//        // 8자리 코드 생성
+//        for (int i = 0; i < 8; i++) {
+//            int index = (int) (Math.random() * characters.length());
+//            builder.append(characters.charAt(index));
+//        }
+//
+//        return builder.toString();
+//    }
+
+    // 초대 코드 중복 검증 로직 추가 (선택 사항)
+    // teamRepository를 주입받아 데이터베이스에 중복이 없도록 확인
+    private String generateUniqueInviteCode(TeamRepository teamRepository) {
+        String code;
+        do {
+            code = RandomStringUtils.randomAlphanumeric(36); // Apache Commons Lang 사용
+        } while (teamRepository.existsByInviteCode(code)); // 중복 확인
         return code;
     }
 
