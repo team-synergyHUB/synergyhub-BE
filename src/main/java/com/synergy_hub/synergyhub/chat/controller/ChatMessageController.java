@@ -10,6 +10,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,10 +31,14 @@ public class ChatMessageController {
     @MessageMapping("/chat/message/sendMessage/{chatRoomId}")
     public void sendMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
-            @Payload ChatMessageRequestDto requestDto,
-            @Header("user") Principal principal) {
-        Long memberId = Long.valueOf(principal.getName()); // Principal에서 memberId를 가져온다고 가정
-        ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(chatRoomId, requestDto, memberId);
+            @Payload ChatMessageRequestDto requestDto
+    ) {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = principal.getName(); // Principal에서 memberId를 가져온다고 가정
+        ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(chatRoomId, requestDto, email);
+
+        System.out.println("CM = " + createdMessage);
+        System.out.println("rqDTO = " + requestDto);
 
         // 생성된 메시지 브로드캐스트
         messagingTemplate.convertAndSend("/topic/messages/" + chatRoomId, createdMessage);
@@ -43,11 +48,12 @@ public class ChatMessageController {
     @MessageMapping("/chat/message/deleteMessage/{chatRoomId}")
     public void deleteMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
-            @Payload ChatMessageRequestDto requestDto,
-            @Header("user") Principal principal) {
+            @Payload ChatMessageRequestDto requestDto) {
         // 현재 사용자의 ID 가져오기
-        Long memberId = Long.valueOf(principal.getName());
-        Long deletedMessageId = chatMessageService.deleteMessage(requestDto.getId(), memberId);
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = principal.getName(); // Principal에서 memberId를 가져온다고 가정
+
+        Long deletedMessageId = chatMessageService.deleteMessage(requestDto.getId(), email);
 
         // 삭제된 메시지 ID를 브로드캐스트
         messagingTemplate.convertAndSend("/topic/message-deletions/" + chatRoomId, deletedMessageId);

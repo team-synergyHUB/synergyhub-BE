@@ -25,10 +25,10 @@ public class ChatMessageService {
     private final ChatMapper chatMessageMapper;
 
     // 메시지 전송
-    public ChatMessageResponseDto sendMessage(Long chatRoomId, ChatMessageRequestDto requestDto, Long memberId) {
+    public ChatMessageResponseDto sendMessage(Long chatRoomId, ChatMessageRequestDto requestDto, String email) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         ChatMessage chatMessage = ChatMessage.builder()
@@ -43,10 +43,10 @@ public class ChatMessageService {
     }
 
     // 메시지 삭제
-    public Long deleteMessage(Long messageId, Long memberId) {
+    public Long deleteMessage(Long messageId,  String email) {
         ChatMessage chatMessage = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (!chatMessage.getMember().getId().equals(member.getId())) {
