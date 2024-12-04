@@ -23,7 +23,7 @@ public class Oauth2Controller {
     private final Oauth2JwtHeaderService oauth2JwtHeaderService;
 
     @PostMapping("/oauth2/jwt-header")
-    public ResponseEntity<ApiResponse<MemberResponseDto>> oauth2jwtHeader(
+    public ResponseEntity<ApiResponse<Void>> oauth2jwtHeader(
         HttpServletRequest request, HttpServletResponse response) {
 
         log.info("====jwtHeaderService 호출====");
