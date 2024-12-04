@@ -26,7 +26,7 @@ public class Oauth2JwtHeaderService {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
 
-    public ResponseEntity<ApiResponse<MemberResponseDto>> handleJwtHeader(
+    public ResponseEntity<ApiResponse<Void>> handleJwtHeader(
         HttpServletRequest request, HttpServletResponse response) {
 
         Cookie[] cookies = request.getCookies();
@@ -48,14 +48,13 @@ public class Oauth2JwtHeaderService {
 
         //jwt parsing
         String username = jwtTokenProvider.getUsername(jwtAccessToken);
-
+        Long userId = jwtTokenProvider.getUserId(jwtAccessToken);
 
         response.addCookie(CookieService.createCookie("Authorization", null, 0));
         response.addHeader("Authorization", "Bearer " + jwtAccessToken);
 
         return ApiResponseBuilder.success(
-            "JwtHeaderService Successfully",
-            memberService.findByEmail(username), HttpStatus.OK);
+            "JwtHeaderService Successfully", null, HttpStatus.OK);
     }
 
 }
