@@ -18,10 +18,10 @@ public class TeamCreateResponseDTO {
     private Long calendarId; // 캘린더 ID
     private Long roomId; // 채팅 ID
 
-    private boolean isMember; // 생성된 사용자가 이 팀의 멤버인지 여부
+    private Long memberId; // 현재 사용자의 멤버 ID
 
     // 엔티티를 DTO로 변환하는 생성자
-    public TeamCreateResponseDTO(Team team, Calendar calendar, ChatRoom chatRoom, boolean isMember) {
+    public TeamCreateResponseDTO(Team team, Calendar calendar, ChatRoom chatRoom, Long memberId) {
         this.id = team.getId();
         this.name = team.getName();
         this.inviteCode = team.getInviteCode();
@@ -34,6 +34,6 @@ public class TeamCreateResponseDTO {
         this.calendarId = calendar.getId();
         this.roomId = chatRoom.getRoomId();
 
-        this.isMember = isMember;
+        this.memberId = memberId; // 멤버 ID 설정
     }
 }

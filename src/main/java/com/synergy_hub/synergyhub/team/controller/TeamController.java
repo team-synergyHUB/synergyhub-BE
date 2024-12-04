@@ -130,17 +130,39 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<TeamCreateResponseDTO> createTeam(
             @Valid @RequestBody TeamRequestDTO request,
-            @RequestHeader("Authorization") String authorizationHeader // 토큰에서 회원 정보 추출
-    ) {
-        // 1. 토큰에서 사용자 ID 추출 (예: JWT 사용)
-        String token = authorizationHeader.replace("Bearer ", "");
-        Long memberId = jwtTokenProvider.getUserIdFromToken(token); // 사용자 ID 가져오기
+            @RequestHeader("Authorization") String authorizationHeader) {
 
-        // 2. 팀 생성 서비스 호출
+        System.out.println("1. 요청 수신: " + request); // 요청 데이터 확인
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        Long memberId = jwtTokenProvider.getUserId(token);
+        System.out.println("2. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인
+
         TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberId);
+        System.out.println("3. 생성된 팀: " + createdTeam); // 팀 생성 성공 여부 확인
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
+
+//    @PostMapping
+//    public ResponseEntity<TeamCreateResponseDTO> createTeam(
+//            @Valid @RequestBody TeamRequestDTO request) {
+//
+//        // SecurityContext에서 인증된 사용자 ID 가져오기
+//        Long memberId = getAuthenticationMemberId(); // Custom 메서드 사용
+//        System.out.println("2. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인
+//
+//        // 팀 생성 서비스 호출
+//        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberId);
+//        System.out.println("3. 생성된 팀: " + createdTeam); // 팀 생성 성공 여부 확인
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
+//    }
+
+
 
     // 팀 수정
     @CommonApiDocs(summary = "팀 수정", description = "기존 팀의 정보를 수정합니다.")

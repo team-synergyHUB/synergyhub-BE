@@ -110,6 +110,48 @@ public class TeamService {
 //        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom);
 //    }
 
+//    @Transactional
+//    public TeamCreateResponseDTO createTeamWithMember(TeamRequestDTO request, Long memberId) {
+//        // 1. 라벨 리스트 생성
+//        List<Label> labels = new ArrayList<>();
+//        if (request.getLabelIds() != null && !request.getLabelIds().isEmpty()) {
+//            labels = labelRepository.findAllById(request.getLabelIds());
+//            if (labels.isEmpty()) {
+//                throw new CustomException(ErrorCode.LABEL_NOT_FOUND); // 라벨이 없을 경우 예외 처리
+//            }
+//        }
+//
+//        // 1. 팀 생성
+//        Team team = Team.builder()
+//                .name(request.getName())
+//                .isDeleted(false)
+//                .inviteCode(UUID.randomUUID().toString()) // 초대 코드 생성
+//                .build();
+//        Team savedTeam = teamRepository.save(team);
+//
+//        // 2. 캘린더 생성 및 저장
+//        Calendar calendar = Calendar.builder()
+//                .team(savedTeam)
+//                .build();
+//        Calendar savedCalendar = calendarRepository.save(calendar);
+//
+//        // 3. 채팅방 생성 및 저장
+//        ChatRoom chatRoom = ChatRoom.builder()
+//                .team(savedTeam)
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+//
+//        // 4. 생성된 팀에 멤버 추가 (MemberTeam 테이블 저장)
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+//        MemberTeam memberTeam = new MemberTeam(member, savedTeam);
+//        memberTeamRepository.save(memberTeam);
+//
+//        // 5. DTO 반환
+//        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom, true);
+//    }
+
     @Transactional
     public TeamCreateResponseDTO createTeamWithMember(TeamRequestDTO request, Long memberId) {
         // 1. 라벨 리스트 생성
@@ -121,36 +163,38 @@ public class TeamService {
             }
         }
 
-        // 1. 팀 생성
+        // 2. 팀 생성
         Team team = Team.builder()
                 .name(request.getName())
                 .isDeleted(false)
                 .inviteCode(UUID.randomUUID().toString()) // 초대 코드 생성
+                .labels(labels) // 팀과 라벨 연결
                 .build();
         Team savedTeam = teamRepository.save(team);
 
-        // 2. 캘린더 생성 및 저장
+        // 3. 캘린더 생성 및 저장
         Calendar calendar = Calendar.builder()
                 .team(savedTeam)
                 .build();
         Calendar savedCalendar = calendarRepository.save(calendar);
 
-        // 3. 채팅방 생성 및 저장
+        // 4. 채팅방 생성 및 저장
         ChatRoom chatRoom = ChatRoom.builder()
                 .team(savedTeam)
                 .createdAt(LocalDateTime.now())
                 .build();
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
-        // 4. 생성된 팀에 멤버 추가 (MemberTeam 테이블 저장)
+        // 5. 생성된 팀에 멤버 추가 (MemberTeam 테이블 저장)
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         MemberTeam memberTeam = new MemberTeam(member, savedTeam);
         memberTeamRepository.save(memberTeam);
 
-        // 5. DTO 반환
-        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom, true);
+        // 6. DTO 반환
+        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom, memberId);
     }
+
 
 
     @Transactional
