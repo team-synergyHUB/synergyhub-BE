@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.auth.oauth;
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.auth.oauth.dto.CustomOauth2User;
 import com.synergy_hub.synergyhub.auth.oauth.service.CookieService;
+import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -29,10 +30,12 @@ public class CustomOauthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        CustomOauth2User customUserDetails = (CustomOauth2User) authentication.getPrincipal();
+//        CustomOauth2User customUserDetails = (CustomOauth2User) authentication.getPrincipal();
+        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
 
-        String email = customUserDetails.getEmail();  //이메일을 username으로 통일
-        Long userId = customUserDetails.getUserId();
+
+        String email = memberDetails.getUsername();  //이메일을 username으로 통일
+        Long userId = memberDetails.getUserId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
