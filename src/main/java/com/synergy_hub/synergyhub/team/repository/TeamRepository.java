@@ -26,5 +26,8 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     @Query("SELECT t FROM Team t JOIN t.memberTeams mt WHERE mt.member.id = :memberId AND t.isDeleted = :isDeleted")
     Page<Team> findAllByMemberIdAndIsDeleted(@Param("memberId") Long memberId, @Param("isDeleted") boolean isDeleted, Pageable pageable);
 
+    Optional<Team> findByInviteCodeAndIsDeletedFalse(String inviteCode);
+
+
 
 }
