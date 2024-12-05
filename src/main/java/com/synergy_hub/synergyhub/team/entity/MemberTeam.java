@@ -21,8 +21,12 @@ public class MemberTeam {
 //    @Column(name = "member_id", nullable = false)
 //    private Long memberId; // 멤버 ID
 
-    @Column(nullable = false, length = 7)
-    private String color; // 팀 색상
+//    @Column(nullable = false, length = 7)
+//    private String color; // 팀 색상
+
+    @Column(nullable = false)
+    private String color = "defaultColor"; // 기본값 설정
+
 
     @ManyToOne
     @JoinColumn(name = "team_id", nullable = false)
@@ -32,6 +36,16 @@ public class MemberTeam {
 //    @Column(name = "member_id", nullable = false)
     @JoinColumn(name = "member_id")
     private Member member; // 멤버 ID
+
+    // MemberTeam 클래스
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
 
     // 커스텀 생성자 추가
     public MemberTeam(Member member, Team team) {

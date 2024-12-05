@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.team.service;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.team.entity.MemberTeam;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
@@ -18,28 +19,40 @@ import java.util.List;
 public class MemberTeamService {
     private final MemberTeamRepository memberTeamRepository;
     private final TeamRepository teamRepository;
-    //private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    public MemberTeamService(MemberTeamRepository memberTeamRepository, TeamRepository teamRepository) {
+    public MemberTeamService(MemberTeamRepository memberTeamRepository, TeamRepository teamRepository,
+                             MemberRepository memberRepository) {
         this.memberTeamRepository = memberTeamRepository;
         this.teamRepository = teamRepository;
+        this.memberRepository = memberRepository;
     }
 
-    // 팀에 멤버 추가
-    public void addMemberToTeam(Long teamId, Member member) {
-        // 팀 존재 여부 확인
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+    @Transactional
+    public void addMemberToTeam(String inviteCode, Long memberId) {
+        // 1. 초대 코드로 팀 조회
+        Team team = teamRepository.findByInviteCodeAndIsDeletedFalse(inviteCode)
+                .orElseThrow(() -> new IllegalArgumentException("초대 코드에 해당하는 팀이 없습니다."));
 
-        // 2. 멤버 존재 여부 확인 -> 필요 없을 듯
-//        boolean memberExists = memberRepository.existsById(memberId);
-//        if (!memberExists) {
-//            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-//        }
+        // 2. 이미 소속된 회원인지 확인
+        boolean isAlreadyMember = memberTeamRepository.existsByTeamAndMemberId(team, memberId);
+        if (isAlreadyMember) {
+            throw new IllegalStateException("이미 해당 팀에 소속된 회원입니다.");
+        }
 
-        MemberTeam memberTeam = new MemberTeam(member, team);
+        // 3. 소속 추가
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        MemberTeam memberTeam = MemberTeam.builder()
+                .team(team)
+                .member(member)
+                .color("#00000") // 또는 로직에 따라 값 설정
+                .build();
+
         memberTeamRepository.save(memberTeam);
     }
+
+
 //
 //    // 팀에서 멤버 제거
 //    public void removeMemberFromTeam(Long teamId, Long memberId) {
