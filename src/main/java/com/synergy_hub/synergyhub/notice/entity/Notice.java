@@ -37,8 +37,8 @@ public class Notice {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 내용
 
-    @Column(nullable = true)
-    private String imageUrl;
+//    @Column(nullable = true)
+//    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -60,22 +60,22 @@ public class Notice {
 
 
     //공지사항 생성 메서드
-    public static Notice createNotice(String title, String content, Member member, Team team, String imageUrl) {
+    public static Notice createNotice(String title, String content, Member member, Team team) {
         return Notice.builder()
             .title(title)
             .content(content)
             .member(member)
             .team(team)
-            .imageUrl(imageUrl)
+//            .imageUrl(imageUrl)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .build();
     }
     //공지사항 수정 메서드
-    public void updateNotice(String title, String content,String imageUrl) {
+    public void updateNotice(String title, String content) {
         this.title = title;
         this.content = content;
-        this.imageUrl=imageUrl;
+//        this.imageUrl=imageUrl;
         this.updatedAt = LocalDateTime.now(); // 수정일 업데이트
     }
 
