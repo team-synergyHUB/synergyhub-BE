@@ -15,7 +15,9 @@ public class NoticeRequestDTO {
     @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
+    private String memberNickname;
     private Long memberId;
     private Long teamId;
     private MultipartFile image;
+
 }
