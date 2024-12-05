@@ -27,7 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        return path.equals("/members/login") || path.equals("/") || path.equals("/members/signup");
+        return path.equals("/members/login") || path.equals("/") || path.equals("/members/signup")
+            || path.equals("/ws");
     }
 
     @Override
@@ -67,32 +68,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String loginType = jwtTokenProvider.getLoginType(token);
 
 
-            // 세션 정보 설정 - JWT 일반 로그인
-            if("common".equals(loginType)) {
-                Member member = Member.createSessionMember(userId, username, null, memberRole);
-                MemberDetails memberDetails = new MemberDetails(member);
-                Authentication authToken = new UsernamePasswordAuthenticationToken(
+
+            Member member = Member.createSessionMember(userId, username, null, memberRole);
+            MemberDetails memberDetails = new MemberDetails(member);
+            Authentication authToken = new UsernamePasswordAuthenticationToken(
                     memberDetails, "", memberDetails.getAuthorities());
 
                 //세션에 사용자 등록
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                filterChain.doFilter(request, response);
-            }
-            else { //Oauth2 로그인 - loginType=social
-                UserDto userDto = new UserDto();
-                userDto.setEmail(username);
-                userDto.setUserId(userId);
-                userDto.setRole(memberRole);
-                CustomOauth2User customUserDetails = new CustomOauth2User(userDto);
+            filterChain.doFilter(request, response);
 
-                Authentication authToken = new UsernamePasswordAuthenticationToken(
-                    customUserDetails, "", customUserDetails.getAuthorities());
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                filterChain.doFilter(request, response);
-            }
+//
+//            // 세션 정보 설정 - JWT 일반 로그인
+//            if("common".equals(loginType)) {
+//                Member member = Member.createSessionMember(userId, username, null, memberRole);
+//                MemberDetails memberDetails = new MemberDetails(member);
+//                Authentication authToken = new UsernamePasswordAuthenticationToken(
+//                    memberDetails, "", memberDetails.getAuthorities());
+//
+//                //세션에 사용자 등록
+//                SecurityContextHolder.getContext().setAuthentication(authToken);
+//
+//                filterChain.doFilter(request, response);
+//            }
+//            else { //Oauth2 로그인 - loginType=social
+//                UserDto userDto = new UserDto();
+//                userDto.setEmail(username);
+//                userDto.setUserId(userId);
+//                userDto.setRole(memberRole);
+//                CustomOauth2User customUserDetails = new CustomOauth2User(userDto);
+//
+//                Authentication authToken = new UsernamePasswordAuthenticationToken(
+//                    customUserDetails, "", customUserDetails.getAuthorities());
+//
+//                SecurityContextHolder.getContext().setAuthentication(authToken);
+//
+//                filterChain.doFilter(request, response);
+//            }
 
 
         } catch (Exception e) {

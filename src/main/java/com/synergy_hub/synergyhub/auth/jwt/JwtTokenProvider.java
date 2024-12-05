@@ -1,22 +1,36 @@
 package com.synergy_hub.synergyhub.auth.jwt;
 
+import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.member.entity.MemberDetails;
+import com.synergy_hub.synergyhub.member.service.MemberService;
+import com.synergy_hub.synergyhub.member.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtTokenProvider {
 
     private SecretKey secretKey;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public JwtTokenProvider(@Value("${spring.jwt.secret-key}") String secret) {
+    public JwtTokenProvider(@Value("${spring.jwt.secret-key}") String secret,
+        UserDetailsServiceImpl userDetailsService) {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
             Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.userDetailsService = userDetailsService;
     }
 
     //토큰에서 유저정보(email 추출)
@@ -86,6 +100,23 @@ public class JwtTokenProvider {
             .expiration(new Date(System.currentTimeMillis() + expiredMs))
             .signWith(secretKey)
             .compact();
+    }
+
+    public Authentication createAuthentication(String accessToken) {
+
+        Long userId = getPayLoadAsLong(accessToken, "userId");
+        String username = getPayLoad(accessToken, "username");
+        String loginType = getPayLoad(accessToken, "loginType");
+        String role = getPayLoad(accessToken, "role");
+
+        Collection<? extends GrantedAuthority> authorities =
+            Arrays.stream(role.split(","))
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
 }
