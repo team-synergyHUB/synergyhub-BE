@@ -32,39 +32,6 @@ public class NoticeService {
         this.memberRepository = memberRepository;
     }
 
-//    // 공지사항 생성
-//    @Transactional
-//    public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
-//        Member member = memberRepository.findById(requestDTO.getMemberId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-//
-//        Team team = teamRepository.findById(requestDTO.getTeamId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-//
-//        Notice notice = Notice.createNotice(
-//                requestDTO.getTitle(),
-//                requestDTO.getContent(),
-//                member,
-//                team
-//        );
-//        noticeRepository.save(notice);
-//        return NoticeResponseDTO.fromEntity(notice);
-//    }
-//
-//    // 공지사항 수정
-//    @Transactional
-//    public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO) {
-//        Notice notice = noticeRepository.findById(id)
-//                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
-//
-//        notice.updateNotice(
-//                requestDTO.getTitle(),
-//                requestDTO.getContent()
-//        );
-//
-//        return NoticeResponseDTO.fromEntity(notice);
-//    }
-
     // 공지사항 생성
     @Transactional
     public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
