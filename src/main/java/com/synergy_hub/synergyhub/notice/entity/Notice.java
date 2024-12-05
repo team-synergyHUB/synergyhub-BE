@@ -12,16 +12,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 @Entity
 @Table(name="notice")
 public class Notice {
@@ -59,25 +58,25 @@ public class Notice {
 
 
 
-    //공지사항 생성 메서드
-    public static Notice createNotice(String title, String content, Member member, Team team) {
-        return Notice.builder()
-            .title(title)
-            .content(content)
-            .member(member)
-            .team(team)
-//            .imageUrl(imageUrl)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
-    }
-    //공지사항 수정 메서드
-    public void updateNotice(String title, String content) {
-        this.title = title;
-        this.content = content;
-//        this.imageUrl=imageUrl;
-        this.updatedAt = LocalDateTime.now(); // 수정일 업데이트
-    }
+//    //공지사항 생성 메서드
+//    public static Notice createNotice(String title, String content, Member member, Team team) {
+//        return Notice.builder()
+//            .title(title)
+//            .content(content)
+//            .member(member)
+//            .team(team)
+////            .imageUrl(imageUrl)
+//            .createdAt(LocalDateTime.now())
+//            .updatedAt(LocalDateTime.now())
+//            .build();
+//    }
+//    //공지사항 수정 메서드
+//    public void updateNotice(String title, String content) {
+//        this.title = title;
+//        this.content = content;
+////        this.imageUrl=imageUrl;
+//        this.updatedAt = LocalDateTime.now(); // 수정일 업데이트
+//    }
 
     // 소프트 딜리트 처리 메서드
     public void softDelete() {
