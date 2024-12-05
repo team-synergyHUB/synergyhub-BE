@@ -22,10 +22,8 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findByTeamIdAndDeletedAtIsNullAndMemberId(Long teamId, Long memberId);
 
 
-
     @Modifying
-    @Query("UPDATE Notice n SET n.title = :title, n.content = :content, n.imageUrl = :imageUrl WHERE n.id = :id AND n.deletedAt IS NULL")
-    int updateNotice(@Param("id") Long id, @Param("title") String title, @Param("content") String content, @Param("imageUrl") String imageUrl);
-
+    @Query("UPDATE Notice n SET n.title = :title, n.content = :content WHERE n.id = :id AND n.deletedAt IS NULL")
+    int updateNotice(@Param("id") Long id, @Param("title") String title, @Param("content") String content);
 }
 

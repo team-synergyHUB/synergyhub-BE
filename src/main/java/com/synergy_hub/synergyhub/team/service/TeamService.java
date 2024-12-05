@@ -6,6 +6,8 @@ import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
+import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
@@ -71,86 +73,6 @@ public class TeamService {
         // 4. 매핑 데이터 저장
         teamRepository.save(team);
     }
-
-
-    // 팀 생성
-//    @Transactional
-//    public TeamCreateResponseDTO createTeam(TeamRequestDTO request) {
-//        // 1. 라벨 리스트 생성
-//        List<Label> labels = new ArrayList<>();
-//        if (request.getLabelIds() != null && !request.getLabelIds().isEmpty()) {
-//            labels = labelRepository.findAllById(request.getLabelIds());
-//            if (labels.isEmpty()) {
-//                throw new CustomException(ErrorCode.LABEL_NOT_FOUND); // 라벨이 없을 경우 예외 처리
-//            }
-//        }
-//
-//        // 2. 팀 생성 및 저장
-//        Team team = Team.builder()
-//                .name(request.getName())
-//                .labels(labels) // 라벨 리스트 추가
-//                .isDeleted(false) // 명시적으로 기본값 설정
-//                .build();
-//        Team savedTeam = teamRepository.save(team);
-//
-//        // 3. 캘린더 생성 및 저장
-//        Calendar calendar = Calendar.builder()
-//                .team(savedTeam) // 팀과 매핑
-//                .build();
-//        Calendar savedCalendar = calendarRepository.save(calendar);
-//
-//        // 4. 채팅방 생성 및 저장
-//        ChatRoom chatRoom = ChatRoom.builder()
-//                .team(savedTeam) // 팀과 매핑
-//                .createdAt(LocalDateTime.now()) // 명시적으로 값 설정
-//                .build();
-//        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-//
-//        // 5. TeamCreateResponseDTO 반환
-//        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom);
-//    }
-
-//    @Transactional
-//    public TeamCreateResponseDTO createTeamWithMember(TeamRequestDTO request, Long memberId) {
-//        // 1. 라벨 리스트 생성
-//        List<Label> labels = new ArrayList<>();
-//        if (request.getLabelIds() != null && !request.getLabelIds().isEmpty()) {
-//            labels = labelRepository.findAllById(request.getLabelIds());
-//            if (labels.isEmpty()) {
-//                throw new CustomException(ErrorCode.LABEL_NOT_FOUND); // 라벨이 없을 경우 예외 처리
-//            }
-//        }
-//
-//        // 1. 팀 생성
-//        Team team = Team.builder()
-//                .name(request.getName())
-//                .isDeleted(false)
-//                .inviteCode(UUID.randomUUID().toString()) // 초대 코드 생성
-//                .build();
-//        Team savedTeam = teamRepository.save(team);
-//
-//        // 2. 캘린더 생성 및 저장
-//        Calendar calendar = Calendar.builder()
-//                .team(savedTeam)
-//                .build();
-//        Calendar savedCalendar = calendarRepository.save(calendar);
-//
-//        // 3. 채팅방 생성 및 저장
-//        ChatRoom chatRoom = ChatRoom.builder()
-//                .team(savedTeam)
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-//
-//        // 4. 생성된 팀에 멤버 추가 (MemberTeam 테이블 저장)
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-//        MemberTeam memberTeam = new MemberTeam(member, savedTeam);
-//        memberTeamRepository.save(memberTeam);
-//
-//        // 5. DTO 반환
-//        return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom, true);
-//    }
 
     @Transactional
     public TeamCreateResponseDTO createTeamWithMember(TeamRequestDTO request, Long memberId) {
@@ -241,30 +163,17 @@ public class TeamService {
     }
 
     // 팀 조회 with 페이지네이션
-//    public Page<TeamResponseDTO> getAllTeams(int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size); // 페이지네이션 정보 생성 (페이지 번호, 데이터 개수)
-//
-//        return teamRepository.findAllByIsDeleted(false, pageable)
-//                .map(TeamResponseDTO::new); // Page 객체에 map 메서드를 사용해 DTO 변환
-//    }
-
-    // 팀 조회 with 페이지네이션
     public Page<TeamResponseDTO> getAllTeams(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending()); // 페이지 정보 생성
         return teamRepository.findAllByIsDeleted(false, pageable)
                 .map(TeamResponseDTO::new); // Page 객체를 DTO로 변환
     }
 
-    /**
-     * 특정 멤버가 속한 팀 목록 조회
-     * @param memberId 멤버 ID
-     * @return 멤버가 속한 팀 목록 (DTO 형태로 반환)
-     */
     public List<TeamResponseDTO> getTeamsByMember(Long memberId) {
-        // 1. 해당 멤버가 속한 MemberTeam 목록 조회
+        // 1. 특정 멤버가 속한 MemberTeam 목록 조회 (현재 로그인된 사용자가 속한 팀만 조회)
         List<MemberTeam> memberTeams = memberTeamRepository.findAllByMemberId(memberId);
 
-        // 2. MemberTeam에서 팀 엔티티 추출 후 DTO로 변환
+        // 2. 각 MemberTeam에서 Team 정보를 추출하고 DTO로 변환
         return memberTeams.stream()
                 .map(memberTeam -> new TeamResponseDTO(memberTeam.getTeam()))
                 .collect(Collectors.toList());
