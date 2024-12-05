@@ -1,6 +1,8 @@
 package com.synergy_hub.synergyhub.team.controller;
 
+import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.team.dto.TeamJoinRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
 import com.synergy_hub.synergyhub.team.dto.UpdateColorRequestDto;
 import com.synergy_hub.synergyhub.team.service.MemberTeamService;
@@ -12,8 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,10 +29,13 @@ public class MemberTeamController {
 
     private final MemberTeamService memberTeamService;
     private final TeamService teamService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public MemberTeamController(MemberTeamService memberTeamService, TeamService teamService) {
+    public MemberTeamController(MemberTeamService memberTeamService, TeamService teamService,
+                                JwtTokenProvider jwtTokenProvider) {
         this.memberTeamService = memberTeamService;
         this.teamService = teamService; // 주입
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     /**
@@ -42,17 +50,6 @@ public class MemberTeamController {
     }
 
     /**
-     * 팀에 멤버 추가
-     * @param teamId 팀 ID
-     * @param member 멤버 정보 (RequestBody를 통해 전달)
-     */
-    @PostMapping("/{teamId}/add")
-    public ResponseEntity<Void> addMemberToTeam(@PathVariable Long teamId, @RequestBody Member member) {
-        memberTeamService.addMemberToTeam(teamId, member);
-        return ResponseEntity.ok().build();
-    }
-
-    /**
      * 특정 팀의 멤버 목록 조회
      * @param teamId 팀 ID
      * @return 팀에 속한 멤버 목록
@@ -63,6 +60,31 @@ public class MemberTeamController {
         return ResponseEntity.ok(members);
     }
 
+    @PostMapping("/teams/join")
+    public ResponseEntity<String> joinTeam(@RequestBody @Valid TeamJoinRequestDTO requestDTO,
+                                           @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        // 1. 요청 데이터 확인 (디버깅 로그)
+        System.out.println("1. 요청 수신: " + requestDTO);
+
+        // 2. Authorization 헤더 유효성 검사
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+
+        // 3. Bearer 토큰 추출
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        System.out.println("2. 추출된 토큰: " + token); // 토큰 확인 로그
+
+        // 4. 토큰으로 사용자 ID 추출
+        Long memberId = jwtTokenProvider.getUserId(token);
+        System.out.println("3. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인 로그
+
+        // 5. 서비스 호출 (팀 참가 로직 실행)
+        memberTeamService.addMemberToTeam(requestDTO.getInviteCode(), memberId);
+
+        // 6. 성공 응답 반환
+        return ResponseEntity.ok("팀에 성공적으로 참가했습니다.");
+    }
 
 //    // 팀에서 멤버 제거
 //    @Operation(summary = "팀에서 멤버 제거", description = "특정 팀에서 멤버를 제거합니다.")
@@ -98,6 +120,4 @@ public class MemberTeamController {
         Map<Long, String> color = memberTeamService.getAllTeamColor(memberId);
         return ResponseEntity.ok(color);
     }
-
-
 }
