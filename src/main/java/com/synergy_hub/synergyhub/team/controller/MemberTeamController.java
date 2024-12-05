@@ -86,20 +86,29 @@ public class MemberTeamController {
         return ResponseEntity.ok("팀에 성공적으로 참가했습니다.");
     }
 
-//    // 팀에서 멤버 제거
-//    @Operation(summary = "팀에서 멤버 제거", description = "특정 팀에서 멤버를 제거합니다.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "204", description = "멤버 제거 성공"),
-//            @ApiResponse(responseCode = "404", description = "팀 또는 멤버를 찾을 수 없음"),
-//            @ApiResponse(responseCode = "400", description = "잘못된 요청")
-//    })
-//    @DeleteMapping("/{teamId}/members/{memberId}")
-//    public ResponseEntity<Void> removeMemberFromTeam(
-//            @PathVariable Long teamId,
-//            @PathVariable Long memberId) {
-//        memberTeamService.removeMemberFromTeam(teamId, memberId);
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping("/{teamId}/leave")
+    public ResponseEntity<String> leaveTeam(
+            @PathVariable Long teamId,
+            @RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
+        // 1. Authorization 헤더 유효성 검사
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+
+        // 2. Bearer 토큰 추출
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        System.out.println("2. 추출된 토큰: " + token); // 토큰 확인 로그
+
+        // 3. 토큰으로 사용자 ID 추출
+        Long memberId = jwtTokenProvider.getUserId(token);
+        System.out.println("3. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인 로그
+
+        // 4. 팀에서 멤버 제거 서비스 호출
+        memberTeamService.removeMemberFromTeam(teamId, memberId);
+
+        // 5. 성공 응답 반환
+        return ResponseEntity.ok("팀에서 성공적으로 나갔습니다.");
+    }
 
     // 색상 변경
     @PutMapping("/color")

@@ -29,6 +29,9 @@ public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
 
     boolean existsByTeamAndMember(Team team, Member member);
 
+    // 특정 팀에 멤버가 남아 있는지 확인
+    boolean existsByTeam(Team team);
+
     // 사용자가 소속된 모든 팀 조회
     List<MemberTeam> findAllByMemberId(Long memberId);
 
