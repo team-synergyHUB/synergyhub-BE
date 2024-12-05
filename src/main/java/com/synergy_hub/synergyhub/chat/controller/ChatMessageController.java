@@ -3,15 +3,17 @@ package com.synergy_hub.synergyhub.chat.controller;
 import com.synergy_hub.synergyhub.chat.dto.ChatMessageRequestDto;
 import com.synergy_hub.synergyhub.chat.dto.ChatMessageResponseDto;
 import com.synergy_hub.synergyhub.chat.service.ChatMessageService;
+import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
@@ -31,13 +34,17 @@ public class ChatMessageController {
     @MessageMapping("/chat/message/sendMessage/{chatRoomId}")
     public void sendMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
-            @Payload ChatMessageRequestDto requestDto
+            @Payload ChatMessageRequestDto requestDto,
+         Authentication authentication
     ) {
         // 요청 데이터 로깅
-        System.out.println("Received ChatMessageRequestDto: " + requestDto);
+        log.info("회원 닉네임 : {}",  ((MemberDetails) authentication.getPrincipal()).getNickname());
+        MemberDetails memberDetails = ((MemberDetails) authentication.getPrincipal());
+        Long userId = memberDetails.getUserId();
+        log.info("회원 ID : {}", userId);
 
-        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = principal.getName(); // Principal에서 memberId를 가져온다고 가정
+//        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = memberDetails.getUsername(); // Principal에서 memberId를 가져온다고 가정
         ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(chatRoomId, requestDto, email);
 
 
