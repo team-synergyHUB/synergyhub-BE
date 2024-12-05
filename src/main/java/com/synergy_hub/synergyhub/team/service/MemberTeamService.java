@@ -52,22 +52,27 @@ public class MemberTeamService {
         memberTeamRepository.save(memberTeam);
     }
 
+    @Transactional
+    public void removeMemberFromTeam(Long teamId, Long memberId) {
+        // 1. 팀 조회
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-//
-//    // 팀에서 멤버 제거
-//    public void removeMemberFromTeam(Long teamId, Long memberId) {
-//        Team team = teamRepository.findById(teamId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-//
-//        // 2. 멤버 존재 여부 확인
-//        // MemberRepository 생기면 주석 풀기
-////        boolean memberExists = memberRepository.existsById(memberId);
-////        if (!memberExists) {
-////            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-////        }
-//
-//        memberTeamRepository.deleteByMemberIdAndTeam(memberId, team);
-//    }
+        // 2. 멤버가 해당 팀에 속해 있는지 확인
+        MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
+
+        // 3. 팀에서 멤버 제거
+        memberTeamRepository.delete(memberTeam);
+
+        // 4. 팀에 남은 멤버가 있는지 확인
+        boolean hasRemainingMembers = memberTeamRepository.existsByTeam(team);
+        if (!hasRemainingMembers) {
+            // 멤버가 없다면 팀을 삭제하거나 isDeleted 상태로 변경
+            team.markAsDeleted(); // isDeleted 필드를 true로 설정하는 메서드
+            teamRepository.save(team);
+        }
+    }
 
     // 특정 팀의 멤버 목록 조회
     public List<Member> getMembersOfTeam(Long teamId) {
