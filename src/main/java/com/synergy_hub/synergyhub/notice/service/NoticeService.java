@@ -39,8 +39,8 @@ public class NoticeService {
     }
 
     // 공지사항 생성
-    public NoticeResponseDTO createNotice(NoticeCreateRequestDTO createRequestDTO, Member currentUser) {
-        Team team = teamRepository.findById(createRequestDTO.getTeamId())
+    public NoticeResponseDTO createNotice(NoticeCreateRequestDTO createRequestDTO, Member currentUser, Long teamId) {
+        Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         // 공지사항 생성 로직
@@ -48,8 +48,8 @@ public class NoticeService {
                 .title(createRequestDTO.getTitle())
                 .content(createRequestDTO.getContent())
                 .imageUrl(createRequestDTO.getImageUrl())
-                .team(team)
-                .member(currentUser)
+                .team(team)                      // teamId로 조회된 팀 설정
+                .member(currentUser)             // 작성자 설정
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
