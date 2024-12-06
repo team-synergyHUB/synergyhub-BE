@@ -17,7 +17,7 @@ public class NoticeRequestDTO {
     @NotBlank(message = "이미지 url 을 입력해주세요.")
     private String imageUrl;
 
-    private String memberNickname;
-    private Long memberId;
+//    private String memberNickname;
+//    private Long memberId;
     private Long teamId;
 }

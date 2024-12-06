@@ -135,7 +135,7 @@ public class MemberController {
         throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
     }
 
-    private Long getAuthenticationMemberId() {
+    public Long getAuthenticationMemberId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
