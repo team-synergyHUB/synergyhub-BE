@@ -2,6 +2,8 @@ package com.synergy_hub.synergyhub.config;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
+import com.synergy_hub.synergyhub.auth.jwt.CustomLogoutFilter;
+import com.synergy_hub.synergyhub.auth.jwt.service.RefreshService;
 import com.synergy_hub.synergyhub.auth.oauth.CustomOauthSuccessHandler;
 import com.synergy_hub.synergyhub.auth.oauth.service.CustomOauth2UserService;
 import com.synergy_hub.synergyhub.config.sessionconfig.CustomAuthenticationFailureHandler;
@@ -26,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -43,6 +46,7 @@ public class WebSecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomOauth2UserService customOauth2UserService;
     private final CustomOauthSuccessHandler customOauthSuccessHandler;
+    private final RefreshService refreshService;
 
 
     @Bean
@@ -57,7 +61,7 @@ public class WebSecurityConfig {
         return http
             .authorizeHttpRequests(auth -> auth
 //                    .requestMatchers("/ws/**").permitAll() // WebSocket 경로 허용
-                    .requestMatchers("/members/login", "/","/members/signup").permitAll()
+                    .requestMatchers("/members/login", "/", "/members/signup").permitAll()
                     .requestMatchers("/members/admin").hasRole("ADMIN")
                     .anyRequest().permitAll()  //모든 경로 허용
 //                    .anyRequest().authenticated()
@@ -65,9 +69,12 @@ public class WebSecurityConfig {
 
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), LoginFilter.class)
 
-            .addFilterAt(new LoginFilter(
-                    authenticationCustomManager(authenticationConfiguration), jwtTokenProvider),
+            .addFilterAt(new LoginFilter(authenticationCustomManager(authenticationConfiguration),
+                    jwtTokenProvider, refreshService),
                 UsernamePasswordAuthenticationFilter.class)
+
+            .addFilterBefore(new CustomLogoutFilter(jwtTokenProvider, refreshService),
+                LogoutFilter.class)
 
             .formLogin(form -> form.disable())
 

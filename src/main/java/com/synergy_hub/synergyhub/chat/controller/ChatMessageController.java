@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -34,7 +35,7 @@ public class ChatMessageController {
     @MessageMapping("/chat/message/sendMessage/{chatRoomId}")
     public void sendMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
-            @Payload ChatMessageRequestDto requestDto,
+            @RequestBody  ChatMessageRequestDto requestDto,
          Authentication authentication
     ) {
         // 요청 데이터 로깅
@@ -42,6 +43,8 @@ public class ChatMessageController {
         MemberDetails memberDetails = ((MemberDetails) authentication.getPrincipal());
         Long userId = memberDetails.getUserId();
         log.info("회원 ID : {}", userId);
+
+        log.info("요청 메세지: {}", requestDto.getMessage());
 
 //        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = memberDetails.getUsername(); // Principal에서 memberId를 가져온다고 가정

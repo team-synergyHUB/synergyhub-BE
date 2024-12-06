@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChatMessageRequestDto {
     private Long id;                      // 메시지 ID 추가
-    private ChatMessageContent message;              // 메시지 내용
+//    private ChatMessageContent message;              // 메시지 내용
+    private String message;
     private ChatMessage.MessageType type; // 메시지 타입 (ENTER, TALK, QUIT 등)
 }
