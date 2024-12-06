@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.auth.jwt;
 
+import com.sun.net.httpserver.HttpsParameters;
 import com.synergy_hub.synergyhub.auth.oauth.dto.CustomOauth2User;
 import com.synergy_hub.synergyhub.auth.oauth.dto.UserDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
@@ -11,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -53,21 +55,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwtTokenProvider.isExpired(token);
         } catch (ExpiredJwtException e) {
 
-            log.info("JWT expired");
+            log.info("Access token expired");
 
-            filterChain.doFilter(request, response);
+            PrintWriter writer = response.getWriter();
+            writer.print("Access token expired");
+
+            //access 토큰 만료시 401 에러
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         try {
-            // 토큰 payload에서 유저 정보 추출
+
+            //토큰이 Access 토큰인지 검증
+            String category = jwtTokenProvider.getCategory(token);
+
+            if (!category.equals("access")) {
+                PrintWriter writer = response.getWriter();
+                writer.print("Invalid access token");
+
+                //access 토큰 만료시 401 에러 - 클라이언트 처리
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            //payload에서 정보 추출
             String username = jwtTokenProvider.getUsername(token);
             Long userId = jwtTokenProvider.getUserId(token);
             String role = jwtTokenProvider.getRole(token);
             MemberRole memberRole = MemberRole.fromString(role);
             String loginType = jwtTokenProvider.getLoginType(token);
-
-
 
             Member member = Member.createSessionMember(userId, username, null, memberRole);
             MemberDetails memberDetails = new MemberDetails(member);

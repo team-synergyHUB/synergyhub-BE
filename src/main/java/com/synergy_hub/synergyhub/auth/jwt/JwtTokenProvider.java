@@ -50,6 +50,10 @@ public class JwtTokenProvider {
         return getPayLoad(token, "loginType");
     }
 
+    public String getCategory(String token) {
+        return getPayLoad(token, "category");
+    }
+
     //토큰 소멸 확인
     public Boolean isExpired(String token) {
 
@@ -59,7 +63,6 @@ public class JwtTokenProvider {
             .parseSignedClaims(token)
             .getPayload();
         System.out.println("claims.getExpiration() = " + claims.getExpiration());
-
 
         return Jwts.parser()
             .verifyWith(secretKey)
@@ -88,10 +91,13 @@ public class JwtTokenProvider {
         return getPayLoad(token, key, Long.class);
     }
 
+
     //토큰 생성
-    public String createJwtToken(String username, Long userId, String role, Long expiredMs, String loginType) {
+    public String createJwtToken(String category, String username, Long userId, String role,
+        Long expiredMs, String loginType) {
 
         return Jwts.builder()
+            .claim("category", category)
             .claim("username", username)
             .claim("userId", userId)
             .claim("role", role)
