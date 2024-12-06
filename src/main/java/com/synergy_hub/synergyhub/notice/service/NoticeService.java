@@ -4,19 +4,25 @@ import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
-import com.synergy_hub.synergyhub.notice.dto.NoticeRequestDTO;
+import com.synergy_hub.synergyhub.notice.dto.NoticeCreateRequestDTO;
 import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
+import com.synergy_hub.synergyhub.notice.dto.NoticeUpdateRequestDTO;
 import com.synergy_hub.synergyhub.notice.entity.Notice;
 import com.synergy_hub.synergyhub.notice.repository.NoticeRepository;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
+
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
@@ -32,107 +38,75 @@ public class NoticeService {
         this.memberRepository = memberRepository;
     }
 
-//    // 공지사항 생성
-//    @Transactional
-//    public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
-//        Member member = memberRepository.findById(requestDTO.getMemberId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-//
-//        Team team = teamRepository.findById(requestDTO.getTeamId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-//
-//        Notice notice = Notice.createNotice(
-//                requestDTO.getTitle(),
-//                requestDTO.getContent(),
-//                member,
-//                team
-//        );
-//        noticeRepository.save(notice);
-//        return NoticeResponseDTO.fromEntity(notice);
-//    }
-//
-//    // 공지사항 수정
-//    @Transactional
-//    public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO) {
-//        Notice notice = noticeRepository.findById(id)
-//                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
-//
-//        notice.updateNotice(
-//                requestDTO.getTitle(),
-//                requestDTO.getContent()
-//        );
-//
-//        return NoticeResponseDTO.fromEntity(notice);
-//    }
-
     // 공지사항 생성
-    @Transactional
-    public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
-        Member member = memberRepository.findById(requestDTO.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        Team team = teamRepository.findById(requestDTO.getTeamId())
+    public NoticeResponseDTO createNotice(NoticeCreateRequestDTO createRequestDTO, Member currentUser, Long teamId) {
+        Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-        // Notice 엔티티 생성
+        // 공지사항 생성 로직
         Notice notice = Notice.builder()
-                .title(requestDTO.getTitle())
-                .content(requestDTO.getContent())
-                .member(member)
-                .team(team)
+                .title(createRequestDTO.getTitle())
+                .content(createRequestDTO.getContent())
+                .imageUrl(createRequestDTO.getImageUrl())
+                .team(team)                      // teamId로 조회된 팀 설정
+                .member(currentUser)             // 작성자 설정
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         noticeRepository.save(notice);
-
         return NoticeResponseDTO.fromEntity(notice);
     }
 
     // 공지사항 수정
-    @Transactional
-    public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO) {
-        Notice notice = noticeRepository.findById(id)
+    public NoticeResponseDTO updateNotice(Long id, NoticeUpdateRequestDTO updateRequestDTO, Member currentUser) {
+        Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        // Notice 엔티티 데이터 수정
-        notice.setTitle(requestDTO.getTitle());
-        notice.setContent(requestDTO.getContent());
+        // 작성자 권한 확인
+        if (!notice.getMember().getId().equals(currentUser.getId())) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
+
+        // 수정 로직
+        notice.setTitle(updateRequestDTO.getTitle());
+        notice.setContent(updateRequestDTO.getContent());
+        notice.setImageUrl(updateRequestDTO.getImageUrl());
         notice.setUpdatedAt(LocalDateTime.now());
 
+        noticeRepository.save(notice);
         return NoticeResponseDTO.fromEntity(notice);
     }
 
-
     // 공지사항 삭제
-    @Transactional
-    public void deleteNotice(Long id) {
-        Notice notice = noticeRepository.findById(id)
+    public void deleteNotice(Long id, Member currentUser) {
+        Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        notice.softDelete();
+        // 작성자 권한 확인
+        if (!notice.getMember().getId().equals(currentUser.getId())) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
+
+        // 소프트 삭제 처리
+        notice.setDeletedAt(LocalDateTime.now());
         noticeRepository.save(notice);
     }
 
-    // 모든 공지사항 조회
-    public List<NoticeResponseDTO> getAllNotices() {
-        return noticeRepository.findAllByDeletedAtIsNull().stream()
-                .map(NoticeResponseDTO::fromEntity)
-                .collect(Collectors.toList());
+    // 팀별 공지사항 조회 (페이지네이션 및 정렬)
+    public Page<NoticeResponseDTO> getNoticesByTeam(Long teamId, int page, int size, String sortField, String sortDirection) {
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+
+        return noticeRepository.findByTeamIdAndDeletedAtIsNull(teamId, pageable)
+                .map(NoticeResponseDTO::fromEntity);
     }
 
     // 특정 공지사항 조회
     public NoticeResponseDTO getNotice(Long id) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
-        return NoticeResponseDTO.fromEntity(notice);
-    }
 
-    // 특정 팀의 공지사항 조회
-    public List<NoticeResponseDTO> getNoticesByTeamId(Long teamId) {
-        List<Notice> notices = noticeRepository.findByTeamIdAndDeletedAtIsNull(teamId);
-        return notices.stream()
-                .map(NoticeResponseDTO::fromEntity)
-                .collect(Collectors.toList());
+        return NoticeResponseDTO.fromEntity(notice);
     }
 }
