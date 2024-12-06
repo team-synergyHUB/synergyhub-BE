@@ -74,19 +74,6 @@ public class Team {
         return code;
     }
 
-//    private String generateUniqueInviteCode() {
-//        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-//        StringBuilder builder = new StringBuilder();
-//
-//        // 8자리 코드 생성
-//        for (int i = 0; i < 8; i++) {
-//            int index = (int) (Math.random() * characters.length());
-//            builder.append(characters.charAt(index));
-//        }
-//
-//        return builder.toString();
-//    }
-
     // 초대 코드 중복 검증 로직 추가 (선택 사항)
     // teamRepository를 주입받아 데이터베이스에 중복이 없도록 확인
     private String generateUniqueInviteCode(TeamRepository teamRepository) {
