@@ -14,7 +14,7 @@ public class NoticeCreateRequestDTO {
     @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
-    @NotBlank(message = "이미지 url 을 입력해주세요.")
+//    @NotBlank(message = "이미지 url 을 입력해주세요.")
     private String imageUrl;
 
 //    private String memberNickname;
