@@ -2,7 +2,6 @@ package com.synergy_hub.synergyhub.notice.service;
 
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
-import com.synergy_hub.synergyhub.image.S3ImageService;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.notice.dto.NoticeRequestDTO;
@@ -23,19 +22,50 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
-    private final S3ImageService s3ImageService;
 
     public NoticeService(
             NoticeRepository noticeRepository,
             TeamRepository teamRepository,
-            MemberRepository memberRepository,
-            S3ImageService s3ImageService) {
+            MemberRepository memberRepository) {
         this.noticeRepository = noticeRepository;
         this.teamRepository = teamRepository;
         this.memberRepository = memberRepository;
-        this.s3ImageService = s3ImageService;
     }
 
+//    // 공지사항 생성
+//    @Transactional
+//    public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
+//        Member member = memberRepository.findById(requestDTO.getMemberId())
+//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+//
+//        Team team = teamRepository.findById(requestDTO.getTeamId())
+//                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+//
+//        Notice notice = Notice.createNotice(
+//                requestDTO.getTitle(),
+//                requestDTO.getContent(),
+//                member,
+//                team
+//        );
+//        noticeRepository.save(notice);
+//        return NoticeResponseDTO.fromEntity(notice);
+//    }
+//
+//    // 공지사항 수정
+//    @Transactional
+//    public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO) {
+//        Notice notice = noticeRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+//
+//        notice.updateNotice(
+//                requestDTO.getTitle(),
+//                requestDTO.getContent()
+//        );
+//
+//        return NoticeResponseDTO.fromEntity(notice);
+//    }
+
+    // 공지사항 생성
     @Transactional
     public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
         Member member = memberRepository.findById(requestDTO.getMemberId())
@@ -44,69 +74,65 @@ public class NoticeService {
         Team team = teamRepository.findById(requestDTO.getTeamId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-        String imageUrl = null;
-        if (requestDTO.getImage() != null && !requestDTO.getImage().isEmpty()) {
-            imageUrl = s3ImageService.upload(requestDTO.getImage());
-        }
-
+        // Notice 엔티티 생성
         Notice notice = Notice.builder()
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
                 .member(member)
                 .team(team)
-                .imageUrl(imageUrl)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         noticeRepository.save(notice);
+
         return NoticeResponseDTO.fromEntity(notice);
     }
 
+    // 공지사항 수정
     @Transactional
     public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO) {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        String newImageUrl = null;
-        if (requestDTO.getImage() != null && !requestDTO.getImage().isEmpty()) {
-            if (notice.getImageUrl() != null) {
-                s3ImageService.deleteImageFromS3(notice.getImageUrl());
-            }
-            newImageUrl = s3ImageService.upload(requestDTO.getImage());
-        }
-
+        // Notice 엔티티 데이터 수정
         notice.setTitle(requestDTO.getTitle());
         notice.setContent(requestDTO.getContent());
-        notice.setImageUrl(newImageUrl != null ? newImageUrl : notice.getImageUrl());
         notice.setUpdatedAt(LocalDateTime.now());
 
-        noticeRepository.save(notice);
         return NoticeResponseDTO.fromEntity(notice);
     }
 
+
+    // 공지사항 삭제
     @Transactional
     public void deleteNotice(Long id) {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        if (notice.getImageUrl() != null) {
-            s3ImageService.deleteImageFromS3(notice.getImageUrl());
-        }
-
-        notice.setDeletedAt(LocalDateTime.now());
+        notice.softDelete();
         noticeRepository.save(notice);
     }
 
+    // 모든 공지사항 조회
     public List<NoticeResponseDTO> getAllNotices() {
         return noticeRepository.findAllByDeletedAtIsNull().stream()
                 .map(NoticeResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
+    // 특정 공지사항 조회
     public NoticeResponseDTO getNotice(Long id) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
         return NoticeResponseDTO.fromEntity(notice);
+    }
+
+    // 특정 팀의 공지사항 조회
+    public List<NoticeResponseDTO> getNoticesByTeamId(Long teamId) {
+        List<Notice> notices = noticeRepository.findByTeamIdAndDeletedAtIsNull(teamId);
+        return notices.stream()
+                .map(NoticeResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 }

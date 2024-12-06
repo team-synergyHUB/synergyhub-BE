@@ -21,7 +21,18 @@ public class NoticeController {
     // 공지사항 생성
     @PostMapping
     public ResponseEntity<NoticeResponseDTO> createNotice(
-            @ModelAttribute NoticeRequestDTO requestDTO) {
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam("memberId") Long memberId,
+            @RequestParam("teamId") Long teamId) {
+
+        // Create DTO
+        NoticeRequestDTO requestDTO = new NoticeRequestDTO();
+        requestDTO.setTitle(title);
+        requestDTO.setContent(content);
+        requestDTO.setMemberId(memberId);
+        requestDTO.setTeamId(teamId);
+
         NoticeResponseDTO response = noticeService.createNotice(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -30,7 +41,18 @@ public class NoticeController {
     @PutMapping("/{id}")
     public ResponseEntity<NoticeResponseDTO> updateNotice(
             @PathVariable Long id,
-            @ModelAttribute NoticeRequestDTO requestDTO) {
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam("memberId") Long memberId,
+            @RequestParam("teamId") Long teamId) {
+
+        // Create DTO
+        NoticeRequestDTO requestDTO = new NoticeRequestDTO();
+        requestDTO.setTitle(title);
+        requestDTO.setContent(content);
+        requestDTO.setMemberId(memberId);
+        requestDTO.setTeamId(teamId);
+
         NoticeResponseDTO response = noticeService.updateNotice(id, requestDTO);
         return ResponseEntity.ok(response);
     }
