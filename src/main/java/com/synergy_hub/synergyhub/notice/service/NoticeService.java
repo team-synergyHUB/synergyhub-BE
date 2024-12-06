@@ -4,16 +4,15 @@ import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
-import com.synergy_hub.synergyhub.notice.dto.NoticeRequestDTO;
+import com.synergy_hub.synergyhub.notice.dto.NoticeCreateRequestDTO;
 import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
+import com.synergy_hub.synergyhub.notice.dto.NoticeUpdateRequestDTO;
 import com.synergy_hub.synergyhub.notice.entity.Notice;
 import com.synergy_hub.synergyhub.notice.repository.NoticeRepository;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,15 +39,15 @@ public class NoticeService {
     }
 
     // 공지사항 생성
-    public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO, Member currentUser) {
-        Team team = teamRepository.findById(requestDTO.getTeamId())
+    public NoticeResponseDTO createNotice(NoticeCreateRequestDTO createRequestDTO, Member currentUser) {
+        Team team = teamRepository.findById(createRequestDTO.getTeamId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         // 공지사항 생성 로직
         Notice notice = Notice.builder()
-                .title(requestDTO.getTitle())
-                .content(requestDTO.getContent())
-                .imageUrl(requestDTO.getImageUrl())
+                .title(createRequestDTO.getTitle())
+                .content(createRequestDTO.getContent())
+                .imageUrl(createRequestDTO.getImageUrl())
                 .team(team)
                 .member(currentUser)
                 .createdAt(LocalDateTime.now())
@@ -60,7 +59,7 @@ public class NoticeService {
     }
 
     // 공지사항 수정
-    public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO, Member currentUser) {
+    public NoticeResponseDTO updateNotice(Long id, NoticeUpdateRequestDTO updateRequestDTO, Member currentUser) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
@@ -70,9 +69,9 @@ public class NoticeService {
         }
 
         // 수정 로직
-        notice.setTitle(requestDTO.getTitle());
-        notice.setContent(requestDTO.getContent());
-        notice.setImageUrl(requestDTO.getImageUrl());
+        notice.setTitle(updateRequestDTO.getTitle());
+        notice.setContent(updateRequestDTO.getContent());
+        notice.setImageUrl(updateRequestDTO.getImageUrl());
         notice.setUpdatedAt(LocalDateTime.now());
 
         noticeRepository.save(notice);

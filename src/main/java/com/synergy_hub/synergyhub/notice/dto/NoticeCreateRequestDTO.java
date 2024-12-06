@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class NoticeRequestDTO {
+public class NoticeCreateRequestDTO {
 
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;

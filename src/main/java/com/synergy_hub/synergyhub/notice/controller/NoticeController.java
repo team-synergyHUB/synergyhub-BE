@@ -4,10 +4,10 @@ import com.synergy_hub.synergyhub.member.controller.MemberController;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.member.service.MemberService;
-import com.synergy_hub.synergyhub.notice.dto.NoticeRequestDTO;
+import com.synergy_hub.synergyhub.notice.dto.NoticeCreateRequestDTO;
 import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
+import com.synergy_hub.synergyhub.notice.dto.NoticeUpdateRequestDTO;
 import com.synergy_hub.synergyhub.notice.service.NoticeService;
-import java.util.List;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class NoticeController {
 
     // 공지사항 생성
     @PostMapping
-    public ResponseEntity<NoticeResponseDTO> createNotice(@RequestBody @Valid NoticeRequestDTO requestDTO) {
+    public ResponseEntity<NoticeResponseDTO> createNotice(@RequestBody @Valid NoticeCreateRequestDTO requestDTO) {
         Long currentMemberId = memberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
         Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
         NoticeResponseDTO response = noticeService.createNotice(requestDTO, currentMember);
@@ -39,7 +39,7 @@ public class NoticeController {
     @PutMapping("/{id}")
     public ResponseEntity<NoticeResponseDTO> updateNotice(
             @PathVariable Long id,
-            @RequestBody @Valid NoticeRequestDTO requestDTO) {
+            @RequestBody @Valid NoticeUpdateRequestDTO requestDTO) {
         Long currentMemberId = memberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
         Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
         NoticeResponseDTO response = noticeService.updateNotice(id, requestDTO, currentMember);

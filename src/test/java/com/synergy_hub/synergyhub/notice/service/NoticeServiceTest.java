@@ -6,7 +6,7 @@
 //
 //import com.synergy_hub.synergyhub.member.entity.Member;
 //import com.synergy_hub.synergyhub.member.entity.MemberRole;
-//import com.synergy_hub.synergyhub.notice.dto.NoticeRequestDTO;
+//import com.synergy_hub.synergyhub.notice.dto.NoticeCreateRequestDTO;
 //import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
 //import com.synergy_hub.synergyhub.notice.entity.Notice;
 //
@@ -36,7 +36,7 @@
 //    void updateNotice_success() {
 //        // Arrange
 //        Long noticeId = 1L;
-//        NoticeRequestDTO requestDTO = new NoticeRequestDTO();
+//        NoticeCreateRequestDTO requestDTO = new NoticeCreateRequestDTO();
 //        requestDTO.setTitle("Updated Title");
 //        requestDTO.setContent("Updated Content");
 //        requestDTO.setImageUrl("http://example.com/updated-image.jpg");
@@ -81,7 +81,7 @@
 ////    void updateNotice_notFound() {
 ////        // Arrange
 ////        Long noticeId = 1L;
-////        NoticeRequestDTO requestDTO = new NoticeRequestDTO();
+////        NoticeCreateRequestDTO requestDTO = new NoticeCreateRequestDTO();
 ////        requestDTO.setTitle("Updated Title");
 ////        requestDTO.setContent("Updated Content");
 ////        requestDTO.setImageUrl("http://example.com/updated-image.jpg");
