@@ -45,6 +45,7 @@ public class NoticeService {
         Notice notice = Notice.builder()
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
+                .imageUrl(requestDTO.getImageUrl())
                 .member(member)
                 .team(team)
                 .createdAt(LocalDateTime.now())
@@ -59,16 +60,22 @@ public class NoticeService {
     // 공지사항 수정
     @Transactional
     public NoticeResponseDTO updateNotice(Long id, NoticeRequestDTO requestDTO) {
+        // 기존 엔티티 조회
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
         // Notice 엔티티 데이터 수정
         notice.setTitle(requestDTO.getTitle());
         notice.setContent(requestDTO.getContent());
-        notice.setUpdatedAt(LocalDateTime.now());
+        notice.setImageUrl(requestDTO.getImageUrl());
 
-        return NoticeResponseDTO.fromEntity(notice);
+        // 엔티티 저장 (자동 업데이트)
+        Notice updatedNotice = noticeRepository.save(notice);
+
+        // 업데이트된 데이터를 DTO로 변환하여 반환
+        return NoticeResponseDTO.fromEntity(updatedNotice);
     }
+
 
 
     // 공지사항 삭제

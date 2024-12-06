@@ -36,8 +36,9 @@ public class Notice {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 내용
 
-//    @Column(nullable = true)
-//    private String imageUrl;
+    //TODO : List<String>로 변경 예정
+    @Column(nullable = false)
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
