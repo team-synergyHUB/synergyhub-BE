@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
@@ -19,11 +20,13 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     //-------------------------
 
 
-
-
     @Query("select m from Member m join m.memberTeams mt"
         + " where mt.team.id = :teamId and m.deletedAt is null")
     List<Member> findMembersByTeam(Long teamId);
+
+    // 멤버가 속한 팀 리스트를 확인하는 메소드
+    @Query("SELECT mt.team.id FROM MemberTeam mt WHERE mt.member.id = :memberId")
+    List<Long> findTeamIdsByMemberId(@Param("memberId") Long memberId);
 
 
 }
