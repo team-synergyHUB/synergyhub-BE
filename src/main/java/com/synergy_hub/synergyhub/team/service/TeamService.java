@@ -178,4 +178,17 @@ public class TeamService {
                 .map(memberTeam -> new TeamResponseDTO(memberTeam.getTeam()))
                 .collect(Collectors.toList());
     }
+
+
+    // 팀의 초대 코드를 조회하는 메서드
+    public String getInviteCodeByTeamId(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new IllegalArgumentException("Team not found with ID: " + teamId));
+
+        if (team.getIsDeleted()) {
+            throw new IllegalArgumentException("This team is marked as deleted.");
+        }
+
+        return team.getInviteCode();
+    }
 }

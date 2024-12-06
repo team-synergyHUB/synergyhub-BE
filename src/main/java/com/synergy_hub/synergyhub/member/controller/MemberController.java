@@ -70,7 +70,6 @@ public class MemberController {
 //        MemberResponseDto memberResponseDto = memberService.findByEmail(email);
 
         Long memberId = getAuthenticationMemberId();
-        log.info("memberId={}", memberId);
         MemberResponseDto memberResponseDto = memberService.findById(memberId);
 
         return ApiResponseBuilder.success("Get My Info successfully", memberResponseDto,
@@ -90,7 +89,7 @@ public class MemberController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<ApiResponse<Null>> updateMyInfo(
+    public ResponseEntity<ApiResponse<Void>> updateMyInfo(
         @RequestBody MemberUpdateRequest request) {
         String email = getAuthenticationEmail();
 
@@ -101,7 +100,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Null>> deleteMyAccount() {
+    public ResponseEntity<ApiResponse<Void>> deleteMyAccount() {
         String email = getAuthenticationEmail();
 
         memberService.deleteMember(email);
@@ -122,20 +121,10 @@ public class MemberController {
             throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
 
-        // OAuth2 로그인
-        if (principal instanceof CustomOauth2User) {
-            return ((CustomOauth2User) principal).getEmail();
-        }
-
-        // JWT 일반 로그인
-        if (principal instanceof MemberDetails) {
-            return ((MemberDetails) principal).getUsername();
-        }
-
         throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
     }
 
-    public Long getAuthenticationMemberId() {
+    public static Long getAuthenticationMemberId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
@@ -145,17 +134,7 @@ public class MemberController {
             throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
 
-        // OAuth2 로그인
-        if (principal instanceof CustomOauth2User) {
-            return ((CustomOauth2User) principal).getUserId();
-        }
-
-        // JWT 일반 로그인
-        if (principal instanceof MemberDetails) {
-            return ((MemberDetails) principal).getUserId();
-        }
-
-        throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+        return ((MemberDetails) principal).getUserId();
     }
 
 

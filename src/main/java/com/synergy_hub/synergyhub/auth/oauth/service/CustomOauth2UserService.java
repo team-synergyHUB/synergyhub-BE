@@ -5,6 +5,7 @@ import com.synergy_hub.synergyhub.auth.oauth.dto.GoogleResponse;
 import com.synergy_hub.synergyhub.auth.oauth.dto.OAuth2Response;
 import com.synergy_hub.synergyhub.auth.oauth.dto.UserDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import java.util.Map;
@@ -49,22 +50,22 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         Optional<Member> memberOpt = memberRepository.
             findByNicknameAndEmailDeletedAtIsNull(nickname, email);
 
-        UserDto userDto;
+        Member member = null;
 
         if (memberOpt.isPresent()) {
-            Member member = memberOpt.get();
+            member = memberOpt.get();
             member.updateMyInfo(nickname);
-            userDto = new UserDto(member.getId(), email, nickname, MemberRole.USER);
+//            userDto = new UserDto(member.getId(), email, nickname, MemberRole.USER);
         } else {
             // 새 사용자 생성
-            Member member = Member.createMember(nickname, email, "null");
+            member = Member.createMember(nickname, email, "null");
             member.changeRole(MemberRole.USER);
             member.updateProfileImage(profileImage);
             memberRepository.save(member);
-            userDto = new UserDto( member.getId(), email, nickname, MemberRole.USER);
+//            userDto = new UserDto( member.getId(), email, nickname, MemberRole.USER);
         }
 
-        return new CustomOauth2User(userDto);
+        return new MemberDetails(member);
     }
 
 
