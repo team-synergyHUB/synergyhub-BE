@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.team.controller;
 
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
+import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.team.dto.TeamJoinRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
@@ -38,26 +39,21 @@ public class MemberTeamController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    /**
-     * 로그인한 사용자가 속한 팀 목록 조회
-     * @param memberId 로그인한 사용자의 ID
-     * @return 사용자가 속한 팀 목록
-     */
+    // 로그인한 사용자가 속한 팀 목록 조회
     @GetMapping("/member/{memberId}")
     public ResponseEntity<List<TeamResponseDTO>> getTeamsByMember(@PathVariable Long memberId) {
         List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
         return ResponseEntity.ok(teams);
     }
 
-    /**
-     * 특정 팀의 멤버 목록 조회
-     * @param teamId 팀 ID
-     * @return 팀에 속한 멤버 목록
-     */
+    // 특정 팀의 멤버 목록 조회
     @GetMapping("/{teamId}/members")
-    public ResponseEntity<List<Member>> getMembersOfTeam(@PathVariable Long teamId) {
+    public ResponseEntity<List<MemberResponseDto>> getMembersOfTeam(@PathVariable Long teamId) {
         List<Member> members = memberTeamService.getMembersOfTeam(teamId);
-        return ResponseEntity.ok(members);
+        List<MemberResponseDto> memberDTOs = members.stream()
+                .map(MemberResponseDto::new) // Member 엔티티를 DTO로 변환
+                .toList();
+        return ResponseEntity.ok(memberDTOs);
     }
 
     @PostMapping("/teams/join")

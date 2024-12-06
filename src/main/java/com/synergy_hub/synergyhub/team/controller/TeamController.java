@@ -4,10 +4,7 @@ import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.config.global.SwaggerDocumentation;
 import com.synergy_hub.synergyhub.global.CommonApiDocs;
 import com.synergy_hub.synergyhub.member.entity.Member;
-import com.synergy_hub.synergyhub.team.dto.LabelMappingRequestDTO;
-import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
-import com.synergy_hub.synergyhub.team.dto.TeamRequestDTO;
-import com.synergy_hub.synergyhub.team.dto.TeamResponseDTO;
+import com.synergy_hub.synergyhub.team.dto.*;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -117,5 +114,13 @@ public class TeamController {
 
         // 4. 조회 결과 반환
         return ResponseEntity.ok(teams);
+    }
+
+    // 초대 코드 조회 API
+    @GetMapping("/{teamId}/invite-code")
+    public ResponseEntity<InviteCodeResponseDTO> getInviteCode(@PathVariable Long teamId) {
+        String inviteCode = teamService.getInviteCodeByTeamId(teamId);
+        InviteCodeResponseDTO responseDto = new InviteCodeResponseDTO(inviteCode);
+        return ResponseEntity.ok(responseDto);
     }
 }
