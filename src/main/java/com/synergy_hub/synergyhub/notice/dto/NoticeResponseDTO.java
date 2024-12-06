@@ -13,6 +13,8 @@ public class NoticeResponseDTO {
     private Long id;
     private String title;
     private String content;
+
+    private String imageUrl;
     private Long memberId;
     private String memberNickname;
     private LocalDateTime createdAt;
@@ -24,6 +26,7 @@ public class NoticeResponseDTO {
             notice.getId(),                           // Notice의 ID
             notice.getTitle(),                        // 제목
             notice.getContent(),                      // 내용
+            notice.getImageUrl(),
             notice.getMember().getId(),               // 작성자 ID
             notice.getMember().getNickname(),         // 작성자 닉네임
             notice.getCreatedAt(),                    // 작성일
