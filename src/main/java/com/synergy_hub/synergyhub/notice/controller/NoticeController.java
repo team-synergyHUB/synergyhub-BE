@@ -82,7 +82,7 @@ public class NoticeController {
         return ResponseEntity.ok(notices);
     }
 
-/* TODO
+/*
     // 전체 공지사항 조회 (페이지네이션)
     @GetMapping
     public ResponseEntity<Page<NoticeResponseDTO>> getAllNotices(
