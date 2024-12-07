@@ -1,6 +1,5 @@
 package com.synergy_hub.synergyhub.member.controller;
 
-import com.synergy_hub.synergyhub.auth.oauth.dto.CustomOauth2User;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
@@ -10,8 +9,8 @@ import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
+import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.member.service.MemberService;
-import jakarta.validation.constraints.Null;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +64,10 @@ public class MemberController {
 
     //내 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo() {
-//        String email = getAuthenticationEmail();
-//        MemberResponseDto memberResponseDto = memberService.findByEmail(email);
+    public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo(
+        @AuthenticatedMember MemberDetails memberDetails) {
 
-        Long memberId = getAuthenticationMemberId();
+        Long memberId = memberDetails.getUserId();
         MemberResponseDto memberResponseDto = memberService.findById(memberId);
 
         return ApiResponseBuilder.success("Get My Info successfully", memberResponseDto,
@@ -90,20 +88,19 @@ public class MemberController {
 
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<Void>> updateMyInfo(
-        @RequestBody MemberUpdateRequest request) {
-        String email = getAuthenticationEmail();
+        @RequestBody MemberUpdateRequest request, @AuthenticatedMember MemberDetails memberDetails) {
 
-        memberService.updateMemberInfo(email, request);
+        memberService.updateMemberInfo(memberDetails.getUserId(), request);
 
         return ApiResponseBuilder.success("Update MyInfo successfully", null,
             HttpStatus.OK);
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> deleteMyAccount() {
-        String email = getAuthenticationEmail();
+    public ResponseEntity<ApiResponse<Void>> deleteMyAccount(
+        @AuthenticatedMember MemberDetails memberDetails) {
 
-        memberService.deleteMember(email);
+        memberService.deleteMember(memberDetails.getUserId());
 
         return ApiResponseBuilder.success("Delete Account successfully", null,
             HttpStatus.NO_CONTENT);

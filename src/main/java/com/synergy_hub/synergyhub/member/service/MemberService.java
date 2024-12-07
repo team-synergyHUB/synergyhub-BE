@@ -105,8 +105,8 @@ public class MemberService {
 
     //회원 프로필 닉네임 수정
     @Transactional
-    public Long updateMemberInfo(String email, MemberUpdateRequest request) {
-        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+    public Long updateMemberInfo(Long id, MemberUpdateRequest request) {
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         member.updateMyInfo(request.getNickname());
@@ -132,8 +132,8 @@ public class MemberService {
 
 
     //회원 탈퇴(soft delete)
-    public void deleteMember(String email) {
-        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+    public void deleteMember(Long id) {
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         member.deleteAccount();
