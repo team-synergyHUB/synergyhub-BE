@@ -23,7 +23,7 @@ public class CommentController {
     private final MemberRepository memberRepository;
 
     // 댓글 생성
-    @PostMapping("/comments")
+    @PostMapping()
     public ResponseEntity<CommentResponseDto> createComment(
         @RequestBody CommentRequestDto dto) {
 
@@ -35,10 +35,6 @@ public class CommentController {
 
         return ResponseEntity.ok(createdComment);
     }
-
-
-
-
 
     // 댓글 조회 (특정 공지사항 기준)
     @GetMapping("/notice/{noticeId}")
