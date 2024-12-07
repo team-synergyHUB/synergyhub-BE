@@ -11,6 +11,7 @@ import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +33,12 @@ public class ChatMessageService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         ChatMessage chatMessage = ChatMessage.builder()
-                .chatRoom(chatRoom)
-                .member(member)
-                .type(requestDto.getType())
-                .message(requestDto.getMessage().getText()) // ChatMessageContent에서 텍스트 추출
-                .build();
+            .chatRoom(chatRoom)
+            .member(member)
+            .type(requestDto.getType())
+            .message(requestDto.getMessage()) // ChatMessageContent에서 텍스트 추출
+            .createdAt(LocalDateTime.now())
+            .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
         return chatMessageMapper.toChatMessageResponseDto(savedMessage);
