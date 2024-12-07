@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# 배포 환경 설정 파일 Git 관리 제외
+/src/main/resources/application-prd.properties
