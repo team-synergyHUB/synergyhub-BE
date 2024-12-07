@@ -23,15 +23,21 @@ public class CommentController {
     private final MemberRepository memberRepository;
 
     // 댓글 생성
-    @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto, @RequestParam("team") Long teamId) {
-        // 현재 인증된 사용자 ID 가져오기
+    @PostMapping("/comments")
+    public ResponseEntity<CommentResponseDto> createComment(
+        @RequestBody CommentRequestDto dto) {
+
+        // dto에서 memberId, noticeId, teamId, content 추출
         Long currentMemberId = MemberController.getAuthenticationMemberId();
 
-        // 댓글 생성 시 회원 정보와 팀 ID 전달
-        CommentResponseDto createdComment = commentService.createComment(dto, currentMemberId, teamId);
+        // 서비스에서 댓글 생성
+        CommentResponseDto createdComment = commentService.createComment(dto, currentMemberId, dto.getTeamId());
+
         return ResponseEntity.ok(createdComment);
     }
+
+
+
 
 
     // 댓글 조회 (특정 공지사항 기준)
