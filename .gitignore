@@ -44,3 +44,5 @@ gradlew
 
 # MySQL 설치 파일 방지
 mysql-apt-config_*.deb
+
+nohup.out
