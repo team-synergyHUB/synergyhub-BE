@@ -3,6 +3,8 @@ package com.synergy_hub.synergyhub.comment.controller;
 import com.synergy_hub.synergyhub.comment.dto.CommentRequestDto;
 import com.synergy_hub.synergyhub.comment.dto.CommentResponseDto;
 import com.synergy_hub.synergyhub.comment.service.CommentService;
+import com.synergy_hub.synergyhub.member.controller.MemberController;
+import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +17,19 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final MemberRepository memberRepository;
 
     // 댓글 생성
-    @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
-        CommentResponseDto createdComment = commentService.createComment(dto);
+    @PostMapping("/notice")
+    public ResponseEntity<CommentResponseDto> createComment(
+        @RequestBody CommentRequestDto dto) {
+
+        // dto에서 memberId, noticeId, teamId, content 추출
+        Long currentMemberId = MemberController.getAuthenticationMemberId();
+
+        // 서비스에서 댓글 생성
+        CommentResponseDto createdComment = commentService.createComment(dto, currentMemberId, dto.getTeamId());
+
         return ResponseEntity.ok(createdComment);
     }
 
@@ -46,4 +56,3 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 }
-
