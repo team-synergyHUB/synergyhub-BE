@@ -117,26 +117,43 @@ public class TeamController {
         return ResponseEntity.ok(teamService.getAllTeams(page, size));
     }
 
+//    @GetMapping("/member")
+//    public ResponseEntity<List<TeamResponseDTO>> getTeamsByLoggedInMember(
+//            @RequestHeader("Authorization") String authorizationHeader) {
+//
+//        // 1. Authorization 헤더 검증
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+//        }
+//
+//        // 2. 토큰에서 사용자 ID 추출
+//        String token = authorizationHeader.replace("Bearer ", "").trim();
+//        Long memberId = jwtTokenProvider.getUserId(token); // 토큰에서 사용자 ID 추출
+//        System.out.println("요청한 사용자 ID: " + memberId); // 로그로 확인
+//
+//        // 3. 사용자 ID에 속한 팀 조회
+//        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
+//
+//        // 4. 조회 결과 반환
+//        return ResponseEntity.ok(teams);
+//    }
+
     @GetMapping("/member")
     public ResponseEntity<List<TeamResponseDTO>> getTeamsByLoggedInMember(
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @AuthenticatedMember MemberDetails memberDetails) {
 
-        // 1. Authorization 헤더 검증
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
+        // 인증된 사용자 정보 로그 출력
+        System.out.println("요청한 사용자 정보 - ID: " + memberDetails.getUserId()
+                + ", 이메일: " + memberDetails.getUsername()
+                + ", 닉네임: " + memberDetails.getNickname());
 
-        // 2. 토큰에서 사용자 ID 추출
-        String token = authorizationHeader.replace("Bearer ", "").trim();
-        Long memberId = jwtTokenProvider.getUserId(token); // 토큰에서 사용자 ID 추출
-        System.out.println("요청한 사용자 ID: " + memberId); // 로그로 확인
+        // 사용자 ID에 속한 팀 조회
+        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberDetails.getUserId());
 
-        // 3. 사용자 ID에 속한 팀 조회
-        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
-
-        // 4. 조회 결과 반환
+        // 조회 결과 반환
         return ResponseEntity.ok(teams);
     }
+
 
     // 초대 코드 조회 API
     @GetMapping("/{teamId}/invite-code")
