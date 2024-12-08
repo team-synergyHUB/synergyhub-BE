@@ -1,9 +1,11 @@
 package com.synergy_hub.synergyhub.team.controller;
 
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
+import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.config.global.SwaggerDocumentation;
 import com.synergy_hub.synergyhub.global.CommonApiDocs;
 import com.synergy_hub.synergyhub.member.entity.Member;
+import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.team.dto.*;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.service.TeamService;
@@ -47,25 +49,45 @@ public class TeamController {
         return ResponseEntity.ok("Labels successfully mapped to team.");
     }
 
+//    @PostMapping
+//    public ResponseEntity<TeamCreateResponseDTO> createTeam(
+//            @Valid @RequestBody TeamRequestDTO request,
+//            @RequestHeader("Authorization") String authorizationHeader) {
+//
+//        System.out.println("1. 요청 수신: " + request); // 요청 데이터 확인
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+//        }
+//
+//        String token = authorizationHeader.replace("Bearer ", "").trim();
+//        Long memberId = jwtTokenProvider.getUserId(token);
+//        System.out.println("2. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인
+//
+//        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberId);
+//        System.out.println("3. 생성된 팀: " + createdTeam); // 팀 생성 성공 여부 확인
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
+//    }
+
     @PostMapping
     public ResponseEntity<TeamCreateResponseDTO> createTeam(
             @Valid @RequestBody TeamRequestDTO request,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @AuthenticatedMember MemberDetails memberDetails) {
 
-        System.out.println("1. 요청 수신: " + request); // 요청 데이터 확인
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
+        // 요청 데이터와 사용자 ID 확인
+        System.out.println("1. 요청 수신: " + request);
+        System.out.println("2. 인증된 사용자 정보 - ID: " + memberDetails.getUserId()
+                + ", 이메일: " + memberDetails.getUsername()
+                + ", 닉네임: " + memberDetails.getNickname());
 
-        String token = authorizationHeader.replace("Bearer ", "").trim();
-        Long memberId = jwtTokenProvider.getUserId(token);
-        System.out.println("2. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인
-
-        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberId);
-        System.out.println("3. 생성된 팀: " + createdTeam); // 팀 생성 성공 여부 확인
+        // 팀 생성
+        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberDetails.getUserId());
+        System.out.println("3. 생성된 팀: " + createdTeam);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
+
+
 
     // 팀 수정
     @CommonApiDocs(summary = "팀 수정", description = "기존 팀의 정보를 수정합니다.")
@@ -95,26 +117,43 @@ public class TeamController {
         return ResponseEntity.ok(teamService.getAllTeams(page, size));
     }
 
+//    @GetMapping("/member")
+//    public ResponseEntity<List<TeamResponseDTO>> getTeamsByLoggedInMember(
+//            @RequestHeader("Authorization") String authorizationHeader) {
+//
+//        // 1. Authorization 헤더 검증
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+//        }
+//
+//        // 2. 토큰에서 사용자 ID 추출
+//        String token = authorizationHeader.replace("Bearer ", "").trim();
+//        Long memberId = jwtTokenProvider.getUserId(token); // 토큰에서 사용자 ID 추출
+//        System.out.println("요청한 사용자 ID: " + memberId); // 로그로 확인
+//
+//        // 3. 사용자 ID에 속한 팀 조회
+//        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
+//
+//        // 4. 조회 결과 반환
+//        return ResponseEntity.ok(teams);
+//    }
+
     @GetMapping("/member")
     public ResponseEntity<List<TeamResponseDTO>> getTeamsByLoggedInMember(
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @AuthenticatedMember MemberDetails memberDetails) {
 
-        // 1. Authorization 헤더 검증
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
+        // 인증된 사용자 정보 로그 출력
+        System.out.println("요청한 사용자 정보 - ID: " + memberDetails.getUserId()
+                + ", 이메일: " + memberDetails.getUsername()
+                + ", 닉네임: " + memberDetails.getNickname());
 
-        // 2. 토큰에서 사용자 ID 추출
-        String token = authorizationHeader.replace("Bearer ", "").trim();
-        Long memberId = jwtTokenProvider.getUserId(token); // 토큰에서 사용자 ID 추출
-        System.out.println("요청한 사용자 ID: " + memberId); // 로그로 확인
+        // 사용자 ID에 속한 팀 조회
+        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberDetails.getUserId());
 
-        // 3. 사용자 ID에 속한 팀 조회
-        List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
-
-        // 4. 조회 결과 반환
+        // 조회 결과 반환
         return ResponseEntity.ok(teams);
     }
+
 
     // 초대 코드 조회 API
     @GetMapping("/{teamId}/invite-code")
