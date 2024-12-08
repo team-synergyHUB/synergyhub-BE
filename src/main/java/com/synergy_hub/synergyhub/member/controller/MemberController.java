@@ -4,18 +4,18 @@ import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
-import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
+import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.member.service.MemberService;
-import jakarta.validation.constraints.Null;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/members")
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
@@ -63,10 +64,11 @@ public class MemberController {
 
     //내 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo() {
-        String email = getAuthenticationEmail();
+    public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo(
+        @AuthenticatedMember MemberDetails memberDetails) {
 
-        MemberResponseDto memberResponseDto = memberService.findByEmail(email);
+        Long memberId = memberDetails.getUserId();
+        MemberResponseDto memberResponseDto = memberService.findById(memberId);
 
         return ApiResponseBuilder.success("Get My Info successfully", memberResponseDto,
             HttpStatus.OK);
@@ -85,42 +87,53 @@ public class MemberController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<ApiResponse<Null>> updateMyInfo(
-        @RequestBody MemberUpdateRequest request) {
-        String email = getAuthenticationEmail();
+    public ResponseEntity<ApiResponse<Void>> updateMyInfo(
+        @RequestBody MemberUpdateRequest request, @AuthenticatedMember MemberDetails memberDetails) {
 
-        memberService.updateMemberInfo(email, request);
+        memberService.updateMemberInfo(memberDetails.getUserId(), request);
 
         return ApiResponseBuilder.success("Update MyInfo successfully", null,
             HttpStatus.OK);
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Null>> deleteMyAccount() {
-        String email = getAuthenticationEmail();
+    public ResponseEntity<ApiResponse<Void>> deleteMyAccount(
+        @AuthenticatedMember MemberDetails memberDetails) {
 
-        memberService.deleteMember(email);
+        memberService.deleteMember(memberDetails.getUserId());
 
         return ApiResponseBuilder.success("Delete Account successfully", null,
             HttpStatus.NO_CONTENT);
 
     }
 
-    private static String getAuthenticationEmail() {
+
+    private String getAuthenticationEmail() {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
 
         if (authentication == null || !authentication.isAuthenticated() ||
             authentication instanceof AnonymousAuthenticationToken) {
             throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
 
-        String email = ((MemberDetails) authentication.getPrincipal()).getUsername();
-        return email;
+        throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
     }
 
-    @GetMapping("/admin")
-    public String adminTest() {
-        return "SUCCESS";
+    public static Long getAuthenticationMemberId() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+            authentication instanceof AnonymousAuthenticationToken) {
+            throw new MemberNotAuthenticatedException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+
+        return ((MemberDetails) principal).getUserId();
     }
+
+
 
 }

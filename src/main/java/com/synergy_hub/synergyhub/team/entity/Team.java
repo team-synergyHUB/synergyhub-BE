@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class Team {
     @Column(nullable = false, length = 255)
     private String name; // 팀 이름
 
-    @Column(nullable = false, unique = true, length = 12) // 초대 코드는 유니크 설정
+    @Column(nullable = false, unique = true, length = 36) // 초대 코드는 유니크 설정
     private String inviteCode; // 초대 코드
 
     @Column(nullable = false)
@@ -64,12 +65,22 @@ public class Team {
         String code;
         do {
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < 8; i++) {
                 int index = (int) (Math.random() * characters.length());
                 builder.append(characters.charAt(index));
             }
             code = builder.toString();
         } while (false); // 중복 확인 로직 임시 비활성화
+        return code;
+    }
+
+    // 초대 코드 중복 검증 로직 추가 (선택 사항)
+    // teamRepository를 주입받아 데이터베이스에 중복이 없도록 확인
+    private String generateUniqueInviteCode(TeamRepository teamRepository) {
+        String code;
+        do {
+            code = RandomStringUtils.randomAlphanumeric(36); // Apache Commons Lang 사용
+        } while (teamRepository.existsByInviteCode(code)); // 중복 확인
         return code;
     }
 
@@ -83,6 +94,13 @@ public class Team {
         this.name = name; // 팀 이름 업데이트
         this.labels.clear(); // 기존 라벨 삭제
         this.labels.addAll(newLabels); // 새 라벨 추가
+    }
+
+    // 라벨 추가 메서드
+    public void addLabel(Label label) {
+        if (!this.labels.contains(label)) {
+            this.labels.add(label);
+        }
     }
 
     public void setName(@NotBlank(message = "팀 이름은 필수 입력 항목입니다.") String name) {

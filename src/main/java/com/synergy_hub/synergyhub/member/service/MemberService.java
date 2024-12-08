@@ -1,6 +1,7 @@
 package com.synergy_hub.synergyhub.member.service;
 
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.image.S3ImageService;
 import com.synergy_hub.synergyhub.member.dto.MemberAddRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +32,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final MemberTeamService memberTeamService;
+    private final S3ImageService s3ImageService;
 
 
     public Long save(MemberAddRequest request) {
@@ -100,9 +103,10 @@ public class MemberService {
         return new MemberResponseDto(member);
     }
 
-    //회원 프로필 정보 수정
-    public Long updateMemberInfo(String email, MemberUpdateRequest request) {
-        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+    //회원 프로필 닉네임 수정
+    @Transactional
+    public Long updateMemberInfo(Long id, MemberUpdateRequest request) {
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         member.updateMyInfo(request.getNickname());
@@ -110,9 +114,26 @@ public class MemberService {
         return member.getId();
     }
 
-    //회원 탈퇴(soft delete)
-    public void deleteMember(String email) {
+    //회원 프로필 이미지 수정
+    @Transactional
+    public Long updateMemberProfileImage(String email, MultipartFile profileImage) {
         Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+            .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        if (member.getProfileImageUrl() != null) {
+            s3ImageService.deleteImageFromS3(member.getProfileImageUrl());
+        }
+
+        String uploadedImageUrl = s3ImageService.upload(profileImage);
+        member.updateProfileImage(uploadedImageUrl);
+
+        return member.getId();
+    }
+
+
+    //회원 탈퇴(soft delete)
+    public void deleteMember(Long id) {
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         member.deleteAccount();

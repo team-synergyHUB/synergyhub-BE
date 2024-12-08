@@ -11,6 +11,7 @@ import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,21 +26,38 @@ public class ChatMessageService {
     private final ChatMapper chatMessageMapper;
 
     // 메시지 전송
-    public ChatMessageResponseDto sendMessage(Long chatRoomId, ChatMessageRequestDto requestDto, Long memberId) {
+    public ChatMessageResponseDto sendMessage(Long chatRoomId, ChatMessageRequestDto requestDto, String email) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         ChatMessage chatMessage = ChatMessage.builder()
-                .chatRoom(chatRoom)
-                .member(member)
-                .type(requestDto.getType())
-                .message(requestDto.getMessage())
-                .build();
+            .chatRoom(chatRoom)
+            .member(member)
+            .type(requestDto.getType())
+            .message(requestDto.getMessage()) // ChatMessageContent에서 텍스트 추출
+            .createdAt(LocalDateTime.now())
+            .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
         return chatMessageMapper.toChatMessageResponseDto(savedMessage);
+    }
+
+    // 메시지 삭제
+    public Long deleteMessage(Long messageId,  String email) {
+        ChatMessage chatMessage = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!chatMessage.getMember().getId().equals(member.getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
+        chatMessage.delete(); // deletedAt 설정
+        chatMessageRepository.save(chatMessage);
+        return messageId;
     }
 
     // 채팅방 별 메시지 조회
@@ -60,19 +78,4 @@ public class ChatMessageService {
         return chatMessageMapper.toChatMessageResponseDto(chatMessage);
     }
 
-    // 메시지 삭제
-    public Long deleteMessage(Long messageId, Long memberId) {
-        ChatMessage chatMessage = chatMessageRepository.findById(messageId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        if (!chatMessage.getMember().getId().equals(member.getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACTION);
-        }
-
-        chatMessage.delete(); // deletedAt 설정
-        chatMessageRepository.save(chatMessage);
-        return messageId;
-    }
 }

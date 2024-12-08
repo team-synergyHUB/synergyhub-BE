@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +31,9 @@ public class ChatRoom {
 //    @Column(nullable = false)
 //    private String roomState;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     @Column
     private LocalDateTime deletedAt; // 삭제된 시간
@@ -42,6 +44,7 @@ public class ChatRoom {
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
+    // TODO : SETDELETE
 
     /**
      * 채팅방 삭제 여부 확인 메서드

@@ -13,23 +13,27 @@ public class TeamCreateResponseDTO {
     private Long id; // 팀 ID
     private String name; // 팀 이름
     private String inviteCode; // 초대 코드
-    private List<LabelDTO> labels; // 라벨 리스트
+    private List<LabelRequestDTO> labels; // 라벨 리스트
 
     private Long calendarId; // 캘린더 ID
     private Long roomId; // 채팅 ID
 
+    private Long memberId; // 현재 사용자의 멤버 ID
+
     // 엔티티를 DTO로 변환하는 생성자
-    public TeamCreateResponseDTO(Team team, Calendar calendar, ChatRoom chatRoom) {
+    public TeamCreateResponseDTO(Team team, Calendar calendar, ChatRoom chatRoom, Long memberId) {
         this.id = team.getId();
         this.name = team.getName();
         this.inviteCode = team.getInviteCode();
 
         // 라벨 리스트를 DTO로 변환
         this.labels = team.getLabels().stream()
-                .map(LabelDTO::new)
+                .map(LabelRequestDTO::new)
                 .collect(Collectors.toList());
 
         this.calendarId = calendar.getId();
         this.roomId = chatRoom.getRoomId();
+
+        this.memberId = memberId; // 멤버 ID 설정
     }
 }
