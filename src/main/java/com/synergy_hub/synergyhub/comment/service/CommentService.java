@@ -9,6 +9,8 @@ import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.comment.mapper.CommentMapper;
 import com.synergy_hub.synergyhub.comment.repository.CommentRepository;
 import com.synergy_hub.synergyhub.notice.repository.NoticeRepository;
+import com.synergy_hub.synergyhub.team.entity.Team;
+import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,14 +26,24 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final NoticeRepository noticeRepository;
     private final CommentMapper commentMapper;
+    private final TeamRepository teamRepository;
 
     // 댓글 생성
-    public CommentResponseDto createComment(CommentRequestDto dto) {
+    public CommentResponseDto createComment(CommentRequestDto dto, Long currentMember, Long teamId) {
+        // teamId로 팀 정보 조회
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+
+        // 공지사항 조회
         Notice notice = noticeRepository.findById(dto.getNoticeId())
             .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
+        // 댓글 엔티티 생성
         Comment comment = commentMapper.toEntity(dto);
         comment.setNotice(notice);
+        comment.setTeamId(teamId); // 댓글에 팀 정보 설정
+
+        // 댓글 저장
         Comment savedComment = commentRepository.save(comment);
         return commentMapper.toDto(savedComment);
     }
