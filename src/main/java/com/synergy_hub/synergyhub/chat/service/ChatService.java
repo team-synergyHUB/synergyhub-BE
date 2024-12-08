@@ -7,7 +7,6 @@ import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.mapper.ChatMapper;
 import com.synergy_hub.synergyhub.chat.repository.ChatRepository;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
-import com.synergy_hub.synergyhub.chat.repository.MessageRepository;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.entity.Member;

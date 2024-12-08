@@ -4,6 +4,8 @@ import com.synergy_hub.synergyhub.team.entity.Team;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,5 +22,12 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     List<Team> findAllByIsDeleted(boolean isDeleted);
 
     boolean existsByInviteCode(String inviteCode); // 초대 코드 중복 검사
+
+    @Query("SELECT t FROM Team t JOIN t.memberTeams mt WHERE mt.member.id = :memberId AND t.isDeleted = :isDeleted")
+    Page<Team> findAllByMemberIdAndIsDeleted(@Param("memberId") Long memberId, @Param("isDeleted") boolean isDeleted, Pageable pageable);
+
+    Optional<Team> findByInviteCodeAndIsDeletedFalse(String inviteCode);
+
+
 
 }

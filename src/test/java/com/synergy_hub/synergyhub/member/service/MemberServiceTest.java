@@ -216,7 +216,7 @@ class MemberServiceTest {
             Optional.of(member1));
 
         //when
-        memberService.updateMemberInfo(memberEmail, updateRequest);
+        memberService.updateMemberInfo(memberId, updateRequest);
 
         //then
         Member updatedMember = memberRepository.findByIdAndDeletedAtIsNull(memberId).get();
@@ -228,15 +228,16 @@ class MemberServiceTest {
     @DisplayName("회원 이메일이 유효하지 않을 경우 memberNotFoundException 발생")
     void updateMemberInfoMemberNotFoundExceptionTest() {
         // given
+        Long memberId = 1L;
         String memberEmail = "nonexistent@gmail.com";
         MemberUpdateRequest updateRequest = new MemberUpdateRequest();
         updateRequest.setNickname("updateMember1");
 
-        when(memberRepository.findByEmailAndDeletedAtIsNull(memberEmail)).thenReturn(Optional.empty());
+        when(memberRepository.findByIdAndDeletedAtIsNull(memberId)).thenReturn(Optional.empty());
 
         // when & then
         assertThrows(MemberNotFoundException.class, () -> {
-            memberService.updateMemberInfo(memberEmail, updateRequest);
+            memberService.updateMemberInfo(memberId, updateRequest);
         });
     }
 
@@ -251,7 +252,7 @@ class MemberServiceTest {
             Optional.of(member));
 
         //when
-        memberService.deleteMember(member.getEmail());
+        memberService.deleteMember(member.getId());
 
         //then
         verify(memberRepository).findByEmailAndDeletedAtIsNull(member.getEmail());

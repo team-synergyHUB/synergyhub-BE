@@ -38,6 +38,9 @@ public class Member {
     private String password;
 
     @Column
+    private String profileImageUrl;
+
+    @Column
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
@@ -59,7 +62,8 @@ public class Member {
         this.password = password;
     }
 
-    private Member(String email, String password, MemberRole role) {
+    private Member(Long memberId, String email, String password, MemberRole role) {
+        this.id = memberId;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -70,8 +74,9 @@ public class Member {
     }
 
     //jwt 검증시 임시 세션 사용자
-    public static Member createSessionMember(String email, String password, MemberRole role) {
-        return new Member(email, password, role);
+    public static Member createSessionMember(
+        Long memberId, String email, String password, MemberRole role) {
+        return new Member(memberId, email, password, role);
     }
 
     //특정 팀에 참여
@@ -91,9 +96,19 @@ public class Member {
         memberTeams.remove(memberTeam);
     }
 
+    public String getProfileImageUrl() {
+        return this.profileImageUrl == null ?
+            "https://i.namu.wiki/i/Bge3xnYd4kRe_IKbm2uqxlhQJij2SngwNssjpjaOyOqoRhQlNwLrR2ZiK-JWJ2b99RGcSxDaZ2UCI7fiv4IDDQ.webp"
+            : this.profileImageUrl;
+    }
+
     //프로필 업데이트
     public void updateMyInfo(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public void deleteAccount() {

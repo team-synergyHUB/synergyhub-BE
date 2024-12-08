@@ -21,5 +21,7 @@ public interface MemberRepositoryCustom {
     //특정 팀에 속한 회원 목록 조회
     Page<TeamMemberResponseDto> findMembersByTeam(Long teamId, Pageable pageable);
 
+    //닉네임과 이메일로 회원 조회
+    Optional<Member> findByNicknameAndEmailDeletedAtIsNull(String nickname, String email);
 
 }

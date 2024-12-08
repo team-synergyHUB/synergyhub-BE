@@ -2,19 +2,24 @@ package com.synergy_hub.synergyhub.member.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Getter
-public class MemberDetails implements UserDetails {
+public class MemberDetails implements UserDetails, OAuth2User {
 
     private final Member member;
 
     public MemberDetails(Member member) {
         this.member = member;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return Map.of();
     }
 
     @Override
@@ -46,6 +51,14 @@ public class MemberDetails implements UserDetails {
         return member.getNickname();
     }
 
+    public String getProfileImageUrl() {
+        return member.getProfileImageUrl();
+    }
+
+    public Long getUserId() {
+        return member.getId();
+    }
+
     public Member getMember() {
         return this.member;
     }
@@ -68,5 +81,10 @@ public class MemberDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+    @Override
+    public String getName() {
+        return "";
     }
 }
