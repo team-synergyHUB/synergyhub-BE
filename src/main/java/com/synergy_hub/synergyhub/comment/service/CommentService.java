@@ -29,20 +29,19 @@ public class CommentService {
     private final TeamRepository teamRepository;
 
     // 댓글 생성
-    public CommentResponseDto createComment(CommentRequestDto dto, Long currentMember, Long teamId) {
-        // teamId로 팀 정보 조회
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-
+    public CommentResponseDto createComment(CommentRequestDto dto, Long currentMember) {
         // 공지사항 조회
         Notice notice = noticeRepository.findById(dto.getNoticeId())
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        // 공지사항에서 Team 가져오기
+        Team team = notice.getTeam();
 
         // 댓글 엔티티 생성 (Builder 사용)
         Comment comment = Comment.builder()
                 .noticeId(dto.getNoticeId())
                 .memberId(currentMember)
-                .teamId(teamId)
+                .teamId(team.getId()) // teamId 설정
                 .content(dto.getContent())
                 .isDeleted(false)
                 .build();
@@ -51,6 +50,7 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
         return commentMapper.toDto(savedComment);
     }
+
 
     // 댓글 조회 (특정 공지사항)
     @Transactional(readOnly = true)

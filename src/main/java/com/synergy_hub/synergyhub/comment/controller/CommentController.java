@@ -2,6 +2,7 @@ package com.synergy_hub.synergyhub.comment.controller;
 
 import com.synergy_hub.synergyhub.comment.dto.CommentRequestDto;
 import com.synergy_hub.synergyhub.comment.dto.CommentResponseDto;
+import com.synergy_hub.synergyhub.comment.dto.CommentUpdateRequestDto;
 import com.synergy_hub.synergyhub.comment.service.CommentService;
 import com.synergy_hub.synergyhub.member.controller.MemberController;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
@@ -21,15 +22,10 @@ public class CommentController {
 
     // 댓글 생성
     @PostMapping("/notice/{noticeId}")
-    public ResponseEntity<CommentResponseDto> createComment(
-        @RequestBody CommentRequestDto dto) {
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
 
-        // dto에서 memberId, noticeId, teamId, content 추출
         Long currentMemberId = MemberController.getAuthenticationMemberId();
-
-        // 서비스에서 댓글 생성
-        CommentResponseDto createdComment = commentService.createComment(dto, currentMemberId, dto.getTeamId());
-
+        CommentResponseDto createdComment = commentService.createComment(dto, currentMemberId);
         return ResponseEntity.ok(createdComment);
     }
 
@@ -43,11 +39,12 @@ public class CommentController {
     // 댓글 수정
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(
-        @PathVariable Long commentId,
-        @RequestParam String content) {
-        CommentResponseDto updatedComment = commentService.updateComment(commentId, content);
+            @PathVariable Long commentId,
+            @RequestBody CommentUpdateRequestDto updateRequestDto) {
+        CommentResponseDto updatedComment = commentService.updateComment(commentId, updateRequestDto.getContent());
         return ResponseEntity.ok(updatedComment);
     }
+
 
     // 댓글 삭제 (Soft Delete)
     @DeleteMapping("/{commentId}")
