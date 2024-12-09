@@ -1,7 +1,7 @@
 package com.synergy_hub.synergyhub.team.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,10 +10,14 @@ import java.util.List;
 @Data
 @Builder
 public class TeamRequestDTO {
+
+    @Schema(description = "팀 이름", example = "Synergy Team")
     @NotBlank(message = "팀 이름은 필수 입력 항목입니다.")
-    private String name; // 팀 이름
+    private String name;
 
-    private List<Long> labelIds; // 여러 라벨 ID
+    @Schema(description = "라벨 ID 리스트", example = "[1, 2, 3]")
+    private List<Long> labelIds;
 
-    private Boolean isDeleted = false; // 기본값 설정
+    @Schema(description = "삭제 여부 (기본값: false)", example = "false", defaultValue = "false")
+    private Boolean isDeleted = false;
 }

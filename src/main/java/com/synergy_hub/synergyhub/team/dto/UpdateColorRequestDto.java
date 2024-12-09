@@ -1,11 +1,17 @@
 package com.synergy_hub.synergyhub.team.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
 public class UpdateColorRequestDto {
-    private Long memberId;
-    private Long teamId;
-    private String newColor;
 
+    @Schema(description = "멤버 ID", example = "20")
+    private Long memberId;
+
+    @Schema(description = "팀 ID", example = "101")
+    private Long teamId;
+
+    @Schema(description = "변경할 색상 코드", example = "#FF5733")
+    private String newColor;
 }
