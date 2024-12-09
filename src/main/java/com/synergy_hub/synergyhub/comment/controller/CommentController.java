@@ -20,7 +20,7 @@ public class CommentController {
     private final MemberRepository memberRepository;
 
     // 댓글 생성
-    @PostMapping("/notice")
+    @PostMapping("/notice/{noticeId}")
     public ResponseEntity<CommentResponseDto> createComment(
         @RequestBody CommentRequestDto dto) {
 
