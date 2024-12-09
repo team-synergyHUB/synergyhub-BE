@@ -38,6 +38,15 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
+    // 특정 댓글 조회
+    @GetMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDto> getCommentById(@PathVariable Long commentId) {
+        // 댓글 조회
+        CommentResponseDto comment = commentService.getCommentById(commentId);
+        return ResponseEntity.ok(comment);
+    }
+
+
     // 댓글 수정
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(

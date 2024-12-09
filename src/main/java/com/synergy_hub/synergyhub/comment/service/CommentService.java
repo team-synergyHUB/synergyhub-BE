@@ -60,6 +60,17 @@ public class CommentService {
             .collect(Collectors.toList());
     }
 
+    // 특정 댓글 조회
+    @Transactional(readOnly = true)
+    public CommentResponseDto getCommentById(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        // 댓글을 DTO로 변환하여 반환
+        return commentMapper.toDto(comment);
+    }
+
+
     // 댓글 수정
     public CommentResponseDto updateComment(Long commentId, String content, Long currentMemberId) {
         Comment comment = commentRepository.findById(commentId)
