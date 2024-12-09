@@ -5,6 +5,5 @@ import lombok.Data;
 @Data
 public class CommentRequestDto {
     private Long noticeId;
-    private Long memberId;
     private String content;
 }

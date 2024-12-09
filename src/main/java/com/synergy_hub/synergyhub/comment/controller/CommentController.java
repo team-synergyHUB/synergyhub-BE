@@ -23,8 +23,10 @@ public class CommentController {
     // 댓글 생성
     @PostMapping("/notice/{noticeId}")
     public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
-
+        // 현재 사용자 ID 가져오기
         Long currentMemberId = MemberController.getAuthenticationMemberId();
+
+        // 댓글 생성
         CommentResponseDto createdComment = commentService.createComment(dto, currentMemberId);
         return ResponseEntity.ok(createdComment);
     }
@@ -41,15 +43,22 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentId,
             @RequestBody CommentUpdateRequestDto updateRequestDto) {
-        CommentResponseDto updatedComment = commentService.updateComment(commentId, updateRequestDto.getContent());
+        // 현재 사용자 ID 가져오기
+        Long currentMemberId = MemberController.getAuthenticationMemberId();
+
+        // 댓글 수정
+        CommentResponseDto updatedComment = commentService.updateComment(commentId, updateRequestDto.getContent(), currentMemberId);
         return ResponseEntity.ok(updatedComment);
     }
-
 
     // 댓글 삭제 (Soft Delete)
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> softDeleteComment(@PathVariable Long commentId) {
-        commentService.softDeleteComment(commentId);
+        // 현재 사용자 ID 가져오기
+        Long currentMemberId = MemberController.getAuthenticationMemberId();
+
+        // 댓글 삭제
+        commentService.softDeleteComment(commentId, currentMemberId);
         return ResponseEntity.noContent().build();
     }
 }

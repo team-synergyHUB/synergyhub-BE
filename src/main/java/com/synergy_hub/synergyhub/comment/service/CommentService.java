@@ -26,10 +26,9 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final NoticeRepository noticeRepository;
     private final CommentMapper commentMapper;
-    private final TeamRepository teamRepository;
 
     // 댓글 생성
-    public CommentResponseDto createComment(CommentRequestDto dto, Long currentMember) {
+    public CommentResponseDto createComment(CommentRequestDto dto, Long currentMemberId) {
         // 공지사항 조회
         Notice notice = noticeRepository.findById(dto.getNoticeId())
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
@@ -37,11 +36,11 @@ public class CommentService {
         // 공지사항에서 Team 가져오기
         Team team = notice.getTeam();
 
-        // 댓글 엔티티 생성 (Builder 사용)
+        // 댓글 엔티티 생성
         Comment comment = Comment.builder()
                 .noticeId(dto.getNoticeId())
-                .memberId(currentMember)
-                .teamId(team.getId()) // teamId 설정
+                .memberId(currentMemberId)
+                .teamId(team.getId())
                 .content(dto.getContent())
                 .isDeleted(false)
                 .build();
@@ -62,12 +61,17 @@ public class CommentService {
     }
 
     // 댓글 수정
-    public CommentResponseDto updateComment(Long commentId, String content) {
+    public CommentResponseDto updateComment(Long commentId, String content, Long currentMemberId) {
         Comment comment = commentRepository.findById(commentId)
-            .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
         if (comment.getIsDeleted()) {
             throw new CustomException(ErrorCode.COMMENT_DELETED);
+        }
+
+        // 작성자 검증
+        if (!comment.getMemberId().equals(currentMemberId)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
         }
 
         comment.setContent(content);
@@ -76,12 +80,17 @@ public class CommentService {
     }
 
     // 댓글 삭제 (Soft Delete)
-    public void softDeleteComment(Long commentId) {
+    public void softDeleteComment(Long commentId, Long currentMemberId) {
         Comment comment = commentRepository.findById(commentId)
-            .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
         if (comment.getIsDeleted()) {
             throw new CustomException(ErrorCode.COMMENT_DELETED);
+        }
+
+        // 작성자 검증
+        if (!comment.getMemberId().equals(currentMemberId)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
         }
 
         comment.setIsDeleted(true);
