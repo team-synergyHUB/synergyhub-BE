@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.notice.controller;
 
+import com.synergy_hub.synergyhub.global.CommonApiDocs;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.controller.MemberController;
@@ -11,6 +12,7 @@ import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
 import com.synergy_hub.synergyhub.notice.dto.NoticeUpdateRequestDTO;
 import com.synergy_hub.synergyhub.notice.service.NoticeService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/notices")
 @RequiredArgsConstructor
+@Tag(name = "Notice", description = "공지사항 관련 API")
 public class NoticeController {
 
     private final NoticeService noticeService;
@@ -29,6 +32,7 @@ public class NoticeController {
     private final MemberRepository memberRepository;
 
     // 공지사항 생성
+    @CommonApiDocs(summary = "공지사항 생성", description = "새로운 공지사항을 생성합니다.")
     @PostMapping("/{teamId}")
     public ResponseEntity<NoticeResponseDTO> createNotice(
             @PathVariable Long teamId,
@@ -44,6 +48,7 @@ public class NoticeController {
     }
 
     // 공지사항 수정
+    @CommonApiDocs(summary = "공지사항 수정", description = "기존의 공지사항을 수정합니다.")
     @PutMapping("/{id}")
     public ResponseEntity<NoticeResponseDTO> updateNotice(
             @PathVariable Long id,
@@ -55,6 +60,7 @@ public class NoticeController {
     }
 
     // 공지사항 삭제
+    @CommonApiDocs(summary = "공지사항 삭제", description = "기존의 공지사항을 삭제합니다.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long id) {
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
@@ -64,6 +70,7 @@ public class NoticeController {
     }
 
     // 특정 공지사항 조회
+    @CommonApiDocs(summary = "공지사항 조회", description = "특정 공지사항의 상세 정보를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity<NoticeResponseDTO> getNotice(@PathVariable Long id) {
         NoticeResponseDTO response = noticeService.getNotice(id);
@@ -71,6 +78,7 @@ public class NoticeController {
     }
 
     // 특정 팀의 공지사항 조회 (페이지네이션)
+    @CommonApiDocs(summary = "특정 팀의 공지사항 조회", description = "특정 팀에 속한 공지사항들을 조회합니다.")
     @GetMapping("/teams/{teamId}/notices")
     public ResponseEntity<Page<NoticeResponseDTO>> getTeamNotices(
             @PathVariable Long teamId,

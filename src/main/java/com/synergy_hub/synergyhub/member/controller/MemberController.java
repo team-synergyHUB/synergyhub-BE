@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.member.controller;
 
+import com.synergy_hub.synergyhub.global.CommonApiDocs;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
@@ -11,6 +12,7 @@ import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.exception.MemberNotAuthenticatedException;
 import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.member.service.MemberService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +38,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/members")
 @Slf4j
+@Tag(name = "Member", description = "회원 관련 API")
 public class MemberController {
 
     private final MemberService memberService;
 
+    @CommonApiDocs(summary = "회원 가입", description = "새로운 회원을 등록합니다.")
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Map<String, Object>>> signUp(
         @RequestBody MemberAddRequest request) {
@@ -54,6 +58,7 @@ public class MemberController {
     }
 
     //모든 회원 조회
+    @CommonApiDocs(summary = "모든 회원 조회", description = "모든 회원의 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<ApiResponse<List<MemberResponseDto>>> getAllMembers() {
         List<MemberResponseDto> members = memberService.findAllMembers();
@@ -63,6 +68,7 @@ public class MemberController {
     }
 
     //내 정보 조회
+    @CommonApiDocs(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo(
         @AuthenticatedMember MemberDetails memberDetails) {
@@ -75,6 +81,7 @@ public class MemberController {
     }
 
     //특정 팀에 속한 회원 목록 조회
+    @CommonApiDocs(summary = "특정 팀 회원 목록 조회", description = "특정 팀에 속한 회원들의 목록을 조회합니다.")
     @GetMapping("/{teamId}")
     public ResponseEntity<ApiResponse<Page<TeamMemberResponseDto>>> getTeamMember(
         @PathVariable Long teamId, Pageable pageable) {
@@ -85,7 +92,7 @@ public class MemberController {
             HttpStatus.OK);
 
     }
-
+    @CommonApiDocs(summary = "내 정보 수정", description = "현재 로그인한 사용자의 정보를 수정합니다.")
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<Void>> updateMyInfo(
         @RequestBody MemberUpdateRequest request, @AuthenticatedMember MemberDetails memberDetails) {
@@ -96,6 +103,7 @@ public class MemberController {
             HttpStatus.OK);
     }
 
+    @CommonApiDocs(summary = "계정 삭제", description = "현재 로그인한 사용자의 계정을 삭제합니다.")
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteMyAccount(
         @AuthenticatedMember MemberDetails memberDetails) {
