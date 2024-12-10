@@ -1,12 +1,19 @@
 package com.synergy_hub.synergyhub.team.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 
 @Data
 @AllArgsConstructor
 public class LabelResponseDTO {
-    private Long id;      // 라벨 ID
-    private String name;  // 라벨 이름
-    private String color; // 라벨 색상
+
+    @Schema(description = "라벨 ID", example = "1")
+    private Long id;
+
+    @Schema(description = "라벨 이름", example = "abcd")
+    private String name;
+
+    @Schema(description = "라벨 색상 코드", example = "#FF5733")
+    private String color;
 }
