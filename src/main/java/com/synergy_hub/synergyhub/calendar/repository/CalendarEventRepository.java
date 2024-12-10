@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface CalendarEventRepository extends JpaRepository<CalendarEvent, Long>, CalendarEventRepositoryCustom{
+public interface CalendarEventRepository extends JpaRepository<
+    CalendarEvent, Long>, CalendarEventRepositoryCustom{
+
 
 }

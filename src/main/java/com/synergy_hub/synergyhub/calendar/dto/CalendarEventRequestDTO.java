@@ -9,6 +9,5 @@ public class CalendarEventRequestDTO {
     private String title;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private boolean allDay;
 
 }
