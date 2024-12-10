@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.chat.config;
 import com.synergy_hub.synergyhub.auth.exception.JwtAlreadyExpiredException;
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -13,6 +14,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -31,8 +33,6 @@ public class CustomWebSocketInterceptor implements ChannelInterceptor {
         String accessToken = accessor.getFirstNativeHeader("Authorization");
 
         log.info("===========================================================================");
-//        log.info("Received STOMP Message: " + message);
-        log.info("Access Token: " + accessToken);
         log.info("Incoming message type: " + accessor.getMessageType());
         log.info("===========================================================================");
 
@@ -44,12 +44,9 @@ public class CustomWebSocketInterceptor implements ChannelInterceptor {
 
 
             Authentication authentication = jwtTokenProvider.createAuthentication(token);
-            log.info("====================================================");
-            log.info("Authentication: " + authentication);  // 인증 정보 확인
 
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             accessor.setUser(authentication);
-
-//            accessor.getSessionAttributes().put()
 
         }
 
