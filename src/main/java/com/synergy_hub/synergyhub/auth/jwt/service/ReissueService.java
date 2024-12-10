@@ -1,7 +1,9 @@
 package com.synergy_hub.synergyhub.auth.jwt.service;
 
+import com.synergy_hub.synergyhub.auth.exception.CookieNotFoundException;
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.auth.oauth.service.CookieService;
+import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.global.response.ApiResponse;
 import com.synergy_hub.synergyhub.global.response.ApiResponseBuilder;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Access token 이 만료되어 클라이언트로부터 Refresh token 이 오면
@@ -28,15 +31,20 @@ public class ReissueService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshService refreshService;
 
+    @Transactional
     public ResponseEntity<ApiResponse<Void>> reissue(HttpServletRequest request, HttpServletResponse response) {
 
         Cookie[] cookies = request.getCookies();
 
+        if (cookies == null) {
+            throw new CookieNotFoundException(ErrorCode.COOKIE_NOT_FOUND);
+        }
+
         String refresh = Arrays.stream(cookies)
             .filter((cookie) -> cookie.getName().equals("refresh"))
             .findFirst()
-            .get()
-            .getValue();
+            .map(Cookie::getValue)
+            .orElseThrow(() -> new CookieNotFoundException(ErrorCode.COOKIE_NOT_FOUND));
 
         log.info("refresh 토큰 : {}", refresh);
 

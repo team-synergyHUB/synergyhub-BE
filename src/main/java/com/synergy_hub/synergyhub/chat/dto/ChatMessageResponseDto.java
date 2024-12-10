@@ -17,6 +17,8 @@ public class ChatMessageResponseDto {
     private Long roomId;                  // 채팅방 ID
 //    private String roomName;              // 채팅방 이름
     private String nickname;        // 보낸 사람 닉네임
+    private String userEmail;
+    private String userProfile;
     private String message;               // 메시지 내용
     private ChatMessage.MessageType type; // 메시지 타입 (ENTER, TALK, QUIT 등)
     private LocalDateTime createdAt;      // 메시지 생성 시간
