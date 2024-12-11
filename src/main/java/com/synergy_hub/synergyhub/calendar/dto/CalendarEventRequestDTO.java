@@ -16,6 +16,4 @@ public class CalendarEventRequestDTO {
     @Schema(description = "캘린더 이벤트 종료 시간", example = "2024-12-10T12:00:00")
     private LocalDateTime endDate;
 
-    @Schema(description = "종일 이벤트 여부", example = "false")
-    private boolean allDay;
 }
