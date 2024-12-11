@@ -7,6 +7,7 @@ import com.synergy_hub.synergyhub.member.dto.MemberLoginRequest;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.dto.MemberUpdateRequest;
 import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
+import com.synergy_hub.synergyhub.member.entity.LoginType;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
 import com.synergy_hub.synergyhub.member.exception.EmailAlreadyExistException;
@@ -44,6 +45,7 @@ public class MemberService {
         Member member = Member.createMember(request.getNickname(), request.getEmail(),
             passwordEncoder.encode(request.getPassword()));
         member.changeRole(MemberRole.USER);
+        member.changeLoginType(LoginType.COMMON);
 
         return memberRepository.save(member).getId();
     }
@@ -116,8 +118,8 @@ public class MemberService {
 
     //회원 프로필 이미지 수정
     @Transactional
-    public Long updateMemberProfileImage(String email, MultipartFile profileImage) {
-        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
+    public Long updateMemberProfileImage(Long id, MultipartFile profileImage) {
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new MemberNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         if (member.getProfileImageUrl() != null) {
