@@ -55,18 +55,20 @@ public class CalendarService {
     }
 
     // 일정 조회 ( 팀 캘린더 )
-    public List<CalendarEventResponseDto> getTeamEvents(Long teamId, Long memberId){
-
+    public List<Map<String, Object>> getTeamEventsAsFullCalendarFormat(Long teamId, Long memberId) {
+        // 팀원 검증
         memberTeamService.validateMemberOfTeam(memberId, teamId);
 
+        // 팀의 이벤트를 가져오고 색상을 설정한 후, FullCalendar 형식으로 변환
         List<CalendarEvent> calendarEvents = calendarEventRepository.findEventByTeam(teamId);
-
         String color = memberTeamService.getTeamColor(memberId, teamId);
 
+        // CalendarEvent -> CalendarEventResponseDto -> FullCalendar 형식으로 변환
         return calendarEvents.stream()
-            .map(event-> convertToResponseDto(event,color))
+            .map(event -> convertToFullCalendarFormat(convertToResponseDto(event, color)))  // 두 단계 변환
             .collect(Collectors.toList());
     }
+
 
     // 일정조회 ( 개인 캘린더)
     public List<CalendarEventResponseDto> getUserEvents(Long memberId) {
@@ -130,4 +132,16 @@ public class CalendarService {
             .color(color)
             .build();
     }
+
+    public Map<String, Object> convertToFullCalendarFormat(CalendarEventResponseDto dto) {
+        return Map.of(
+            "id", dto.getId(),
+            "title", dto.getTitle(),
+            "start", dto.getStartDate().toString(),
+            "end", dto.getEndDate() != null ? dto.getEndDate().toString() : null,
+            "color", dto.getColor()
+        );
+    }
+
+
 }

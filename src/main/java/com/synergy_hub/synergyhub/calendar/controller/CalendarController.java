@@ -11,6 +11,7 @@ import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.global.CommonApiDocs;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,32 +45,28 @@ public class CalendarController {
     //일정조회 ( 팀 캘린더 )
     @CommonApiDocs(summary = "팀 캘린더 일정 조회", description = "특정 팀의 일정을 조회합니다.")
     @GetMapping("/team/{teamId}/events")
-    public ResponseEntity<List<CalendarEventResponseDto>> getTeamEvents(
+    public ResponseEntity<List<Map<String, Object>>> getTeamEvents(
         @PathVariable Long teamId) {
 
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 사용자 ID 가져오기
         Member currentMember = memberRepository.findById(currentMemberId)
             .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        List<CalendarEventResponseDto> teamEvents = calendarService.getTeamEvents(teamId, currentMember.getId());
+        List<Map<String, Object>> teamEvents = calendarService.getTeamEventsAsFullCalendarFormat(
+            teamId, currentMember.getId());
+
+
         return ResponseEntity.ok(teamEvents);
     }
 
-        // 개인 일정 조회
+    // 개인 일정 조회
+    @CommonApiDocs(summary = "개인 캘린더 일정 조회", description = "특정 회원의 개인 일정을 조회합니다.")
     @GetMapping("/my-events")
     public ResponseEntity<List<CalendarEventResponseDto>> getUserEvents() {
           Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 사용자 ID 가져오기
           List<CalendarEventResponseDto> userEvents = calendarService.getUserEvents(currentMemberId);
           return ResponseEntity.ok(userEvents);
         }
-
-    //일정 조회 ( 개인 캘린더)
-    @CommonApiDocs(summary = "개인 캘린더 일정 조회", description = "특정 회원의 개인 일정을 조회합니다.")
-    @GetMapping("/user/{memberId}/events")
-    public ResponseEntity<List<CalendarEventResponseDto>> getUserEvents(@PathVariable Long memberId){
-        List<CalendarEventResponseDto> userEvents = calendarService.getUserEvents(memberId);
-        return ResponseEntity.ok(userEvents);
-    }
 
     //일정 수정
     @CommonApiDocs(summary = "일정 수정", description = "기존 일정의 정보를 수정합니다.")
