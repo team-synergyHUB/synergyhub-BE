@@ -94,9 +94,14 @@ public class NoticeService {
     }
 
     // 팀별 공지사항 조회 (페이지네이션 및 정렬)
-    public Page<NoticeResponseDTO> getNoticesByTeam(Long teamId, int page, int size, String sortField, String sortDirection) {
+    public Page<NoticeResponseDTO> getNoticesByTeam(Member currentUser, Long teamId, int page, int size, String sortField, String sortDirection) {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+
+        // 현재 유저 식별 -> 유저 객체
+        Member currentMember = currentUser;
+
+        // 팀과 멤버 관계 검증: 속해있지 않음 -> ERROR, 속해있음 -> 로직진행
 
         return noticeRepository.findByTeamIdAndDeletedAtIsNull(teamId, pageable)
                 .map(NoticeResponseDTO::fromEntity);
@@ -109,4 +114,5 @@ public class NoticeService {
 
         return NoticeResponseDTO.fromEntity(notice);
     }
+
 }

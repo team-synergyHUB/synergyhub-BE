@@ -4,8 +4,10 @@ import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.config.global.SwaggerDocumentation;
 import com.synergy_hub.synergyhub.global.CommonApiDocs;
+import com.synergy_hub.synergyhub.member.controller.MemberController;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
+import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.team.dto.*;
 import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.service.TeamService;
@@ -38,6 +40,7 @@ public class TeamController {
 
     private final TeamService teamService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final MemberRepository memberRepository;
 
     // 팀에 라벨 매핑
     @CommonApiDocs(summary = "팀에 라벨 매핑", description = "팀에 라벨을 연결합니다.")
@@ -162,4 +165,19 @@ public class TeamController {
         InviteCodeResponseDTO responseDto = new InviteCodeResponseDTO(inviteCode);
         return ResponseEntity.ok(responseDto);
     }
+
+    // 팀 검증 로직
+    @GetMapping("{teamId}/validate")
+    public ResponseEntity<Boolean> teamValidate(@PathVariable Long teamId) {
+        Long currentMemberId = MemberController.getAuthenticationMemberId(); // 현재 사용자 가져오기
+        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+
+        if (currentMember == null) {
+            return ResponseEntity.badRequest().body(false); // 멤버가 없으면 접근 불가
+        }
+
+        boolean isValid = teamService.teamAccessValidator(currentMember, teamId);
+        return ResponseEntity.ok(isValid); // 검증 결과 반환
+    }
+
 }

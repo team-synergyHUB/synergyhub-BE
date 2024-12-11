@@ -26,7 +26,6 @@ public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
 
     boolean existsByTeamAndMemberId(Team team, Long memberId);
 
-
     boolean existsByTeamAndMember(Team team, Member member);
 
     // 특정 팀에 멤버가 남아 있는지 확인
