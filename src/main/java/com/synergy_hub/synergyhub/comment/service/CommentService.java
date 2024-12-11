@@ -3,6 +3,7 @@ package com.synergy_hub.synergyhub.comment.service;
 import com.synergy_hub.synergyhub.comment.dto.CommentRequestDto;
 import com.synergy_hub.synergyhub.comment.dto.CommentResponseDto;
 import com.synergy_hub.synergyhub.comment.entity.Comment;
+import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.notice.entity.Notice;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
@@ -26,6 +27,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final NoticeRepository noticeRepository;
     private final CommentMapper commentMapper;
+    private final MemberRepository memberRepository;
 
     // 댓글 생성
     public CommentResponseDto createComment(CommentRequestDto dto, Long currentMemberId) {
@@ -36,10 +38,15 @@ public class CommentService {
         // 공지사항에서 Team 가져오기
         Team team = notice.getTeam();
 
+        // 멤버 닉네임 조회
+        String currentMemberNickname = memberRepository.findNicknameByMemberId(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
         // 댓글 엔티티 생성
         Comment comment = Comment.builder()
                 .noticeId(dto.getNoticeId())
                 .memberId(currentMemberId)
+                .nickname(currentMemberNickname)
                 .teamId(team.getId())
                 .content(dto.getContent())
                 .isDeleted(false)

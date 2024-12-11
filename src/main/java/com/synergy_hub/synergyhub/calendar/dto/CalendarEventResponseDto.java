@@ -8,7 +8,6 @@ import lombok.Data;
 @Builder
 @Data
 public class CalendarEventResponseDto {
-
     @Schema(description = "캘린더 이벤트 ID", example = "1")
     private Long id;
 
@@ -20,9 +19,6 @@ public class CalendarEventResponseDto {
 
     @Schema(description = "캘린더 이벤트 종료 시간", example = "2024-12-10T12:00:00")
     private LocalDateTime endDate;
-
-    @Schema(description = "종일 이벤트 여부", example = "true")
-    private boolean allDay;
 
     @Schema(description = "삭제된 시간 (삭제되지 않은 경우 null)", example = "null")
     private LocalDateTime deletedAt;

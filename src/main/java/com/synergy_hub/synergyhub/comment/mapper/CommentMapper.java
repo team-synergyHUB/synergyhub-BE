@@ -16,6 +16,7 @@ public interface CommentMapper {
             @Mapping(source = "content", target = "content"),   // 댓글 내용
             @Mapping(target = "isDeleted", constant = "false"), // 기본값 설정
             @Mapping(target = "memberId", ignore = true),       // memberId는 서비스에서 설정
+            @Mapping(target = "nickname", ignore = true),       // 작성자 nickname
             @Mapping(target = "teamId", ignore = true),         // teamId는 서비스에서 설정
             @Mapping(target = "commentId", ignore = true),      // 자동 생성
             @Mapping(target = "createdAt", ignore = true),      // 자동 설정
@@ -28,6 +29,7 @@ public interface CommentMapper {
             @Mapping(source = "commentId", target = "commentId"), // 댓글 ID
             @Mapping(source = "noticeId", target = "noticeId"),   // 공지사항 ID
             @Mapping(source = "memberId", target = "memberId"),   // 작성자 ID
+            @Mapping(source = "nickname", target = "nickname"),   // 작성자 nickname
             @Mapping(source = "teamId", target = "teamId"),       // 팀 ID
             @Mapping(source = "content", target = "content"),     // 댓글 내용
             @Mapping(source = "isDeleted", target = "isDeleted"), // 삭제 여부
