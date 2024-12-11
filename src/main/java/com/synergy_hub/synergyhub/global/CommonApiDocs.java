@@ -13,11 +13,15 @@ import java.lang.annotation.Target;
  * 공통 Swagger 문서화를 위한 어노테이션.
  * 각 컨트롤러 메서드에서 사용 가능.
  */
+
 @Target({ElementType.METHOD}) // 메서드에만 적용 가능
 @Retention(RetentionPolicy.RUNTIME) // 런타임까지 유지
 @Operation // Swagger 문서화의 기본 Operation
 @ApiResponses({
         @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+        @ApiResponse(responseCode = "401", description = "인증 실패"),
+        @ApiResponse(responseCode = "403", description = "권한 부족"),
+        @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
 })
 public @interface CommonApiDocs {
