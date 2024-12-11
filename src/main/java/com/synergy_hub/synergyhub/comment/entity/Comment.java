@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.comment.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,8 @@ public class Comment {
 
     @Column(name = "member_id", nullable = false)
     private Long memberId;
+
+    private String nickname;
 
     @Column(name = "team_id", nullable = false)
     private Long teamId;

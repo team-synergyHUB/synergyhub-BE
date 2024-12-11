@@ -21,7 +21,6 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final MemberRepository memberRepository;
 
     // 댓글 생성
     @CommonApiDocs(summary = "댓글 생성", description = "특정 공지사항에 댓글을 생성합니다.")
