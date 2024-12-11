@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.member.dto;
 
+import com.synergy_hub.synergyhub.member.entity.LoginType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import lombok.Data;
@@ -19,10 +20,13 @@ public class MemberResponseDto {
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile/leader.png")
     private String profileImageUrl;
 
+    private LoginType loginType;
+
     public MemberResponseDto(Member member) {
         this.id = member.getId();
         this.nickname = member.getNickname();
         this.email = member.getEmail();
         this.profileImageUrl = member.getProfileImageUrl();
+        this.loginType = member.getLoginType();
     }
 }

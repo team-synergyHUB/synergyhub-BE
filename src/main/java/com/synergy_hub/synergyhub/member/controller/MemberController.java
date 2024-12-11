@@ -32,7 +32,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
@@ -102,6 +104,18 @@ public class MemberController {
         return ApiResponseBuilder.success("Update MyInfo successfully", null,
             HttpStatus.OK);
     }
+
+    @CommonApiDocs(summary = "내 정보 수정", description = "현재 로그인한 사용자의 프로필 이미지를 수정합니다.")
+    @PutMapping("/me/profile")
+    public ResponseEntity<ApiResponse<Void>> updateProfileImage(
+        @RequestPart MultipartFile multipartFile, @AuthenticatedMember MemberDetails memberDetails) {
+
+        memberService.updateMemberProfileImage(memberDetails.getUserId(), multipartFile);
+
+        return ApiResponseBuilder.success("Update MyInfo successfully", null,
+            HttpStatus.OK);
+    }
+
 
     @CommonApiDocs(summary = "계정 삭제", description = "현재 로그인한 사용자의 계정을 삭제합니다.")
     @DeleteMapping("/me")
