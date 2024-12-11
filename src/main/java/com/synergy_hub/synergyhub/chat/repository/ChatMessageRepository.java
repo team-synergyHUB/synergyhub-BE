@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
+public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>,
+    ChatMessageRepositoryCustom {
+
 
     // 특정 채팅방의 메시지 조회
     List<ChatMessage> findByChatRoom_RoomId(Long roomId);
@@ -24,4 +26,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Modifying
     @Query("DELETE FROM ChatMessage cm WHERE cm.chatRoom.roomId = :chatRoomId")
     void deleteAllByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+
+
 }
