@@ -17,6 +17,8 @@ public class CommentResponseDto {
     @Schema(description = "멤버 ID", example = "201")
     private Long memberId;
 
+    private String nickname;
+
     @Schema(description = "팀 ID", example = "301")
     private Long teamId;
 
