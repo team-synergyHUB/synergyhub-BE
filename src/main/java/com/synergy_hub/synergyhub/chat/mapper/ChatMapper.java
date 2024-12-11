@@ -17,6 +17,8 @@ public interface ChatMapper {
     @Mapping(source = "chatRoom.roomId", target = "roomId") // 채팅방 ID
 //    @Mapping(source = "chatRoom.roomName", target = "roomName") // 채팅방 이름
     @Mapping(source = "member.nickname", target = "nickname") // 보낸 사람 닉네임
+    @Mapping(source = "member.email", target = "userEmail")
+    @Mapping(source = "member.profileImageUrl", target = "userProfile")
     @Mapping(source = "message", target = "message") // 메시지 내용
     @Mapping(source = "type", target = "type") // 메시지 타입
     @Mapping(source = "createdAt", target = "createdAt") // 생성 시간
