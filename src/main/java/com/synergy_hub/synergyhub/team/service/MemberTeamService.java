@@ -10,6 +10,7 @@ import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -90,6 +91,12 @@ public class MemberTeamService {
         return memberTeamRepository.findAllByMemberId(memberId);
     }
 
+
+
+
+
+
+
     //색상 변경
     public void updateColor(Long memberId, Long teamId, String newColor){
         MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
@@ -114,6 +121,20 @@ public class MemberTeamService {
                 MemberTeam::getColor
                 ));
     }
+
+    // 특정 팀의 멤버 여부 확인 (Optional 활용)
+    public Optional<MemberTeam> findMemberTeam(Long memberId, Long teamId) {
+        return memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId);
+    }
+
+    // 팀 멤버 권한 검증 (Optional 활용)
+    public void validateMemberOfTeam(Long memberId, Long teamId) {
+        findMemberTeam(memberId, teamId)
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
+    }
+
+
+
 
 
 

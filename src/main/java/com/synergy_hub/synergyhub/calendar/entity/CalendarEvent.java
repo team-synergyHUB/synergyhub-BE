@@ -1,5 +1,6 @@
 package com.synergy_hub.synergyhub.calendar.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,8 +35,6 @@ public class CalendarEvent {
 
     private LocalDateTime endDate;
 
-    private boolean allDay;
-
     private LocalDateTime deleteAt;
 
     // 삭제 상태를 설정 ( 현재 시간 기록 )
@@ -47,11 +46,10 @@ public class CalendarEvent {
         return this.deleteAt !=null;
     }
 
-    public void updateEventDetails(String title, LocalDateTime startDate, LocalDateTime endDate, boolean allDay){
+    public void updateEventDetails(String title, LocalDateTime startDate, LocalDateTime endDate){
         this.title = title;
         this.startDate =startDate;
         this.endDate = endDate;
-        this.allDay=allDay;
     }
 
     // 연관관계 편의 메서드 (Calendar 객체 설정)
