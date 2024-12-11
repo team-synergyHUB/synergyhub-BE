@@ -36,7 +36,7 @@ public class ChatMessageService {
             .chatRoom(chatRoom)
             .member(member)
             .type(requestDto.getType())
-            .message(requestDto.getMessage()) // ChatMessageContent에서 텍스트 추출
+            .message(requestDto.getMessage().getText()) // ChatMessageContent에서 텍스트 추출
             .createdAt(LocalDateTime.now())
             .build();
 
