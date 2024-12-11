@@ -48,7 +48,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         // 사용자 조회
         Optional<Member> memberOpt = memberRepository.
-            findByNicknameAndEmailDeletedAtIsNull(nickname, email);
+            findByEmailAndDeletedAtIsNull(email);
+//            findByNicknameAndEmailDeletedAtIsNull(nickname, email);
 
         Member member = null;
 

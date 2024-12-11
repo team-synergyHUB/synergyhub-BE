@@ -2,6 +2,7 @@ package com.synergy_hub.synergyhub.chat.controller;
 
 import com.synergy_hub.synergyhub.chat.dto.ChatMessageRequestDto;
 import com.synergy_hub.synergyhub.chat.dto.ChatMessageResponseDto;
+import com.synergy_hub.synergyhub.chat.entity.ChatMessage.MessageType;
 import com.synergy_hub.synergyhub.chat.service.ChatMessageService;
 import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.member.entity.Member;
@@ -48,6 +49,13 @@ public class ChatMessageController {
         log.info("회원 ID : {}", memberDetails.getUserId());
         log.info("chatRoomId: {}", chatRoomId);
 
+        // 메시지 타입이 'ENTER' 이고 이미 존재하면 처리 중단
+        if ( requestDto.getType() == MessageType.ENTER && chatMessageService.hasEnterType(memberDetails.getUserId(), chatRoomId)) {
+            log.info("User {} already sent ENTER type message to chatRoomId {}", memberDetails.getUsername(), chatRoomId);
+            return;
+        }
+
+
         ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(
             chatRoomId, requestDto, memberDetails.getUsername());
 
@@ -73,10 +81,21 @@ public class ChatMessageController {
      */
     @GetMapping("/chat/messageHistory/{chatRoomId}")
     public ResponseEntity<List<ChatMessageResponseDto>> getChatMessages(
-        @PathVariable("chatRoomId") Long chatRoomId) {
-        List<ChatMessageResponseDto> chatMessages = chatMessageService.getChatMessages(chatRoomId);
-        return ResponseEntity.ok(chatMessages);
+        @PathVariable("chatRoomId") Long chatRoomId,
+        @AuthenticatedMember MemberDetails memberDetails) {
+
+        log.info("messageHistory Controller");
+//        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+
+        List<ChatMessageResponseDto> messageHistory = chatMessageService.getMessageHistory(
+            chatRoomId, memberDetails.getUserId());
+
+        return ResponseEntity.ok(messageHistory);
+
+//        List<ChatMessageResponseDto> chatMessages = chatMessageService.getChatMessages(chatRoomId);
+//        return ResponseEntity.ok(chatMessages);
     }
+
 
     /**
      * 특정 메시지 조회 (REST API 방식)
