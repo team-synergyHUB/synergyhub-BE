@@ -45,3 +45,5 @@ mysql-apt-config_*.deb
 nohup.out
 output.log
 
+### Generated ###
+/src/main/generated
