@@ -191,4 +191,12 @@ public class TeamService {
 
         return team.getInviteCode();
     }
+
+    // 팀 접근 검증 메서드
+    public boolean teamAccessValidator(Member currentMember, Long teamId) {
+        // 멤버-팀 관계 검증
+        return memberTeamRepository.existsByTeamAndMember(teamRepository.findById(teamId).orElseThrow(), currentMember);
+    }
+
 }
+

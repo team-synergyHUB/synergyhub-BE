@@ -86,7 +86,11 @@ public class NoticeController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "desc") String sortDirection) {
-        Page<NoticeResponseDTO> notices = noticeService.getNoticesByTeam(teamId, page, size, sortField, sortDirection);
+
+        Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
+        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+
+        Page<NoticeResponseDTO> notices = noticeService.getNoticesByTeam(currentMember, teamId, page, size, sortField, sortDirection);
         return ResponseEntity.ok(notices);
     }
 
