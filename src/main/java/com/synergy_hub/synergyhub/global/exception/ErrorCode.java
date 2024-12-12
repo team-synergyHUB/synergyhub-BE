@@ -29,6 +29,8 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 맞지 않습니다."),
     UNAUTHORIZED_CHAT_MESSAGE_UPDATE(HttpStatus.UNAUTHORIZED, "사용자가 메시지를 수정할 권한이 없습니다."),
     UNAUTHORIZED_CHAT_MESSAGE_DELETE(HttpStatus.UNAUTHORIZED, "사용자가 메시지를 삭제할 권한이 없습니다."),
+    UNAUTHORIZED_TEAM_ACCESS(HttpStatus.UNAUTHORIZED, "팀 접근 권한이 없습니다."),
+
 
     /* 403 FORBIDDEN : 권한이 없는 사용자 */
     USER_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없는 사용자입니다."),

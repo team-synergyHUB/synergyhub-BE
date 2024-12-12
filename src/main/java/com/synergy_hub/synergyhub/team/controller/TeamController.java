@@ -176,7 +176,7 @@ public class TeamController {
             return ResponseEntity.badRequest().body(false); // 멤버가 없으면 접근 불가
         }
 
-        boolean isValid = teamService.teamAccessValidator(currentMember, teamId);
+        boolean isValid = teamService.teamAccessValidator(teamId, currentMember);
         return ResponseEntity.ok(isValid); // 검증 결과 반환
     }
 

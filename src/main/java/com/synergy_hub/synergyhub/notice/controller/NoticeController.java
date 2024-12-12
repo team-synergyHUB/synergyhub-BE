@@ -12,6 +12,8 @@ import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
 import com.synergy_hub.synergyhub.notice.dto.NoticeUpdateRequestDTO;
 import com.synergy_hub.synergyhub.notice.service.NoticeService;
 
+import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
+import com.synergy_hub.synergyhub.team.service.TeamService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,10 @@ public class NoticeController {
     private final MemberService memberService; // 현재 사용자 인증 정보 제공
     private final MemberController memberController;
     private final MemberRepository memberRepository;
+    private final MemberTeamRepository memberTeamRepository;
+    private final TeamService teamService;
+
+
 
     // 공지사항 생성
     @CommonApiDocs(summary = "공지사항 생성", description = "새로운 공지사항을 생성합니다.")
@@ -41,6 +47,8 @@ public class NoticeController {
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
         Member currentMember = memberRepository.findById(currentMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        teamService.teamAccessValidator(teamId, currentMember);
 
         // teamId를 별도로 전달
         NoticeResponseDTO response = noticeService.createNotice(requestDTO, currentMember, teamId);
