@@ -35,7 +35,7 @@ public class MemberService {
     private final MemberTeamService memberTeamService;
     private final S3ImageService s3ImageService;
 
-
+    @Transactional
     public Long save(MemberAddRequest request) {
 
         if (memberRepository.existsByEmail(request.getEmail())) {
