@@ -48,8 +48,6 @@ public class NoticeController {
         Member currentMember = memberRepository.findById(currentMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // 팀 접근 검증
-        teamService.teamAccessValidator(teamId, currentMember);
 
         // 공지사항 생성
         NoticeResponseDTO response = noticeService.createNotice(requestDTO, currentMember, teamId);
@@ -86,7 +84,12 @@ public class NoticeController {
     @CommonApiDocs(summary = "공지사항 조회", description = "특정 공지사항의 상세 정보를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity<NoticeResponseDTO> getNotice(@PathVariable Long id) {
-        NoticeResponseDTO response = noticeService.getNotice(id);
+
+        Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        NoticeResponseDTO response = noticeService.getNotice(id, currentMember);
         return ResponseEntity.ok(response);
     }
 
@@ -101,10 +104,9 @@ public class NoticeController {
             @RequestParam(defaultValue = "desc") String sortDirection) {
 
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
-        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // 팀 접근 검증
-        teamService.teamAccessValidator(teamId, currentMember);
 
         Page<NoticeResponseDTO> notices = noticeService.getNoticesByTeam(currentMember, teamId, page, size, sortField, sortDirection);
         return ResponseEntity.ok(notices);
