@@ -12,6 +12,8 @@ import com.synergy_hub.synergyhub.notice.dto.NoticeResponseDTO;
 import com.synergy_hub.synergyhub.notice.dto.NoticeUpdateRequestDTO;
 import com.synergy_hub.synergyhub.notice.service.NoticeService;
 
+import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
+import com.synergy_hub.synergyhub.team.service.TeamService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,10 @@ public class NoticeController {
     private final MemberService memberService; // 현재 사용자 인증 정보 제공
     private final MemberController memberController;
     private final MemberRepository memberRepository;
+    private final MemberTeamRepository memberTeamRepository;
+    private final TeamService teamService;
+
+
 
     // 공지사항 생성
     @CommonApiDocs(summary = "공지사항 생성", description = "새로운 공지사항을 생성합니다.")
@@ -42,7 +48,8 @@ public class NoticeController {
         Member currentMember = memberRepository.findById(currentMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // teamId를 별도로 전달
+
+        // 공지사항 생성
         NoticeResponseDTO response = noticeService.createNotice(requestDTO, currentMember, teamId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -54,7 +61,9 @@ public class NoticeController {
             @PathVariable Long id,
             @RequestBody @Valid NoticeUpdateRequestDTO requestDTO) {
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
-        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         NoticeResponseDTO response = noticeService.updateNotice(id, requestDTO, currentMember);
         return ResponseEntity.ok(response);
     }
@@ -64,7 +73,9 @@ public class NoticeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long id) {
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
-        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         noticeService.deleteNotice(id, currentMember);
         return ResponseEntity.noContent().build();
     }
@@ -73,7 +84,12 @@ public class NoticeController {
     @CommonApiDocs(summary = "공지사항 조회", description = "특정 공지사항의 상세 정보를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity<NoticeResponseDTO> getNotice(@PathVariable Long id) {
-        NoticeResponseDTO response = noticeService.getNotice(id);
+
+        Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        NoticeResponseDTO response = noticeService.getNotice(id, currentMember);
         return ResponseEntity.ok(response);
     }
 
@@ -88,7 +104,9 @@ public class NoticeController {
             @RequestParam(defaultValue = "desc") String sortDirection) {
 
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
-        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
 
         Page<NoticeResponseDTO> notices = noticeService.getNoticesByTeam(currentMember, teamId, page, size, sortField, sortDirection);
         return ResponseEntity.ok(notices);
