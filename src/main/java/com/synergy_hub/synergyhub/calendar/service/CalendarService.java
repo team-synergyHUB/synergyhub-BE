@@ -8,6 +8,7 @@ import com.synergy_hub.synergyhub.calendar.repository.CalendarEventRepository;
 import com.synergy_hub.synergyhub.calendar.repository.CalendarRepository;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
+import com.synergy_hub.synergyhub.team.entity.Team;
 import com.synergy_hub.synergyhub.team.service.MemberTeamService;
 import java.util.List;
 import java.util.Map;
@@ -121,14 +122,19 @@ public class CalendarService {
         calendarEventRepository.save(event);
     }
 
+
+
     //응답 dto 변환 메서드(색상 추가 예정)
     private CalendarEventResponseDto convertToResponseDto(CalendarEvent event, String color){
+
+        Team team = event.getCalendar().getTeam();
 
         return CalendarEventResponseDto.builder()
             .id(event.getId())
             .title(event.getTitle())
             .startDate(event.getStartDate())
             .endDate(event.getEndDate())
+            .teamName(team.getName())
             .color(color)
             .build();
     }

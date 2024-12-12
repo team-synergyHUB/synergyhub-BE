@@ -6,9 +6,6 @@ import lombok.Data;
 @Data
 public class UpdateColorRequestDto {
 
-    @Schema(description = "멤버 ID", example = "20")
-    private Long memberId;
-
     @Schema(description = "팀 ID", example = "101")
     private Long teamId;
 

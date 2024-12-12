@@ -2,6 +2,7 @@ package com.synergy_hub.synergyhub.team.controller;
 
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
+import com.synergy_hub.synergyhub.member.controller.MemberController;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
@@ -146,23 +147,30 @@ public class MemberTeamController {
     }
 
 
-    // 색상 변경
     @PutMapping("/color")
-    public ResponseEntity<String> updateColor(@RequestBody UpdateColorRequestDto updateColorRequestDto){
-        memberTeamService.updateColor(updateColorRequestDto.getMemberId(), updateColorRequestDto.getTeamId(), updateColorRequestDto.getNewColor());
+    public ResponseEntity<String> updateColor(@RequestBody UpdateColorRequestDto updateColorRequestDto) {
+        Long currentMemberId = MemberController.getAuthenticationMemberId();
+        memberTeamService.updateColor(currentMemberId, updateColorRequestDto.getTeamId(), updateColorRequestDto.getNewColor());
         return ResponseEntity.ok("색상 변경 완료");
     }
 
+
     // 팀 색상 조회
     @GetMapping("/color")
-    public ResponseEntity<String> getTeamColor(@RequestParam Long memberId, @RequestParam Long teamId) {
-        String color = memberTeamService.getTeamColor(memberId, teamId);
+    public ResponseEntity<String> getTeamColor(@RequestParam Long teamId) {
+
+        Long currentMemberId = MemberController.getAuthenticationMemberId();
+
+        String color = memberTeamService.getTeamColor(currentMemberId, teamId);
         return ResponseEntity.ok(color);
     }
 
     @GetMapping("/all-color")
-    public ResponseEntity<Map<Long, String>> getAllColor(@RequestParam Long memberId){
-        Map<Long, String> color = memberTeamService.getAllTeamColor(memberId);
+    public ResponseEntity<Map<Long, String>> getAllColor(){
+
+        Long currentMemberId = MemberController.getAuthenticationMemberId();
+
+        Map<Long, String> color = memberTeamService.getAllTeamColor(currentMemberId);
         return ResponseEntity.ok(color);
     }
 }
