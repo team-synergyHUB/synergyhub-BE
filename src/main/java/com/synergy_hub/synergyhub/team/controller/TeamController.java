@@ -4,6 +4,8 @@ import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.config.global.SwaggerDocumentation;
 import com.synergy_hub.synergyhub.global.CommonApiDocs;
+import com.synergy_hub.synergyhub.global.exception.CustomException;
+import com.synergy_hub.synergyhub.global.exception.ErrorCode;
 import com.synergy_hub.synergyhub.member.controller.MemberController;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
@@ -74,17 +76,21 @@ public class TeamController {
 
     @PostMapping
     public ResponseEntity<TeamCreateResponseDTO> createTeam(
-            @Valid @RequestBody TeamRequestDTO request,
-            @AuthenticatedMember MemberDetails memberDetails) {
+            @Valid @RequestBody TeamRequestDTO request) {
+
+        Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
 
         // 요청 데이터와 사용자 ID 확인
         System.out.println("1. 요청 수신: " + request);
-        System.out.println("2. 인증된 사용자 정보 - ID: " + memberDetails.getUserId()
-                + ", 이메일: " + memberDetails.getUsername()
-                + ", 닉네임: " + memberDetails.getNickname());
+        System.out.println("2. 인증된 사용자 정보 - ID: " + currentMemberId
+                + ", 이메일: " + currentMember.getEmail()
+                + ", 닉네임: " + currentMember.getNickname());
 
         // 팀 생성
-        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, memberDetails.getUserId());
+        TeamCreateResponseDTO createdTeam = teamService.createTeamWithMember(request, currentMemberId);
         System.out.println("3. 생성된 팀: " + createdTeam);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);

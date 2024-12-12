@@ -28,4 +28,5 @@ public class CalendarEventResponseDto {
 
     @Schema(description = "팀 이름", example = "1팀")
     private String teamName;
+
 }

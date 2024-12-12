@@ -30,7 +30,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket' // Added WebSocket dependency
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -54,7 +53,6 @@ dependencies {
 
 	//oauth2 추가
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
 }
 
 tasks.named('test') {
@@ -64,4 +62,8 @@ tasks.named('test') {
 //QueryDsl 추가
 clean {
 	delete file('src/main/generated')
+}
+
+bootJar {
+	archiveFileName = "synergy-hub.jar"
 }

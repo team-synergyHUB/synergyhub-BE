@@ -39,7 +39,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private String secretKey;
 
     public LoginFilter(AuthenticationManager authenticationManager,
-        JwtTokenProvider jwtTokenProvider, RefreshService refreshService) {
+                       JwtTokenProvider jwtTokenProvider, RefreshService refreshService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.refreshService = refreshService;
@@ -48,18 +48,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
-        HttpServletResponse response) throws AuthenticationException {
+                                                HttpServletResponse response) throws AuthenticationException {
 
         try {
             MemberLoginRequest loginRequest = new ObjectMapper().readValue(
-                request.getInputStream(), MemberLoginRequest.class);
+                    request.getInputStream(), MemberLoginRequest.class);
 
             String username = loginRequest.getUsername();
             String password = loginRequest.getPassword();
 
             // Authentication 객체 생성
             UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(username, password);
+                    new UsernamePasswordAuthenticationToken(username, password);
 
             // AuthenticationManager로 인증 처리
             return authenticationManager.authenticate(authenticationToken);
@@ -72,8 +72,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, FilterChain chain, Authentication authentication)
-        throws IOException, ServletException {
+                                            HttpServletResponse response, FilterChain chain, Authentication authentication)
+            throws IOException, ServletException {
         log.info("login Successfully");
 
         MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
@@ -90,18 +90,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //토큰 생성
         String access = jwtTokenProvider.createJwtToken(
-            "access", username, userId, role, 1200000L, "common"); //10분
+                "access", username, userId, role, 1200000L, "common"); //10분
 
         String refresh = jwtTokenProvider.createJwtToken(   //24시간
-            "refresh", username, userId, role, 86400000L, "common");
+                "refresh", username, userId, role, 86400000L, "common");
 
         Date date = new Date(System.currentTimeMillis() + 86400000L);
         refreshService.saveRefresh(username, refresh, date.toString());
 
         //응답 헤더에 추가
         response.addHeader("Authorization", "Bearer " + access);
-        response.addCookie(CookieService.createCookie("refresh", refresh, 24*60*60));
+//        response.addCookie(CookieService.createCookie("refresh", refresh, 24*60*60));
+        CookieService.addCookieWithSameSite(response, "refresh", refresh, 24 * 60 * 60);
         response.setStatus(HttpStatus.OK.value());
+
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -119,8 +121,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void unsuccessfulAuthentication(
-        HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
-        throws IOException {
+            HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
+            throws IOException {
         log.info("login Failed");
 
         ErrorCode errorCode = ErrorCode.INVALID_PASSWORD;

@@ -41,10 +41,10 @@ public class ReissueService {
         }
 
         String refresh = Arrays.stream(cookies)
-            .filter((cookie) -> cookie.getName().equals("refresh"))
-            .findFirst()
-            .map(Cookie::getValue)
-            .orElseThrow(() -> new CookieNotFoundException(ErrorCode.COOKIE_NOT_FOUND));
+                .filter((cookie) -> cookie.getName().equals("refresh"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new CookieNotFoundException(ErrorCode.COOKIE_NOT_FOUND));
 
         log.info("refresh 토큰 : {}", refresh);
 
@@ -81,10 +81,10 @@ public class ReissueService {
 
         // new tokens
         String newAccess = jwtTokenProvider.createJwtToken(
-            "access", username, userId,  role, 600000L, loginType);
+                "access", username, userId,  role, 600000L, loginType);
 
         String newRefresh = jwtTokenProvider.createJwtToken(
-            "refresh", username, userId,  role, 86400000L, loginType);
+                "refresh", username, userId,  role, 86400000L, loginType);
 
         // 기존 refresh DB 삭제, 새로운 refresh 저장
         Date date = new Date(System.currentTimeMillis() + 86400000L);
@@ -92,10 +92,11 @@ public class ReissueService {
         refreshService.saveRefresh(username, newRefresh, date.toString());
 
         response.addHeader("Authorization", "Bearer " + newAccess);
-        response.addCookie(CookieService.createCookie("refresh", newRefresh, 24*60*60));
+        CookieService.addCookieWithSameSite(response, "refresh", newRefresh, 24 * 60 * 60);
+//        response.addCookie(CookieService.createCookie("refresh", newRefresh, 24*60*60));
 
         return ApiResponseBuilder.success("create Access token successfully", null,
-            HttpStatus.OK);
+                HttpStatus.OK);
     }
 
 }

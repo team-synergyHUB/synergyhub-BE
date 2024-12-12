@@ -52,65 +52,65 @@ public class WebSecurityConfig {
     @Bean
     public WebSecurityCustomizer webCustomizer() {
         return (web) -> web.ignoring()
-            .requestMatchers(toH2Console()) // H2 콘솔 무시
-            .requestMatchers("/static/**"); // 정적 리소스 무시
+//            .requestMatchers(toH2Console()) // H2 콘솔 무시
+                .requestMatchers("/static/**"); // 정적 리소스 무시
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-            .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
 //                    .requestMatchers("/ws/**").permitAll() // WebSocket 경로 허용
-                    .requestMatchers("/members/login", "/", "/members/signup").permitAll()
-                    .requestMatchers("/members/admin").hasRole("ADMIN")
-                    .anyRequest().permitAll()  //모든 경로 허용
+                                .requestMatchers("/members/login", "/", "/members/signup").permitAll()
+                                .requestMatchers("/members/admin").hasRole("ADMIN")
+                                .anyRequest().permitAll()  //모든 경로 허용
 //                    .anyRequest().authenticated()
-            )
+                )
 
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), LoginFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), LoginFilter.class)
 
-            .addFilterAt(new LoginFilter(authenticationCustomManager(authenticationConfiguration),
-                    jwtTokenProvider, refreshService),
-                UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(authenticationCustomManager(authenticationConfiguration),
+                                jwtTokenProvider, refreshService),
+                        UsernamePasswordAuthenticationFilter.class)
 
-            .addFilterBefore(new CustomLogoutFilter(jwtTokenProvider, refreshService),
-                LogoutFilter.class)
+                .addFilterBefore(new CustomLogoutFilter(jwtTokenProvider, refreshService),
+                        LogoutFilter.class)
 
-            .formLogin(form -> form.disable())
+                .formLogin(form -> form.disable())
 
-            .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                    .userService(customOauth2UserService))
-                .successHandler(customOauthSuccessHandler)
-            )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOauth2UserService))
+                        .successHandler(customOauthSuccessHandler)
+                )
 
-            .logout(logout -> logout
-                .logoutSuccessUrl("/login")
-                .invalidateHttpSession(true)
-                .permitAll()
-            )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .permitAll()
+                )
 
-            .sessionManagement(session -> session   //세션 무상태로 설정
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .csrf(csrf -> csrf.disable()) //CSRF 비활성화
+                .sessionManagement(session -> session   //세션 무상태로 설정
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .csrf(csrf -> csrf.disable()) //CSRF 비활성화
 
-            .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
 
-                CorsConfiguration configuration = new CorsConfiguration();
+                    CorsConfiguration configuration = new CorsConfiguration();
 
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                configuration.setAllowedMethods(Collections.singletonList("*"));
-                configuration.setAllowCredentials(true);
-                configuration.setAllowedHeaders(Collections.singletonList("*"));
-                configuration.setMaxAge(3600L);
+                    configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                    configuration.setAllowedMethods(Collections.singletonList("*"));
+                    configuration.setAllowCredentials(true);
+                    configuration.setAllowedHeaders(Collections.singletonList("*"));
+                    configuration.setMaxAge(3600L);
 
-                configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                    configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+                    configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
-                return configuration;
-            }))
-            .build();
+                    return configuration;
+                }))
+                .build();
     }
 
 //    @Bean
@@ -135,10 +135,10 @@ public class WebSecurityConfig {
 
         // **
         customAuthenticationFilter.setSecurityContextRepository(
-            new DelegatingSecurityContextRepository(
-                new RequestAttributeSecurityContextRepository(),
-                new HttpSessionSecurityContextRepository()
-            ));
+                new DelegatingSecurityContextRepository(
+                        new RequestAttributeSecurityContextRepository(),
+                        new HttpSessionSecurityContextRepository()
+                ));
 
         return customAuthenticationFilter;
     }
