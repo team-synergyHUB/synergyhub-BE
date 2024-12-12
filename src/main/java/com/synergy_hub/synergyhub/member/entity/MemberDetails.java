@@ -56,6 +56,10 @@ public class MemberDetails implements UserDetails, OAuth2User {
         return member.getRole();
     }
 
+    public LoginType getLoginType() {
+        return member.getLoginType();
+    }
+
     public String getProfileImageUrl() {
         return member.getProfileImageUrl();
     }

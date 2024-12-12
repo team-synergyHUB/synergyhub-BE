@@ -44,7 +44,6 @@ public class ChatRoom {
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
-    // TODO : SETDELETE
 
     /**
      * 채팅방 삭제 여부 확인 메서드

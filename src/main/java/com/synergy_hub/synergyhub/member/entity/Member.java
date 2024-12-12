@@ -44,6 +44,10 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -121,6 +125,10 @@ public class Member {
 
     public void changeRole(MemberRole role) {
         this.role = role;
+    }
+
+    public void changeLoginType(LoginType loginType) {
+        this.loginType = loginType;
     }
 
 }

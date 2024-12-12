@@ -4,6 +4,7 @@ import com.synergy_hub.synergyhub.auth.oauth.dto.CustomOauth2User;
 import com.synergy_hub.synergyhub.auth.oauth.dto.GoogleResponse;
 import com.synergy_hub.synergyhub.auth.oauth.dto.OAuth2Response;
 import com.synergy_hub.synergyhub.auth.oauth.dto.UserDto;
+import com.synergy_hub.synergyhub.member.entity.LoginType;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import com.synergy_hub.synergyhub.member.entity.MemberRole;
@@ -48,19 +49,21 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         // 사용자 조회
         Optional<Member> memberOpt = memberRepository.
-            findByNicknameAndEmailDeletedAtIsNull(nickname, email);
+            findByEmailAndDeletedAtIsNull(email);
+//            findByNicknameAndEmailDeletedAtIsNull(nickname, email);
 
         Member member = null;
+
 
         if (memberOpt.isPresent()) {
             member = memberOpt.get();
             member.updateMyInfo(nickname);
-//            userDto = new UserDto(member.getId(), email, nickname, MemberRole.USER);
         } else {
             // 새 사용자 생성
             member = Member.createMember(nickname, email, "null");
             member.changeRole(MemberRole.USER);
             member.updateProfileImage(profileImage);
+            member.changeLoginType(LoginType.SOCIAL);
             memberRepository.save(member);
 //            userDto = new UserDto( member.getId(), email, nickname, MemberRole.USER);
         }
