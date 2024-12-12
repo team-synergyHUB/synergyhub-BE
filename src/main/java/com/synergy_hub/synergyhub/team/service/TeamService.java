@@ -6,8 +6,6 @@ import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
-import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
-import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
@@ -117,8 +115,6 @@ public class TeamService {
         return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom, memberId);
     }
 
-
-
     @Transactional
     public TeamResponseDTO updateTeam(Long teamId, TeamRequestDTO request) {
         // 팀 조회
@@ -206,6 +202,5 @@ public class TeamService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_TEAM_ACCESS);
         }
     }
-
 }
 

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-//@Transactional
 public class MemberTeamService {
     private final MemberTeamRepository memberTeamRepository;
     private final TeamRepository teamRepository;
@@ -91,12 +90,6 @@ public class MemberTeamService {
         return memberTeamRepository.findAllByMemberId(memberId);
     }
 
-
-
-
-
-
-
     //색상 변경
     public void updateColor(Long memberId, Long teamId, String newColor){
         MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
@@ -132,11 +125,4 @@ public class MemberTeamService {
         findMemberTeam(memberId, teamId)
             .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_TEAM_NOT_FOUND));
     }
-
-
-
-
-
-
-
 }

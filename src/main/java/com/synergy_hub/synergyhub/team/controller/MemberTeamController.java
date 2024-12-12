@@ -1,6 +1,5 @@
 package com.synergy_hub.synergyhub.team.controller;
 
-import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
 import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
@@ -14,35 +13,34 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import java.util.List;
 import java.util.Map;
-
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/member-teams")
-//@RequiredArgsConstructor
 @Tag(name = "MemberTeam API", description = "팀과 멤버 관계를 관리하는 API") // Swagger 태그
 public class MemberTeamController {
 
     private final MemberTeamService memberTeamService;
     private final TeamService teamService;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public MemberTeamController(MemberTeamService memberTeamService, TeamService teamService,
-                                JwtTokenProvider jwtTokenProvider) {
+    public MemberTeamController(MemberTeamService memberTeamService, TeamService teamService) {
         this.memberTeamService = memberTeamService;
         this.teamService = teamService; // 주입
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     // 로그인한 사용자가 속한 팀 목록 조회
     @GetMapping("/member/{memberId}")
+    @Operation(summary = "로그인한 사용자의 팀 목록 조회", description = "로그인한 사용자가 속한 팀 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 팀 목록 반환"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "사용자 또는 팀을 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<List<TeamResponseDTO>> getTeamsByMember(@PathVariable Long memberId) {
         List<TeamResponseDTO> teams = teamService.getTeamsByMember(memberId);
         return ResponseEntity.ok(teams);
@@ -50,6 +48,13 @@ public class MemberTeamController {
 
     // 특정 팀의 멤버 목록 조회
     @GetMapping("/{teamId}/members")
+    @Operation(summary = "팀의 멤버 목록 조회", description = "특정 팀에 속한 멤버 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 멤버 목록 반환"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "팀 또는 멤버를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<List<MemberResponseDto>> getMembersOfTeam(@PathVariable Long teamId) {
         List<Member> members = memberTeamService.getMembersOfTeam(teamId);
         List<MemberResponseDto> memberDTOs = members.stream()
@@ -58,33 +63,14 @@ public class MemberTeamController {
         return ResponseEntity.ok(memberDTOs);
     }
 
-//    @PostMapping("/teams/join")
-//    public ResponseEntity<String> joinTeam(@RequestBody @Valid TeamJoinRequestDTO requestDTO,
-//                                           @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-//        // 1. 요청 데이터 확인 (디버깅 로그)
-//        System.out.println("1. 요청 수신: " + requestDTO);
-//
-//        // 2. Authorization 헤더 유효성 검사
-//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-//            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-//        }
-//
-//        // 3. Bearer 토큰 추출
-//        String token = authorizationHeader.replace("Bearer ", "").trim();
-//        System.out.println("2. 추출된 토큰: " + token); // 토큰 확인 로그
-//
-//        // 4. 토큰으로 사용자 ID 추출
-//        Long memberId = jwtTokenProvider.getUserId(token);
-//        System.out.println("3. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인 로그
-//
-//        // 5. 서비스 호출 (팀 참가 로직 실행)
-//        memberTeamService.addMemberToTeam(requestDTO.getInviteCode(), memberId);
-//
-//        // 6. 성공 응답 반환
-//        return ResponseEntity.ok("팀에 성공적으로 참가했습니다.");
-//    }
-
     @PostMapping("/teams/join")
+    @Operation(summary = "팀 참가", description = "초대 코드를 이용하여 팀에 참가합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 팀에 참가"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<String> joinTeam(
             @RequestBody @Valid TeamJoinRequestDTO requestDTO,
             @AuthenticatedMember MemberDetails memberDetails) {
@@ -102,32 +88,14 @@ public class MemberTeamController {
         return ResponseEntity.ok("팀에 성공적으로 참가했습니다.");
     }
 
-
-//    @DeleteMapping("/{teamId}/leave")
-//    public ResponseEntity<String> leaveTeam(
-//            @PathVariable Long teamId,
-//            @RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
-//        // 1. Authorization 헤더 유효성 검사
-//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-//            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-//        }
-//
-//        // 2. Bearer 토큰 추출
-//        String token = authorizationHeader.replace("Bearer ", "").trim();
-//        System.out.println("2. 추출된 토큰: " + token); // 토큰 확인 로그
-//
-//        // 3. 토큰으로 사용자 ID 추출
-//        Long memberId = jwtTokenProvider.getUserId(token);
-//        System.out.println("3. 추출된 사용자 ID: " + memberId); // 사용자 ID 확인 로그
-//
-//        // 4. 팀에서 멤버 제거 서비스 호출
-//        memberTeamService.removeMemberFromTeam(teamId, memberId);
-//
-//        // 5. 성공 응답 반환
-//        return ResponseEntity.ok("팀에서 성공적으로 나갔습니다.");
-//    }
-
     @DeleteMapping("/{teamId}/leave")
+    @Operation(summary = "팀 나가기", description = "팀에서 나갑니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 팀에서 나감"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "팀 또는 사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<String> leaveTeam(
             @PathVariable Long teamId,
             @AuthenticatedMember MemberDetails memberDetails) {
@@ -145,9 +113,15 @@ public class MemberTeamController {
         return ResponseEntity.ok("팀에서 성공적으로 나갔습니다.");
     }
 
-
     // 색상 변경
     @PutMapping("/color")
+    @Operation(summary = "색상 변경", description = "팀에서 사용자의 색상을 변경합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "색상 변경 완료"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "팀 또는 사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<String> updateColor(@RequestBody UpdateColorRequestDto updateColorRequestDto){
         memberTeamService.updateColor(updateColorRequestDto.getMemberId(), updateColorRequestDto.getTeamId(), updateColorRequestDto.getNewColor());
         return ResponseEntity.ok("색상 변경 완료");
@@ -155,12 +129,26 @@ public class MemberTeamController {
 
     // 팀 색상 조회
     @GetMapping("/color")
+    @Operation(summary = "팀 색상 조회", description = "특정 팀에서 사용자의 색상을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 색상 반환"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "팀 또는 사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<String> getTeamColor(@RequestParam Long memberId, @RequestParam Long teamId) {
         String color = memberTeamService.getTeamColor(memberId, teamId);
         return ResponseEntity.ok(color);
     }
 
     @GetMapping("/all-color")
+    @Operation(summary = "모든 팀 색상 조회", description = "사용자가 속한 모든 팀의 색상을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 색상 목록 반환"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<Map<Long, String>> getAllColor(@RequestParam Long memberId){
         Map<Long, String> color = memberTeamService.getAllTeamColor(memberId);
         return ResponseEntity.ok(color);
