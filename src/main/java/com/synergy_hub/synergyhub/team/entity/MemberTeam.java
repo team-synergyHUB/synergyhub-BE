@@ -18,12 +18,6 @@ public class MemberTeam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(name = "member_id", nullable = false)
-//    private Long memberId; // 멤버 ID
-
-//    @Column(nullable = false, length = 7)
-//    private String color; // 팀 색상
-
     @Column(nullable = false)
     private String color = "defaultColor"; // 기본값 설정
 
@@ -33,7 +27,6 @@ public class MemberTeam {
     private Team team; // 연결된 팀
 
     @ManyToOne
-//    @Column(name = "member_id", nullable = false)
     @JoinColumn(name = "member_id")
     private Member member; // 멤버 ID
 

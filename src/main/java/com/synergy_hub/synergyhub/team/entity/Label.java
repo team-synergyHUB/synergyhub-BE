@@ -31,8 +31,8 @@ public class Label {
 
     // 엔티티 필드 값을 변경하는 메서드
     public void update(String name, String color) {
-        this.name = name; // 라벨 이름 변경
-        this.color = color; // 라벨 색상 변경
+        this.name = name;
+        this.color = color;
     }
 
     // 팀 추가 메서드

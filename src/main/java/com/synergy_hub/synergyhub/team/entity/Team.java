@@ -1,10 +1,6 @@
 package com.synergy_hub.synergyhub.team.entity;
 
-import com.synergy_hub.synergyhub.calendar.repository.CalendarRepository;
 import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
-import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
-import com.synergy_hub.synergyhub.team.repository.LabelRepository;
-import com.synergy_hub.synergyhub.team.repository.MemberTeamRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,26 +69,9 @@ public class Team {
         return code;
     }
 
-    // 초대 코드 중복 검증 로직 추가 (선택 사항)
-    // teamRepository를 주입받아 데이터베이스에 중복이 없도록 확인
-    private String generateUniqueInviteCode(TeamRepository teamRepository) {
-        String code;
-        do {
-            code = RandomStringUtils.randomAlphanumeric(36); // Apache Commons Lang 사용
-        } while (teamRepository.existsByInviteCode(code)); // 중복 확인
-        return code;
-    }
-
     // 팀 삭제 상태 설정
     public void markAsDeleted() {
         this.isDeleted = true;
-    }
-
-    // 팀 이름 및 라벨 목록 업데이트
-    public void updateTeam(String name, List<Label> newLabels) {
-        this.name = name; // 팀 이름 업데이트
-        this.labels.clear(); // 기존 라벨 삭제
-        this.labels.addAll(newLabels); // 새 라벨 추가
     }
 
     // 라벨 추가 메서드

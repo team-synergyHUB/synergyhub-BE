@@ -10,5 +10,4 @@ public interface TeamLabelRepository extends JpaRepository<TeamLabel, Long> {
 
     void deleteByLabelId(@Param("labelId") Long labelId);
 
-    void deleteByTeamId(@Param("teamId") Long teamId);
 }
