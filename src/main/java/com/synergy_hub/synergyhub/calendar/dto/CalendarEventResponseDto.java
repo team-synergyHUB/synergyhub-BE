@@ -25,4 +25,7 @@ public class CalendarEventResponseDto {
 
     @Schema(description = "캘린더 이벤트 색상", example = "#FF5733")
     private String color;
+
+    @Schema(description = "팀 이름", example = "1팀")
+    private String teamName;
 }
