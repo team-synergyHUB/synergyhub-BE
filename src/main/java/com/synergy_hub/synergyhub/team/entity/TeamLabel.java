@@ -21,9 +21,4 @@ public class TeamLabel {
     @ManyToOne
     @JoinColumn(name = "label_id", nullable = false)
     private Label label;
-
-    public TeamLabel(Team team, Label label) {
-        this.team = team;
-        this.label = label;
-    }
 }
