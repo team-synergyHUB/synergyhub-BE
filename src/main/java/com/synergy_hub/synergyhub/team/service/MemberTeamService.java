@@ -92,11 +92,6 @@ public class MemberTeamService {
     }
 
 
-
-
-
-
-
     //색상 변경
     public void updateColor(Long memberId, Long teamId, String newColor){
         MemberTeam memberTeam = memberTeamRepository.findByMemberIdAndTeamId(memberId, teamId)
