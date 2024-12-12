@@ -195,7 +195,8 @@ public class TeamService {
     // 팀 접근 검증 메서드
     public boolean teamAccessValidator(Long teamId, Member currentMember) {
         // 멤버-팀 관계 검증
-        return memberTeamRepository.existsByTeamAndMember(teamRepository.findById(teamId).orElseThrow(), currentMember);
+        return memberTeamRepository.existsByTeamAndMember(teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)), currentMember);
     }
 
     // 팀 접근 검증 메서드

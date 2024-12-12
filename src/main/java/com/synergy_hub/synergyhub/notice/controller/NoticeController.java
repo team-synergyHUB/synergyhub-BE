@@ -48,9 +48,10 @@ public class NoticeController {
         Member currentMember = memberRepository.findById(currentMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
+        // 팀 접근 검증
         teamService.teamAccessValidator(teamId, currentMember);
 
-        // teamId를 별도로 전달
+        // 공지사항 생성
         NoticeResponseDTO response = noticeService.createNotice(requestDTO, currentMember, teamId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -62,7 +63,9 @@ public class NoticeController {
             @PathVariable Long id,
             @RequestBody @Valid NoticeUpdateRequestDTO requestDTO) {
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
-        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         NoticeResponseDTO response = noticeService.updateNotice(id, requestDTO, currentMember);
         return ResponseEntity.ok(response);
     }
@@ -72,7 +75,9 @@ public class NoticeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long id) {
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
-        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+        Member currentMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         noticeService.deleteNotice(id, currentMember);
         return ResponseEntity.noContent().build();
     }
@@ -97,6 +102,9 @@ public class NoticeController {
 
         Long currentMemberId = MemberController.getAuthenticationMemberId(); // 인증된 현재 사용자 가져오기
         Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+
+        // 팀 접근 검증
+        teamService.teamAccessValidator(teamId, currentMember);
 
         Page<NoticeResponseDTO> notices = noticeService.getNoticesByTeam(currentMember, teamId, page, size, sortField, sortDirection);
         return ResponseEntity.ok(notices);
