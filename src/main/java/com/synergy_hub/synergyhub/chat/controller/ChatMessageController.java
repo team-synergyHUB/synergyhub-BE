@@ -2,7 +2,10 @@ package com.synergy_hub.synergyhub.chat.controller;
 
 import com.synergy_hub.synergyhub.chat.dto.ChatMessageRequestDto;
 import com.synergy_hub.synergyhub.chat.dto.ChatMessageResponseDto;
+import com.synergy_hub.synergyhub.chat.entity.ChatMessage.MessageType;
 import com.synergy_hub.synergyhub.chat.service.ChatMessageService;
+import com.synergy_hub.synergyhub.config.argumentresolver.AuthenticatedMember;
+import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.entity.MemberDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,29 +40,71 @@ public class ChatMessageController {
     public void sendMessage(
             @DestinationVariable("chatRoomId") Long chatRoomId,
             @RequestBody  ChatMessageRequestDto requestDto,
-         Authentication authentication
+            Authentication authentication
     ) {
-        // 요청 데이터 로깅
-        log.info("회원 닉네임 : {}",  ((MemberDetails) authentication.getPrincipal()).getNickname());
-        MemberDetails memberDetails = ((MemberDetails) authentication.getPrincipal());
-        Long userId = memberDetails.getUserId();
-        log.info("회원 ID : {}", userId);
 
-        log.info("요청 메세지: {}", requestDto.getMessage());
+        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
 
-//        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = memberDetails.getUsername(); // Principal에서 memberId를 가져온다고 가정
-        ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(chatRoomId, requestDto, email);
+        log.info("회원 이메일 : {}", memberDetails.getUsername());
+        log.info("회원 ID : {}", memberDetails.getUserId());
+        log.info("chatRoomId: {}", chatRoomId);
+
+        // 메시지 타입이 'ENTER' 이고 이미 존재하면 처리 중단
+        if ( requestDto.getType() == MessageType.ENTER && chatMessageService.hasEnterType(memberDetails.getUserId(), chatRoomId)) {
+            log.info("User {} already sent ENTER type message to chatRoomId {}", memberDetails.getUsername(), chatRoomId);
+            return;
+        }
 
 
-        // 응답 데이터 로깅
-        System.out.println("Created ChatMessageResponseDto: " + createdMessage);
+        ChatMessageResponseDto createdMessage = chatMessageService.sendMessage(
+            chatRoomId, requestDto, memberDetails.getUsername());
 
-        System.out.println("CM = " + createdMessage);
-        System.out.println("rqDTO = " + requestDto);
+        log.info("응답 메세지: {}", createdMessage.getMessage());
 
         // 생성된 메시지 브로드캐스트
         messagingTemplate.convertAndSend("/topic/messages/" + chatRoomId, createdMessage);
+    }
+
+    // 채팅방 별 메시지 조회
+    @GetMapping("/chat/messageList/{chatRoomId}")
+    public void getMessagesByRoom(
+        @DestinationVariable("chatRoomId") Long chatRoomId) {
+        // 채팅방 메시지 조회
+        List<ChatMessageResponseDto> messages = chatMessageService.getChatMessages(chatRoomId);
+
+        // 조회된 메시지를 브로드캐스트
+        messagingTemplate.convertAndSend("/topic/messages-room/" + chatRoomId, messages);
+    }
+
+    /**
+     * 특정 채팅방의 모든 메시지 조회 (REST API 방식)
+     */
+    @GetMapping("/chat/messageHistory/{chatRoomId}")
+    public ResponseEntity<List<ChatMessageResponseDto>> getChatMessages(
+        @PathVariable("chatRoomId") Long chatRoomId,
+        @AuthenticatedMember MemberDetails memberDetails) {
+
+        log.info("messageHistory Controller");
+//        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+
+        List<ChatMessageResponseDto> messageHistory = chatMessageService.getMessageHistory(
+            chatRoomId, memberDetails.getUserId());
+
+        return ResponseEntity.ok(messageHistory);
+
+//        List<ChatMessageResponseDto> chatMessages = chatMessageService.getChatMessages(chatRoomId);
+//        return ResponseEntity.ok(chatMessages);
+    }
+
+
+    /**
+     * 특정 메시지 조회 (REST API 방식)
+     */
+    @GetMapping("/message/{messageId}")
+    public ResponseEntity<ChatMessageResponseDto> getMessageById(
+        @PathVariable("messageId") Long messageId) {
+        ChatMessageResponseDto message = chatMessageService.getMessageById(messageId);
+        return ResponseEntity.ok(message);
     }
 
     // 메시지 삭제
@@ -75,51 +121,5 @@ public class ChatMessageController {
         // 삭제된 메시지 ID를 브로드캐스트
         messagingTemplate.convertAndSend("/topic/message-deletions/" + chatRoomId, deletedMessageId);
     }
-
-//        // 채팅방 별 메시지 조회
-//    @MessageMapping("/chat/message/getMessagesByRoom/{chatRoomId}")
-//    public void getMessagesByRoom(
-//            @DestinationVariable("chatRoomId") Long chatRoomId,
-//            @Header("user") Principal principal) {
-//        // 채팅방 메시지 조회
-//        List<ChatMessageResponseDto> messages = chatMessageService.getChatMessages(chatRoomId);
-//
-//        // 조회된 메시지를 브로드캐스트
-//        messagingTemplate.convertAndSend("/topic/messages-room/" + chatRoomId, messages);
-//    }
-//
-//    // 메시지 ID로 메시지 조회
-//    @MessageMapping("/chat/message/getMessageById/{messageId}")
-//    public void getMessageById(
-//            @DestinationVariable("messageId") Long messageId,
-//            @Header("user") Principal principal) {
-//        // 특정 메시지 조회
-//        ChatMessageResponseDto message = chatMessageService.getMessageById(messageId);
-//
-//        // 조회된 메시지를 브로드캐스트
-//        messagingTemplate.convertAndSend("/topic/message-id/" + messageId, message);
-//    }
-
-
-    /**
-     * 특정 채팅방의 모든 메시지 조회 (REST API 방식)
-     */
-    @GetMapping("/chat/message/history/{chatRoomId}")
-    public ResponseEntity<List<ChatMessageResponseDto>> getChatMessages(
-            @PathVariable("chatRoomId") Long chatRoomId) {
-        List<ChatMessageResponseDto> chatMessages = chatMessageService.getChatMessages(chatRoomId);
-        return ResponseEntity.ok(chatMessages);
-    }
-
-    /**
-     * 특정 메시지 조회 (REST API 방식)
-     */
-    @GetMapping("/message/{messageId}")
-    public ResponseEntity<ChatMessageResponseDto> getMessageById(
-            @PathVariable("messageId") Long messageId) {
-        ChatMessageResponseDto message = chatMessageService.getMessageById(messageId);
-        return ResponseEntity.ok(message);
-    }
-
 
 }
