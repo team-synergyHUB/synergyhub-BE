@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -51,16 +52,20 @@ public class MemberDetails implements UserDetails, OAuth2User {
         return member.getNickname();
     }
 
+    public MemberRole getRole() {
+        return member.getRole();
+    }
+
+    public LoginType getLoginType() {
+        return member.getLoginType();
+    }
+
     public String getProfileImageUrl() {
         return member.getProfileImageUrl();
     }
 
     public Long getUserId() {
         return member.getId();
-    }
-
-    public Member getMember() {
-        return this.member;
     }
 
     @Override

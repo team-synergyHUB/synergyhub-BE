@@ -13,12 +13,15 @@ import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.atn.SemanticContext.Empty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -36,7 +39,7 @@ public class ChatMessageService {
             .chatRoom(chatRoom)
             .member(member)
             .type(requestDto.getType())
-            .message(requestDto.getMessage()) // ChatMessageContent에서 텍스트 추출
+            .message(requestDto.getMessage().getText()) // ChatMessageContent에서 텍스트 추출
             .createdAt(LocalDateTime.now())
             .build();
 
@@ -62,6 +65,8 @@ public class ChatMessageService {
 
     // 채팅방 별 메시지 조회
     public List<ChatMessageResponseDto> getChatMessages(Long chatRoomId) {
+
+
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
 
@@ -71,11 +76,30 @@ public class ChatMessageService {
                 .toList();
     }
 
+    public List<ChatMessageResponseDto> getMessageHistory(Long chatRoomId, Long memberId) {
+
+        boolean hasJoined = chatMessageRepository.hasJoined(memberId, chatRoomId);
+
+        if (!hasJoined) {
+            log.info("messageHistory X - 새로운 회원");
+            return List.of();
+        }
+
+        return chatMessageRepository.findHistoryByChatRoomId(memberId, chatRoomId);
+    }
+
+    public boolean hasEnterType(Long memberId, Long chatRoomId) {
+        return chatMessageRepository.hasEnterType(memberId, chatRoomId);
+    }
+
+
     // 메시지 ID로 메시지 조회
     public ChatMessageResponseDto getMessageById(Long messageId) {
         ChatMessage chatMessage = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
         return chatMessageMapper.toChatMessageResponseDto(chatMessage);
     }
+
+
 
 }

@@ -14,6 +14,7 @@ import com.synergy_hub.synergyhub.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 
+import com.synergy_hub.synergyhub.team.service.TeamService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,18 +29,25 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
+    private final TeamService teamService;
 
     public NoticeService(
             NoticeRepository noticeRepository,
             TeamRepository teamRepository,
-            MemberRepository memberRepository) {
+            MemberRepository memberRepository,
+            TeamService teamService) {
         this.noticeRepository = noticeRepository;
         this.teamRepository = teamRepository;
         this.memberRepository = memberRepository;
+        this.teamService = teamService;
     }
 
     // 공지사항 생성
     public NoticeResponseDTO createNotice(NoticeCreateRequestDTO createRequestDTO, Member currentUser, Long teamId) {
+        if (!teamService.teamAccessValidator(teamId, currentUser)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
+
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
@@ -48,8 +56,8 @@ public class NoticeService {
                 .title(createRequestDTO.getTitle())
                 .content(createRequestDTO.getContent())
                 .imageUrl(createRequestDTO.getImageUrl())
-                .team(team)                      // teamId로 조회된 팀 설정
-                .member(currentUser)             // 작성자 설정
+                .team(team)
+                .member(currentUser)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -63,12 +71,14 @@ public class NoticeService {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        // 작성자 권한 확인
+        if (!teamService.teamAccessValidator(notice.getTeam().getId(), currentUser)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
+
         if (!notice.getMember().getId().equals(currentUser.getId())) {
             throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
         }
 
-        // 수정 로직
         notice.setTitle(updateRequestDTO.getTitle());
         notice.setContent(updateRequestDTO.getContent());
         notice.setImageUrl(updateRequestDTO.getImageUrl());
@@ -83,18 +93,24 @@ public class NoticeService {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        // 작성자 권한 확인
+        if (!teamService.teamAccessValidator(notice.getTeam().getId(), currentUser)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
+
         if (!notice.getMember().getId().equals(currentUser.getId())) {
             throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
         }
 
-        // 소프트 삭제 처리
         notice.setDeletedAt(LocalDateTime.now());
         noticeRepository.save(notice);
     }
 
-    // 팀별 공지사항 조회 (페이지네이션 및 정렬)
-    public Page<NoticeResponseDTO> getNoticesByTeam(Long teamId, int page, int size, String sortField, String sortDirection) {
+    // 팀별 공지사항 조회
+    public Page<NoticeResponseDTO> getNoticesByTeam(Member currentUser, Long teamId, int page, int size, String sortField, String sortDirection) {
+        if (!teamService.teamAccessValidator(teamId, currentUser)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
+
         Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
 
@@ -103,9 +119,13 @@ public class NoticeService {
     }
 
     // 특정 공지사항 조회
-    public NoticeResponseDTO getNotice(Long id) {
+    public NoticeResponseDTO getNotice(Long id, Member currentUser) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        if (!teamService.teamAccessValidator(notice.getTeam().getId(), currentUser)) {
+            throw new CustomException(ErrorCode.USER_NOT_AUTHORIZED);
+        }
 
         return NoticeResponseDTO.fromEntity(notice);
     }

@@ -93,8 +93,8 @@ public class JwtTokenProvider {
 
 
     //토큰 생성
-    public String createJwtToken(String category, String username, Long userId, String role,
-        Long expiredMs, String loginType) {
+    public String createJwtToken(
+        String category, String username, Long userId, String role, Long expiredMs, String loginType) {
 
         return Jwts.builder()
             .claim("category", category)
@@ -112,7 +112,6 @@ public class JwtTokenProvider {
 
         Long userId = getPayLoadAsLong(accessToken, "userId");
         String username = getPayLoad(accessToken, "username");
-        String loginType = getPayLoad(accessToken, "loginType");
         String role = getPayLoad(accessToken, "role");
 
         Collection<? extends GrantedAuthority> authorities =

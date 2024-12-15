@@ -90,7 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //토큰 생성
         String access = jwtTokenProvider.createJwtToken(
-            "access", username, userId, role, 600000L, "common"); //10분
+            "access", username, userId, role, 1200000L, "common"); //10분
 
         String refresh = jwtTokenProvider.createJwtToken(   //24시간
             "refresh", username, userId, role, 86400000L, "common");

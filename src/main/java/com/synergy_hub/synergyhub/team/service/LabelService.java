@@ -6,8 +6,6 @@ import com.synergy_hub.synergyhub.team.dto.LabelRequestDTO;
 import com.synergy_hub.synergyhub.team.dto.LabelResponseDTO;
 import com.synergy_hub.synergyhub.team.entity.Label;
 import com.synergy_hub.synergyhub.team.repository.LabelRepository;
-//import com.synergy_hub.synergyhub.team.repository.TeamLabelRepository;
-//import com.synergy_hub.synergyhub.team.repository.TeamLabelRepository;
 import com.synergy_hub.synergyhub.team.repository.TeamLabelRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +23,6 @@ public class LabelService {
         this.labelRepository = labelRepository;
         this.teamLabelRepository = teamLabelRepository;
     }
-//    public LabelService(LabelRepository labelRepository) {
-//        this.labelRepository = labelRepository;
-//    }
 
     // 라벨 생성
     public LabelResponseDTO createLabel(LabelRequestDTO request) {

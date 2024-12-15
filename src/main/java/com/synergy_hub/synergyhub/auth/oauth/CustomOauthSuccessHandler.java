@@ -46,10 +46,10 @@ public class CustomOauthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String role = auth.getAuthority();
 
         String access = jwtTokenProvider.createJwtToken(
-            "access", email, userId, role, 60 * 10 * 1000L, "social");
+            "access", email, userId, role, 60 * 20 * 1000L, "social");
 
         String refresh = jwtTokenProvider.createJwtToken(
-            "refresh", email, userId, role, 60 * 10 * 1000L, "social");
+            "refresh", email, userId, role, 86400000L, "social");
 
         Date date = new Date(System.currentTimeMillis() + 86400000L);
         refreshService.saveRefresh(email, refresh, date.toString());

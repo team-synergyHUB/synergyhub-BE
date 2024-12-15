@@ -1,15 +1,17 @@
 package com.synergy_hub.synergyhub.comment.entity;
 
-import com.synergy_hub.synergyhub.notice.entity.Notice;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "comment")
 public class Comment {
 
@@ -18,12 +20,13 @@ public class Comment {
     @Column(name = "comment_id")
     private Long commentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notice_id", nullable = false)
-    private Notice notice;
+    @Column(name = "notice_id", nullable = false)
+    private Long noticeId;
 
     @Column(name = "member_id", nullable = false)
     private Long memberId;
+
+    private String nickname;
 
     @Column(name = "team_id", nullable = false)
     private Long teamId;
@@ -50,4 +53,3 @@ public class Comment {
         this.updatedAt = LocalDateTime.now();
     }
 }
-

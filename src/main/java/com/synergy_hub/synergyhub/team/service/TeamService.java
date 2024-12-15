@@ -6,8 +6,6 @@ import com.synergy_hub.synergyhub.chat.entity.ChatRoom;
 import com.synergy_hub.synergyhub.chat.repository.ChatRoomRepository;
 import com.synergy_hub.synergyhub.global.exception.CustomException;
 import com.synergy_hub.synergyhub.global.exception.ErrorCode;
-import com.synergy_hub.synergyhub.member.dto.MemberResponseDto;
-import com.synergy_hub.synergyhub.member.dto.TeamMemberResponseDto;
 import com.synergy_hub.synergyhub.member.entity.Member;
 import com.synergy_hub.synergyhub.member.repository.MemberRepository;
 import com.synergy_hub.synergyhub.team.dto.TeamCreateResponseDTO;
@@ -117,8 +115,6 @@ public class TeamService {
         return new TeamCreateResponseDTO(savedTeam, savedCalendar, savedChatRoom, memberId);
     }
 
-
-
     @Transactional
     public TeamResponseDTO updateTeam(Long teamId, TeamRequestDTO request) {
         // 팀 조회
@@ -191,4 +187,20 @@ public class TeamService {
 
         return team.getInviteCode();
     }
+
+    // 팀 접근 검증 메서드
+    public boolean teamAccessValidator(Long teamId, Member currentMember) {
+        // 멤버-팀 관계 검증
+        return memberTeamRepository.existsByTeamAndMember(teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)), currentMember);
+    }
+
+    // 팀 접근 검증 메서드
+    private void validateTeamAccess(Long teamId, Member currentMember) {
+        boolean hasAccess = memberTeamRepository.existsByTeamAndMemberId(teamRepository.findById(teamId).orElseThrow(), currentMember.getId());
+        if (!hasAccess) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_TEAM_ACCESS);
+        }
+    }
 }
+

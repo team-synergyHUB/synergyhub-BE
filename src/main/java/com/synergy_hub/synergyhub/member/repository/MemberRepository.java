@@ -28,5 +28,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Query("SELECT mt.team.id FROM MemberTeam mt WHERE mt.member.id = :memberId")
     List<Long> findTeamIdsByMemberId(@Param("memberId") Long memberId);
 
-
+    // memberId를 통해 memberNickname을 가져오는 메소드 추가
+    @Query("SELECT m.nickname FROM Member m WHERE m.id = :memberId AND m.deletedAt IS NULL")
+    Optional<String> findNicknameByMemberId(@Param("memberId") Long memberId);
 }
