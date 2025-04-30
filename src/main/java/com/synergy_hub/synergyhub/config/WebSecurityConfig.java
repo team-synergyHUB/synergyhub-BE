@@ -14,6 +14,7 @@ import com.synergy_hub.synergyhub.auth.jwt.JwtAuthenticationFilter;
 import com.synergy_hub.synergyhub.auth.jwt.JwtTokenProvider;
 import com.synergy_hub.synergyhub.auth.jwt.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +53,7 @@ public class WebSecurityConfig {
     @Bean
     public WebSecurityCustomizer webCustomizer() {
         return (web) -> web.ignoring()
-            .requestMatchers(toH2Console()) // H2 콘솔 무시
+//            .requestMatchers(toH2Console()) // 배포 환경에서는 H2 콘솔 안씀!!
             .requestMatchers("/static/**"); // 정적 리소스 무시
     }
 
@@ -99,7 +100,10 @@ public class WebSecurityConfig {
 
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                configuration.setAllowedOrigins(
+                    Arrays.asList("http://localhost:3000", "https://www.synergyhub.store",
+                        "https://synergyhub.store"));
+
                 configuration.setAllowedMethods(Collections.singletonList("*"));
                 configuration.setAllowCredentials(true);
                 configuration.setAllowedHeaders(Collections.singletonList("*"));
