@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/labels")
+@RequestMapping("/labels")
 @RequiredArgsConstructor
 @Tag(name = "Label API", description = "라벨 관리 API") // Swagger 태그
 public class LabelController {
