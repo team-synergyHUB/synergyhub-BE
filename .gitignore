@@ -47,3 +47,5 @@ output.log
 
 ### Generated ###
 /src/main/generated
+
+.env
